@@ -22,6 +22,11 @@ public class TetQueue<T extends Tetromino> implements Paintable {
     private Queue<T> tetQueue;
 
     /**
+     * The TetrominoFactory to use to create the tetrominos
+     */
+    private TetrominoFactory<T> tf;
+
+    /**
      * The amount of pieces you can see in the outlook
      */
     private final int outlook;
@@ -57,6 +62,7 @@ public class TetQueue<T extends Tetromino> implements Paintable {
         tetQueue = new LinkedList<>();
         this.outlook = outlook;
         isLeft = true;
+        tf = null;
     }
 
     @Override
@@ -66,10 +72,9 @@ public class TetQueue<T extends Tetromino> implements Paintable {
     /**
      * Adds a new bag of tetrominos generated from the given TetrominoFactory
      *
-     * @param tf the TetrominoFactory to use to create the tetrominos
      * @see TetrominoFactory#createRandomBag()
      */
-    public void addBag(TetrominoFactory<T> tf) {
+    public void addBag() {
         tetQueue.addAll(tf.createRandomBag());
     }
 
@@ -77,11 +82,10 @@ public class TetQueue<T extends Tetromino> implements Paintable {
      * Adds a new bag of tetrominos as per the given String using the given
      * TetrominoFactory.
      *
-     * @param tf the TetrominoFactory to use to create the tetrominos
      * @param bag the String representation of the bag to add
      * @see TetrominoFactory#createBagOf(java.lang.String)
      */
-    public void addBag(TetrominoFactory<T> tf, String bag) {
+    public void addBag(String bag) {
         tetQueue.addAll(tf.createBagOf(bag));
     }
 
@@ -92,5 +96,46 @@ public class TetQueue<T extends Tetromino> implements Paintable {
      */
     void addTetromino(T t) {
         tetQueue.add(t);
+    }
+
+    /**
+     * Removes the next tetromino from the queue. If the queue is empty, this
+     * method throws an exception.
+     *
+     * @return the tetromino removed from the head of this queue
+     */
+    public T removeTetromino() {
+        T output = tetQueue.remove();
+        if (tetQueue.size() < outlook) {
+            addBag();
+        }
+        return output;
+    }
+
+    /**
+     * Sets the TetrominoFactory to use for tetromino generation
+     *
+     * @param tf the TetrominoFactory to use for tetromino generation
+     */
+    public void setTetrominoFactory(TetrominoFactory<T> tf) {
+        this.tf = tf;
+    }
+
+    /**
+     * Returns the currently used TetrominoFactory being used for tetromino
+     * generation
+     *
+     * @return the currently used TetrominoFactory being used for tetromino
+     * generation
+     */
+    public TetrominoFactory<T> getTetrominoFactory() {
+        return tf;
+    }
+    
+    /**
+     * Clears all tetrominos from this queue.
+     */
+    public void clearQueue() {
+        tetQueue.clear();
     }
 }

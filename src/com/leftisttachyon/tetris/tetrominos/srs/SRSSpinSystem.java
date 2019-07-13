@@ -1,6 +1,6 @@
 package com.leftisttachyon.tetris.tetrominos.srs;
 
-import com.leftisttachyon.tetris.Matrix;
+import com.leftisttachyon.tetris.TetrisMatrix;
 import com.leftisttachyon.tetris.SpinSystem;
 import static com.leftisttachyon.tetris.tetrominos.Tetromino.*;
 
@@ -12,8 +12,28 @@ import static com.leftisttachyon.tetris.tetrominos.Tetromino.*;
  */
 public class SRSSpinSystem extends SpinSystem<SRSTet> {
 
+    /**
+     * The only object to be created
+     */
+    private static final SRSSpinSystem SINGLETON = new SRSSpinSystem();
+
+    /**
+     * Returns an instance of an SRSSpinSystem
+     *
+     * @return an instance of an SRSSpinSystem
+     */
+    public static SRSSpinSystem getSpinSystem() {
+        return SINGLETON;
+    }
+
+    /**
+     * No creation for you!
+     */
+    private SRSSpinSystem() {
+    }
+
     @Override
-    public void rotateRight(SRSTet t, Matrix m) {
+    public void rotateRight(SRSTet t, TetrisMatrix m) {
         t.rotateRight();
         if (!t.intersects(m)) {
             return;
@@ -177,7 +197,7 @@ public class SRSSpinSystem extends SpinSystem<SRSTet> {
     }
 
     @Override
-    public void rotateLeft(SRSTet t, Matrix m) {
+    public void rotateLeft(SRSTet t, TetrisMatrix m) {
         t.rotateLeft();
         if (!t.intersects(m)) {
             return;

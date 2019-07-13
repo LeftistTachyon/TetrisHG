@@ -21,35 +21,35 @@ public final class SRS_I extends AbstractTetromino implements TetI, SRSTet {
         {0, 0, 0, 0},
         {0, 0, 0, 0}
     };
-
+        
     /**
      * The RIGHT state
      */
     private static final int[][] RIGHT_STATE = {
-        {0, 0, 1, 0},
-        {0, 0, 1, 0},
-        {0, 0, 1, 0},
-        {0, 0, 1, 0}
+            {0, 0, 1, 0},
+            {0, 0, 1, 0},
+            {0, 0, 1, 0},
+            {0, 0, 1, 0}
     };
-
+        
     /**
      * The DOWN state
      */
     private static final int[][] DOWN_STATE = {
-        {0, 0, 0, 0},
-        {0, 0, 0, 0},
-        {1, 1, 1, 1},
-        {0, 0, 0, 0}
+            {0, 0, 0, 0},
+            {0, 0, 0, 0},
+            {1, 1, 1, 1},
+            {0, 0, 0, 0}
     };
-
+        
     /**
      * The LEFT state
      */
     private static final int[][] LEFT_STATE = {
-        {0, 1, 0, 0},
-        {0, 1, 0, 0},
-        {0, 1, 0, 0},
-        {0, 1, 0, 0}
+            {0, 1, 0, 0},
+            {0, 1, 0, 0},
+            {0, 1, 0, 0},
+            {0, 1, 0, 0}
     };
 
     @Override

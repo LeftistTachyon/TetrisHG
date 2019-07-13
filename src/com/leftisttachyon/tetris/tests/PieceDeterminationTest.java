@@ -18,7 +18,7 @@ public class PieceDeterminationTest {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        TetrominoFactory factory = new ARSTetrominoFactory();
+        TetrominoFactory factory = ARSTetrominoFactory.getTetrominoFactory();
         
         System.out.print("Generating... ");
         final int testLength = 1_000_000;

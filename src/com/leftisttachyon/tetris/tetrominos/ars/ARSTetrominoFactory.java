@@ -10,6 +10,27 @@ import com.leftisttachyon.tetris.tetrominos.TetrominoFactory;
  */
 public class ARSTetrominoFactory extends TetrominoFactory<ARSTet> {
 
+    /**
+     * No creation for you!
+     */
+    private ARSTetrominoFactory() {
+    }
+
+    /**
+     * The only object to be created
+     */
+    private static final ARSTetrominoFactory SINGLETON
+            = new ARSTetrominoFactory();
+
+    /**
+     * Returns an instance of an ARSTetrominoFactory
+     *
+     * @return an instance of an ARSTetrominoFactory
+     */
+    public static ARSTetrominoFactory getTetrominoFactory() {
+        return SINGLETON;
+    }
+
     @Override
     public ARSTet createTetrominoOf(String type) {
         switch (type) {

@@ -10,6 +10,27 @@ import com.leftisttachyon.tetris.tetrominos.TetrominoFactory;
  */
 public class SRSTetrominoFactory extends TetrominoFactory<SRSTet> {
 
+    /**
+     * No creation for you!
+     */
+    private SRSTetrominoFactory() {
+    }
+
+    /**
+     * The only object to be created
+     */
+    private static final SRSTetrominoFactory SINGLETON
+            = new SRSTetrominoFactory();
+
+    /**
+     * Returns an instance of an SRSTetrominoFactory
+     *
+     * @return an instance of an SRSTetrominoFactory
+     */
+    public static SRSTetrominoFactory getTetrominoFactory() {
+        return SINGLETON;
+    }
+
     @Override
     public SRSTet createTetrominoOf(String type) {
         switch (type) {

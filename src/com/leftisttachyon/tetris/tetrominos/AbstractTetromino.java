@@ -1,6 +1,6 @@
 package com.leftisttachyon.tetris.tetrominos;
 
-import com.leftisttachyon.tetris.Matrix;
+import com.leftisttachyon.tetris.TetrisMatrix;
 
 /**
  * An implementing class of Tetromino that has more utility methods.
@@ -122,17 +122,17 @@ public abstract class AbstractTetromino implements Tetromino {
     }
 
     @Override
-    public boolean intersects(Matrix m) {
+    public boolean intersects(TetrisMatrix m) {
         return intersects(m, 0, 0);
     }
 
     @Override
-    public boolean intersects(Matrix m, int x_offset, int y_offset) {
+    public boolean intersects(TetrisMatrix m, int x_offset, int y_offset) {
         int[][] myMat = getState();
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
-                if (myMat[i][j] > 0
-                        && m.getBlock(y + i + y_offset, x + j + x_offset) > 0) {
+                if (myMat[j][i] > 0
+                        && m.getBlock(y + j + y_offset, x + i + x_offset) > 0) {
                     return true;
                 }
             }
@@ -155,5 +155,25 @@ public abstract class AbstractTetromino implements Tetromino {
     @Override
     public int getY() {
         return y;
+    }
+
+    @Override
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    @Override
+    public void setY(int y) {
+        this.y = y;
+    }
+
+    @Override
+    public void setRotation(int rotation) {
+        this.rotation = rotation;
+    }
+
+    @Override
+    public String toString() {
+        return getName() + " x=" + x + " y=" + y + " rotation=" + rotation;
     }
 }

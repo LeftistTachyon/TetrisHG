@@ -16,18 +16,18 @@ public abstract class SpinSystem<T extends Tetromino> {
      * once, taking into account kicks.
      *
      * @param t the tetromino to rotate
-     * @param m the Matrix the tetromino is being rotated in
+     * @param m the TetrisMatrix the tetromino is being rotated in
      */
-    public abstract void rotateRight(T t, Matrix m);
+    public abstract void rotateRight(T t, TetrisMatrix m);
 
     /**
      * Rotates the given tetromino in the counterclockwise direction (aka to the
      * left) once, taking into account kicks.
      *
      * @param t the tetromino to rotate
-     * @param m the Matrix the tetromino is being rotated in
+     * @param m the TetrisMatrix the tetromino is being rotated in
      */
-    public abstract void rotateLeft(T t, Matrix m);
+    public abstract void rotateLeft(T t, TetrisMatrix m);
 
     /**
      * Checks whether a kick will place the given tetromino out of bounds or if
@@ -39,7 +39,7 @@ public abstract class SpinSystem<T extends Tetromino> {
      * @param y_offset the offset of the kick in the y direction
      * @return whether the kick is valid or not
      */
-    protected boolean checkKick(T t, Matrix m, int x_offset, int y_offset) {
+    protected boolean checkKick(T t, TetrisMatrix m, int x_offset, int y_offset) {
         if (!t.intersects(m, x_offset, y_offset)) {
             t.transform(x_offset, y_offset);
             return true;

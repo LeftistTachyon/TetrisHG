@@ -11,7 +11,7 @@ import com.leftisttachyon.tetris.tetrominos.TetZ;
  */
 public final class SRS_Z extends AbstractTetromino implements TetZ, SRSTet {
     //red, so use 7
-
+    
     /**
      * The UP state
      */
@@ -21,7 +21,7 @@ public final class SRS_Z extends AbstractTetromino implements TetZ, SRSTet {
         {0, 0, 0, 0},
         {0, 0, 0, 0}
     };
-
+        
     /**
      * The RIGHT state
      */
@@ -31,7 +31,7 @@ public final class SRS_Z extends AbstractTetromino implements TetZ, SRSTet {
         {0, 7, 0, 0},
         {0, 0, 0, 0}
     };
-
+        
     /**
      * The DOWN state
      */
@@ -41,7 +41,7 @@ public final class SRS_Z extends AbstractTetromino implements TetZ, SRSTet {
         {0, 7, 7, 0},
         {0, 0, 0, 0}
     };
-
+        
     /**
      * The LEFT state
      */

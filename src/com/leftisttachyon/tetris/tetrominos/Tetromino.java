@@ -1,6 +1,6 @@
 package com.leftisttachyon.tetris.tetrominos;
 
-import com.leftisttachyon.tetris.Matrix;
+import com.leftisttachyon.tetris.TetrisMatrix;
 
 /**
  * An interface that represents a Tetris piece. (aka a tetromino)
@@ -218,31 +218,31 @@ public interface Tetromino {
     }
 
     /**
-     * Determines whether this tetromino intersects with the given Matrix with
-     * the internally stored position.
+     * Determines whether this tetromino intersects with the given TetrisMatrix with
+ the internally stored position.
      *
-     * @param m the Matrix to compare with
-     * @return whether this tetromino intersects with the given Matrix with the
-     * internally stored position
+     * @param m the TetrisMatrix to compare with
+     * @return whether this tetromino intersects with the given TetrisMatrix with the
+ internally stored position
      * @see #intersects(int[][])
      * @see #intersects(com.leftisttachyon.tetris.Matrix, int, int)
      */
-    boolean intersects(Matrix m);
+    boolean intersects(TetrisMatrix m);
 
     /**
-     * Determines whether this tetromino intersects with the given Matrix with
-     * the internally stored position with the offset factored in.
+     * Determines whether this tetromino intersects with the given TetrisMatrix with
+ the internally stored position with the offset factored in.
      *
-     * @param m the Matrix to compare with
+     * @param m the TetrisMatrix to compare with
      * @param x_offset the offset in the x direction
      * @param y_offset the offset in the y direction
-     * @return whether this tetromino intersects with the given Matrix with the
-     * internally stored position with the offset factored in
+     * @return whether this tetromino intersects with the given TetrisMatrix with the
+ internally stored position with the offset factored in
      * @see #intersects(int[][])
      * @see #intersects(com.leftisttachyon.tetris.Matrix)
      */
-    boolean intersects(Matrix m, int x_offset, int y_offset);
-    
+    boolean intersects(TetrisMatrix m, int x_offset, int y_offset);
+
     // cyan, blue, orange, yellow, green, purple, red
     /**
      * Number representing a cyan mino
@@ -288,4 +288,30 @@ public interface Tetromino {
      * Number representing no mino
      */
     public static final int EMPTY = 0;
+
+    /**
+     * Sets the current x value of this tetromino to the given integer.
+     *
+     * @param x the new x value of this tetromino
+     */
+    void setX(int x);
+
+    /**
+     * Sets the current y value of this tetromino to the given integer.
+     *
+     * @param y the new y value of this tetromino
+     */
+    void setY(int y);
+
+    /**
+     * Sets the current rotation state of this tetromino to the given one.
+     *
+     * @param rotation the new rotation state of this tetromino
+     */
+    void setRotation(int rotation);
+    
+    /**
+     * The size of each block/mino.
+     */
+    public static final int MINO_SIZE = 20;
 }

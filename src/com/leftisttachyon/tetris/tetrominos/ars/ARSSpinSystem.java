@@ -1,6 +1,6 @@
 package com.leftisttachyon.tetris.tetrominos.ars;
 
-import com.leftisttachyon.tetris.Matrix;
+import com.leftisttachyon.tetris.TetrisMatrix;
 import com.leftisttachyon.tetris.SpinSystem;
 import com.leftisttachyon.tetris.tetrominos.Tetromino;
 
@@ -12,8 +12,28 @@ import com.leftisttachyon.tetris.tetrominos.Tetromino;
  */
 public class ARSSpinSystem extends SpinSystem<ARSTet> {
 
+    /**
+     * The only object to be created
+     */
+    private static final ARSSpinSystem SINGLETON = new ARSSpinSystem();
+
+    /**
+     * Returns an instance of an ARSSpinSystem
+     *
+     * @return an instance of an ARSSpinSystem
+     */
+    public static ARSSpinSystem getSpinSystem() {
+        return SINGLETON;
+    }
+
+    /**
+     * No creation for you!
+     */
+    private ARSSpinSystem() {
+    }
+
     @Override
-    public void rotateRight(ARSTet t, Matrix m) {
+    public void rotateRight(ARSTet t, TetrisMatrix m) {
         if (!(t instanceof ARSTet)) {
             throw new IllegalArgumentException(
                     "Tried to rotate a non-ARS piece using ARS.");
@@ -49,7 +69,7 @@ public class ARSSpinSystem extends SpinSystem<ARSTet> {
     }
 
     @Override
-    public void rotateLeft(ARSTet t, Matrix m) {
+    public void rotateLeft(ARSTet t, TetrisMatrix m) {
         if (!(t instanceof ARSTet)) {
             throw new IllegalArgumentException(
                     "Tried to rotate a non-ARS piece using ARS.");
@@ -65,8 +85,8 @@ public class ARSSpinSystem extends SpinSystem<ARSTet> {
             t.rotateRight();
             return;
         }
-        
-        if (t instanceof ARS_L && t.getRotation() == Tetromino.DOWN 
+
+        if (t instanceof ARS_L && t.getRotation() == Tetromino.DOWN
                 && m.getBlock(t.getY(), t.getX()) == 0) {
             t.rotateRight();
             return;

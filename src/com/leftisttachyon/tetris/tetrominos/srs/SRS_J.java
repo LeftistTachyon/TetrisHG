@@ -11,7 +11,7 @@ import com.leftisttachyon.tetris.tetrominos.TetJ;
  */
 public final class SRS_J extends AbstractTetromino implements TetJ, SRSTet {
     // blue, so use 2
-
+    
     /**
      * The UP state
      */
@@ -21,7 +21,7 @@ public final class SRS_J extends AbstractTetromino implements TetJ, SRSTet {
         {0, 0, 0, 0},
         {0, 0, 0, 0}
     };
-
+        
     /**
      * The RIGHT state
      */
@@ -31,7 +31,7 @@ public final class SRS_J extends AbstractTetromino implements TetJ, SRSTet {
         {0, 2, 0, 0},
         {0, 0, 0, 0}
     };
-
+        
     /**
      * The DOWN state
      */
@@ -41,7 +41,7 @@ public final class SRS_J extends AbstractTetromino implements TetJ, SRSTet {
         {0, 0, 2, 0},
         {0, 0, 0, 0}
     };
-
+        
     /**
      * The LEFT state
      */

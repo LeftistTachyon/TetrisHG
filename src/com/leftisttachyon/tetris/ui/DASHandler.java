@@ -18,7 +18,7 @@ public class DASHandler extends KeyAdapter {
     /**
      * A HashMap that stores the pressed keys
      */
-    private HashMap<Integer, Integer> pressed;
+    private HashMap<Integer, int[]> pressed;
 
     /**
      * A HashMap that stores the DAS settings for each key
@@ -36,8 +36,8 @@ public class DASHandler extends KeyAdapter {
     @Override
     public void keyPressed(KeyEvent e) {
         int keyCode = e.getKeyCode();
-        if (keys.containsKey(keyCode) && pressed.get(keyCode) == -1) {
-            pressed.put(keyCode, keys.get(keyCode).x);
+        if (keys.containsKey(keyCode) && pressed.get(keyCode)[1] == -2) {
+            pressed.put(keyCode, new int[]{1, 0});
         }
     }
 
@@ -45,7 +45,7 @@ public class DASHandler extends KeyAdapter {
     public void keyReleased(KeyEvent e) {
         int keyCode = e.getKeyCode();
         if (keys.containsKey(keyCode)) {
-            pressed.put(keyCode, -1);
+            pressed.put(keyCode, new int[]{0, -2});
         }
     }
 
@@ -57,11 +57,11 @@ public class DASHandler extends KeyAdapter {
      * @param preferences a Point object that stores the preferences for the DAS
      * settings: the {@code x} portion represents the initial delay and the
      * {@code y} portion represents how many frames until it repeats (a value of
-     * 0 means no repeat)
+     * -1 means no repeat)
      */
-    public void addListener(int keycode, Point preferences) {
+    public void setListener(int keycode, Point preferences) {
         keys.put(keycode, preferences);
-        pressed.put(keycode, -1);
+        pressed.put(keycode, new int[]{0, -2});
     }
 
     /**
@@ -71,14 +71,51 @@ public class DASHandler extends KeyAdapter {
      * @return a HashSet of actions to perform
      */
     public HashSet<Integer> advanceFrame() {
+        // System.out.println("FS: " + pressed);
+
         HashSet<Integer> output = new HashSet<>();
-        for (Map.Entry<Integer, Integer> entry : pressed.entrySet()) {
-            entry.setValue(entry.getValue() - 1);
-            if (entry.getValue() == 0) {
-                entry.setValue(keys.get(entry.getKey()).y);
+        for (Map.Entry<Integer, int[]> entry : pressed.entrySet()) {
+            int value0 = entry.getValue()[0], value1 = entry.getValue()[1];
+            // System.out.println(entry.getKey() + ": " + value0 + ", " + value1);
+            if (value1 > 0) {
+                value1--;
+            }
+            if (value1 == 0) {
+                int temp;
+                Point pref = keys.get(entry.getKey());
+                if (value0 == 1) {
+                    value0 = 2;
+                    if (pref.x == -1) {
+                        temp = -1;
+                    } else {
+                        temp = pref.x + 1;
+                    }
+                } else {
+                    // == 2
+                    if (pref.y == -1) {
+                        temp = -1;
+                    } else {
+                        temp = pref.y + 1;
+                    }
+                }
+                entry.setValue(new int[]{value0, temp});
                 output.add(entry.getKey());
+            } else {
+                entry.setValue(new int[]{value0, value1});
             }
         }
+
+        // System.out.println("FE: " + pressed);
         return output;
+    }
+
+    /**
+     * Determines whether a key is being pressed or not.
+     *
+     * @param keycode the keycode of the key that is being investigated
+     * @return whether the given key is being pressed
+     */
+    public boolean isPressed(int keycode) {
+        return pressed.containsKey(keycode) && pressed.get(keycode)[0] >= 0;
     }
 }
