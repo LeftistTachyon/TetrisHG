@@ -104,6 +104,8 @@ public class DASHandler extends KeyAdapter {
                 entry.setValue(new int[]{value0, value1});
             }
         }
+        
+        if(!output.isEmpty()) System.out.println(output);
 
         // System.out.println("FE: " + pressed);
         return output;

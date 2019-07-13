@@ -44,14 +44,20 @@ public class ARSSpinSystem extends SpinSystem<ARSTet> {
             return;
         }
 
-        if (t instanceof ARS_L && t.getRotation() == Tetromino.UP
-                && m.getBlock(t.getY(), t.getX()) == 0) {
+        if (t instanceof ARS_I) {
+            return;
+        }
+
+        if (t instanceof ARS_L && (t.getRotation() == Tetromino.RIGHT
+                && m.getBlock(t.getY(), t.getX()) == 0
+                || t.getRotation() == Tetromino.LEFT)) {
             t.rotateLeft();
             return;
         }
 
-        if (t instanceof ARS_J && t.getRotation() == Tetromino.DOWN
-                && m.getBlock(t.getY(), t.getX() + 2) == 0) {
+        if (t instanceof ARS_J && (t.getRotation() == Tetromino.LEFT
+                && m.getBlock(t.getY(), t.getX() + 2) == 0
+                || t.getRotation() == Tetromino.RIGHT)) {
             t.rotateLeft();
             return;
         }
@@ -61,10 +67,10 @@ public class ARSSpinSystem extends SpinSystem<ARSTet> {
             return;
         }
 
-        if (t.intersects(m, -2, 0)) {
+        if (t.intersects(m, -1, 0)) {
             t.rotateLeft();
         } else {
-            t.transform(-2, 0);
+            t.transform(-1, 0);
         }
     }
 
@@ -80,14 +86,20 @@ public class ARSSpinSystem extends SpinSystem<ARSTet> {
             return;
         }
 
-        if (t instanceof ARS_J && t.getRotation() == Tetromino.UP
-                && m.getBlock(t.getY(), t.getX() + 2) == 0) {
+        if (t instanceof ARS_I) {
+            return;
+        }
+
+        if (t instanceof ARS_J && (t.getRotation() == Tetromino.LEFT
+                && m.getBlock(t.getY(), t.getX() + 2) == 0
+                || t.getRotation() == Tetromino.RIGHT)) {
             t.rotateRight();
             return;
         }
 
-        if (t instanceof ARS_L && t.getRotation() == Tetromino.DOWN
-                && m.getBlock(t.getY(), t.getX()) == 0) {
+        if (t instanceof ARS_L && (t.getRotation() == Tetromino.RIGHT
+                && m.getBlock(t.getY(), t.getX()) == 0
+                || t.getRotation() == Tetromino.LEFT)) {
             t.rotateRight();
             return;
         }
@@ -97,10 +109,10 @@ public class ARSSpinSystem extends SpinSystem<ARSTet> {
             return;
         }
 
-        if (t.intersects(m, -2, 0)) {
+        if (t.intersects(m, -1, 0)) {
             t.rotateRight();
         } else {
-            t.transform(-2, 0);
+            t.transform(-1, 0);
         }
     }
 

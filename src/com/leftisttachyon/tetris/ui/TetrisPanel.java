@@ -2,19 +2,14 @@ package com.leftisttachyon.tetris.ui;
 
 import com.leftisttachyon.tetris.TetrisMatrix;
 import com.leftisttachyon.tetris.tetrominos.Tetromino;
-import com.leftisttachyon.tetris.tetrominos.srs.SRSSpinSystem;
-import com.leftisttachyon.tetris.tetrominos.srs.SRSTetrominoFactory;
+import com.leftisttachyon.tetris.tetrominos.ars.ARSSpinSystem;
+import com.leftisttachyon.tetris.tetrominos.ars.ARSTetrominoFactory;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Point;
 import static java.awt.event.KeyEvent.*;
 import java.awt.geom.NoninvertibleTransformException;
 import java.util.HashSet;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JPanel;
 
 /**
@@ -61,8 +56,8 @@ public final class TetrisPanel extends JPanel {
                 21 * Tetromino.MINO_SIZE + 20));
         
         m = new TetrisMatrix();
-        m.setSpinSystem(SRSSpinSystem.getSpinSystem());
-        m.setTetrominoFactory(SRSTetrominoFactory.getTetrominoFactory());
+        m.setSpinSystem(ARSSpinSystem.getSpinSystem());
+        m.setTetrominoFactory(ARSTetrominoFactory.getTetrominoFactory());
     }
     
     /**
@@ -71,11 +66,11 @@ public final class TetrisPanel extends JPanel {
     public void startFrames() {
         new Thread(() -> {
             while(!stop) {
-                long start = System.nanoTime();
+                // long start = System.nanoTime();
                 repaint();
-                long total = System.nanoTime() - start;
+                /*long total = System.nanoTime() - start;
                 total /= 1_000_000;
-                System.out.println(total + " ms");
+                System.out.println(total + " ms");*/
                 try {
                     Thread.sleep(16);
                 } catch (InterruptedException ex) {

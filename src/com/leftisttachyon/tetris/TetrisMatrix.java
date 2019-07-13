@@ -356,9 +356,9 @@ public class TetrisMatrix implements Paintable {
                 activate(currentTet);
             } else {
                 Tetromino temp = holdTet;
-                currentTet = holdTet;
+                holdTet = currentTet;
                 activate(temp);
-                currentTet = holdTet;
+                currentTet = temp;
             }
             
             holdAvaliable = false;
