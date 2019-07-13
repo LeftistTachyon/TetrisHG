@@ -27,6 +27,7 @@ public final class TetrisFrame extends JFrame {
         add(panel);
         pack();
         
+        setTitle("Tetris HG");
         addKeyListener(panel.handler);
         setResizable(false);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

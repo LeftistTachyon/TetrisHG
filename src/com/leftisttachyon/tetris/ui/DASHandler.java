@@ -105,7 +105,7 @@ public class DASHandler extends KeyAdapter {
             }
         }
         
-        if(!output.isEmpty()) System.out.println(output);
+        // if(!output.isEmpty()) System.out.println(output);
 
         // System.out.println("FE: " + pressed);
         return output;
@@ -118,6 +118,12 @@ public class DASHandler extends KeyAdapter {
      * @return whether the given key is being pressed
      */
     public boolean isPressed(int keycode) {
-        return pressed.containsKey(keycode) && pressed.get(keycode)[0] >= 0;
+        /*int[] array = pressed.get(keycode);
+        if (array != null) {
+            System.out.println(keycode + ": " + array[0] + ", " + array[1]);
+        }
+        System.out.println(pressed.containsKey(keycode) && pressed.get(keycode)[0] > 0);*/
+        
+        return pressed.containsKey(keycode) && pressed.get(keycode)[0] > 0;
     }
 }

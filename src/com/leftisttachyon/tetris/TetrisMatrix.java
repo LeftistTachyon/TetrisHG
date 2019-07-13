@@ -12,6 +12,7 @@ import static com.leftisttachyon.tetris.tetrominos.Tetromino.PURPLE;
 import static com.leftisttachyon.tetris.tetrominos.Tetromino.RED;
 import static com.leftisttachyon.tetris.tetrominos.Tetromino.YELLOW;
 import com.leftisttachyon.tetris.tetrominos.TetrominoFactory;
+import com.leftisttachyon.tetris.ui.DASHandler;
 import com.leftisttachyon.util.Paintable;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -25,6 +26,26 @@ import java.util.HashSet;
  * @author Jed Wang
  */
 public class TetrisMatrix implements Paintable {
+
+    /**
+     * The amount of frames to delay blocks falling down after a line clear.
+     */
+    private int lineClearDelay = 40;
+
+    /**
+     * ARE after a line clear; amount of frames to pause the piece coming in.
+     */
+    private int lineClearARE = 25;
+
+    /**
+     * ARE without a line clear; amount of frames to pause the piece coming in.
+     */
+    private int standardARE = 25;
+
+    /**
+     * A HashSet of cleared lines
+     */
+    private HashSet<Integer> linesToClear;
 
     /**
      * The actual matrix
@@ -61,7 +82,7 @@ public class TetrisMatrix implements Paintable {
      * Whether this matrix is in a game or not
      */
     private boolean inGame;
-    
+
     /**
      * Whether hold is avaliable
      */
@@ -79,6 +100,7 @@ public class TetrisMatrix implements Paintable {
         holdTet = null;
         inGame = false;
         holdAvaliable = false;
+        linesToClear = new HashSet<>();
     }
 
     /**
@@ -266,6 +288,10 @@ public class TetrisMatrix implements Paintable {
      * executed
      */
     public void executeActions(HashSet<Integer> keycodes) {
+        if (!inGame) {
+            return;
+        }
+
         if (keycodes.contains(VK_Z)) {
             if (spinSystem == null) {
                 System.err.println("No spin system installed, cannot rotate left");
@@ -360,7 +386,7 @@ public class TetrisMatrix implements Paintable {
                 activate(temp);
                 currentTet = temp;
             }
-            
+
             holdAvaliable = false;
         }
     }
@@ -399,7 +425,6 @@ public class TetrisMatrix implements Paintable {
      * animation and piece change.
      */
     private void lock() {
-        // TODO: animations
         int[][] temp = currentTet.getState();
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
@@ -409,11 +434,26 @@ public class TetrisMatrix implements Paintable {
                 }
             }
         }
-        
-        currentTet = queue.removeTetromino();
-        activate(currentTet);
-        
-        holdAvaliable = true;
+
+        if (!linesToClear.isEmpty()) {
+            throw new IllegalStateException("linesToClear ought to be empty!");
+        }
+
+        currentTet = null;
+        holdAvaliable = false;
+
+        for (int i = 0; i < matrix.length; i++) {
+            if (isLineFull(i)) {
+                clearLine(i);
+                linesToClear.add(i);
+            }
+        }
+
+        if (linesToClear.isEmpty()) {
+            pauseAnimationCnt = standardARE + 1;
+        } else {
+            pauseAnimationCnt = lineClearARE + 1;
+        }
     }
 
     /**
@@ -447,10 +487,53 @@ public class TetrisMatrix implements Paintable {
     }
 
     /**
-     * Advances a frame for all animations.
+     * A counter for a pause
      */
-    public void advanceAnimationFrame() {
-        // System.out.println(currentTet);
+    private int pauseAnimationCnt = -1;
+
+    /**
+     * Advances a frame for all animations.
+     *
+     * @param handler a DASHandler so I know what to do
+     */
+    public void advanceAnimationFrame(DASHandler handler) {
+        if (pauseAnimationCnt >= 0) {
+            pauseAnimationCnt--;
+        }
+
+        if (pauseAnimationCnt == 0) {
+            if (linesToClear.isEmpty()) {
+                currentTet = queue.removeTetromino();
+                activate(currentTet);
+                
+                if (handler.isPressed(VK_Z)) {
+                    currentTet.rotateLeft();
+                }
+                if (handler.isPressed(VK_X)) {
+                    currentTet.rotateRight();
+                }
+                holdAvaliable = true;
+                if (handler.isPressed(VK_C)) {
+                    hold();
+                }
+
+                pauseAnimationCnt = -1;
+            } else {
+                for (int i = matrix.length - 1, temp = i; i >= 0; i--) {
+                    if (!linesToClear.contains(i)) {
+                        if (temp != i) {
+                            System.arraycopy(matrix[i], 0,
+                                    matrix[temp], 0, matrix[i].length);
+                        }
+                        temp--;
+                    }
+                }
+
+                linesToClear.clear();
+
+                pauseAnimationCnt = lineClearARE;
+            }
+        }
     }
 
     /**
@@ -460,5 +543,31 @@ public class TetrisMatrix implements Paintable {
      */
     public boolean isInGame() {
         return inGame;
+    }
+
+    /**
+     * Determines whether the given row is full or not
+     *
+     * @param r the row to investigate
+     * @return whether the given row is full
+     */
+    private boolean isLineFull(int r) {
+        for (int i : matrix[r]) {
+            if (i == 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Clears the given line
+     *
+     * @param r the row to clear
+     */
+    private void clearLine(int r) {
+        for (int i = 0; i < matrix[r].length; i++) {
+            matrix[r][i] = 0;
+        }
     }
 }

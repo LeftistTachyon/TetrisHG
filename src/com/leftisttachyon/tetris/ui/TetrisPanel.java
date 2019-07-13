@@ -98,7 +98,7 @@ public final class TetrisPanel extends JPanel {
         
         // then make updates
         m.executeActions(actions);
-        m.advanceAnimationFrame();
+        m.advanceAnimationFrame(handler);
 
         // lastly draw
         try {
