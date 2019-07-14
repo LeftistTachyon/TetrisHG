@@ -243,52 +243,6 @@ public interface Tetromino {
      */
     boolean intersects(TetrisMatrix m, int x_offset, int y_offset);
 
-    // cyan, blue, orange, yellow, green, purple, red
-    /**
-     * Number representing a cyan mino
-     */
-    public static final int CYAN = 1;
-
-    /**
-     * Number representing a blue mino
-     */
-    public static final int BLUE = 2;
-
-    /**
-     * Number representing an orange mino
-     */
-    public static final int ORANGE = 3;
-
-    /**
-     * Number representing a yellow mino
-     */
-    public static final int YELLOW = 4;
-
-    /**
-     * Number representing a green mino
-     */
-    public static final int GREEN = 5;
-
-    /**
-     * Number representing a purple mino
-     */
-    public static final int PURPLE = 6;
-
-    /**
-     * Number representing a red mino
-     */
-    public static final int RED = 7;
-
-    /**
-     * Number representing a wall/out of bounds
-     */
-    public static final int WALL = 8;
-
-    /**
-     * Number representing no mino
-     */
-    public static final int EMPTY = 0;
-
     /**
      * Sets the current x value of this tetromino to the given integer.
      *
@@ -311,7 +265,14 @@ public interface Tetromino {
     void setRotation(int rotation);
     
     /**
-     * The size of each block/mino.
+     * Prints the current rotation state of this tetromino to the console.
      */
-    public static final int MINO_SIZE = 20;
+    default void printState() {
+        for (int[] is : getState()) {
+            for (int i : is) {
+                System.out.print(i == 0 ? " " : i);
+            }
+            System.out.println();
+        }
+    }
 }

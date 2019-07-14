@@ -1,19 +1,14 @@
 package com.leftisttachyon.tetris;
 
+import static com.leftisttachyon.tetris.MinoStyle.MINO_SIZE;
 import com.leftisttachyon.tetris.tetrominos.AbstractTetromino;
-import static com.leftisttachyon.tetris.tetrominos.AbstractTetromino.*;
+import static com.leftisttachyon.tetris.MinoStyle.*;
 import com.leftisttachyon.tetris.tetrominos.Tetromino;
-import static com.leftisttachyon.tetris.tetrominos.Tetromino.BLUE;
-import static com.leftisttachyon.tetris.tetrominos.Tetromino.CYAN;
-import static com.leftisttachyon.tetris.tetrominos.Tetromino.EMPTY;
-import static com.leftisttachyon.tetris.tetrominos.Tetromino.GREEN;
-import static com.leftisttachyon.tetris.tetrominos.Tetromino.ORANGE;
-import static com.leftisttachyon.tetris.tetrominos.Tetromino.PURPLE;
-import static com.leftisttachyon.tetris.tetrominos.Tetromino.RED;
-import static com.leftisttachyon.tetris.tetrominos.Tetromino.YELLOW;
 import com.leftisttachyon.tetris.tetrominos.TetrominoFactory;
 import com.leftisttachyon.tetris.ui.DASHandler;
 import com.leftisttachyon.util.Paintable;
+import java.awt.AlphaComposite;
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -26,6 +21,11 @@ import java.util.HashSet;
  * @author Jed Wang
  */
 public class TetrisMatrix implements Paintable {
+
+    /**
+     * Just another internal Paintable object.
+     */
+    private PaintableMatrix paintableMatrix = new PaintableMatrix();
 
     /**
      * The amount of frames to delay blocks falling down after a line clear.
@@ -69,6 +69,11 @@ public class TetrisMatrix implements Paintable {
     private SpinSystem spinSystem;
 
     /**
+     * The MinoStyle used for drawing individual minos.
+     */
+    private MinoStyle minoStyle;
+
+    /**
      * The currently falling tetromino
      */
     private Tetromino currentTet;
@@ -89,6 +94,11 @@ public class TetrisMatrix implements Paintable {
     private boolean holdAvaliable;
 
     /**
+     * Whether to draw the ghost piece
+     */
+    private boolean drawGhost;
+
+    /**
      * Creates a new TetrisMatrix.
      */
     public TetrisMatrix() {
@@ -100,7 +110,10 @@ public class TetrisMatrix implements Paintable {
         holdTet = null;
         inGame = false;
         holdAvaliable = false;
+        minoStyle = null;
         linesToClear = new HashSet<>();
+        gravity = 0;
+        drawGhost = true;
     }
 
     /**
@@ -138,6 +151,24 @@ public class TetrisMatrix implements Paintable {
      */
     public SpinSystem getSpinSystem() {
         return spinSystem;
+    }
+
+    /**
+     * Sets the currently used MinoStyle to the given one
+     *
+     * @param minoStyle the MinoStyle to use from now on
+     */
+    public void setMinoStyle(MinoStyle minoStyle) {
+        this.minoStyle = minoStyle;
+    }
+
+    /**
+     * Returns the currently used MinoStyle
+     *
+     * @return the MinoStyle currently being used
+     */
+    public MinoStyle getMinoStyle() {
+        return minoStyle;
     }
 
     /**
@@ -190,83 +221,7 @@ public class TetrisMatrix implements Paintable {
 
     @Override
     public void paint(Graphics2D g2D) {
-        g2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                RenderingHints.VALUE_ANTIALIAS_ON);
-
-        g2D.setColor(Color.BLACK);
-        g2D.fillRect(0, (int) (19.5 * MINO_SIZE),
-                10 * MINO_SIZE, (int) (20.5 * MINO_SIZE));
-
-        Color purple = new Color(128, 0, 128);
-
-        for (int i = 0, y = 0; i < matrix.length; i++, y += Tetromino.MINO_SIZE) {
-            for (int j = 0, x = 0; j < matrix[i].length; j++, x += Tetromino.MINO_SIZE) {
-                switch (matrix[i][j]) {
-                    case CYAN:
-                        g2D.setColor(Color.CYAN);
-                        break;
-                    case BLUE:
-                        g2D.setColor(Color.BLUE);
-                        break;
-                    case ORANGE:
-                        g2D.setColor(Color.ORANGE);
-                        break;
-                    case YELLOW:
-                        g2D.setColor(Color.YELLOW);
-                        break;
-                    case GREEN:
-                        g2D.setColor(Color.GREEN);
-                        break;
-                    case PURPLE:
-                        g2D.setColor(purple);
-                        break;
-                    case RED:
-                        g2D.setColor(Color.RED);
-                        break;
-                    case EMPTY:
-                        continue;
-                }
-
-                g2D.fillRect(x, y, Tetromino.MINO_SIZE, Tetromino.MINO_SIZE);
-            }
-        }
-
-        if (currentTet != null) {
-            int[][] state = currentTet.getState();
-            for (int i = 0, x = currentTet.getX() * MINO_SIZE; i < state.length;
-                    i++, x += MINO_SIZE) {
-                for (int j = 0, y = currentTet.getY() * MINO_SIZE;
-                        j < state[i].length; j++, y += MINO_SIZE) {
-                    switch (state[j][i]) {
-                        case CYAN:
-                            g2D.setColor(Color.CYAN);
-                            break;
-                        case BLUE:
-                            g2D.setColor(Color.BLUE);
-                            break;
-                        case ORANGE:
-                            g2D.setColor(Color.ORANGE);
-                            break;
-                        case YELLOW:
-                            g2D.setColor(Color.YELLOW);
-                            break;
-                        case GREEN:
-                            g2D.setColor(Color.GREEN);
-                            break;
-                        case PURPLE:
-                            g2D.setColor(purple);
-                            break;
-                        case RED:
-                            g2D.setColor(Color.RED);
-                            break;
-                        case EMPTY:
-                            continue;
-                    }
-
-                    g2D.fillRect(x, y, Tetromino.MINO_SIZE, Tetromino.MINO_SIZE);
-                }
-            }
-        }
+        paintableMatrix.paint(g2D);
     }
 
     /**
@@ -421,6 +376,16 @@ public class TetrisMatrix implements Paintable {
     }
 
     /**
+     * The tetromino currently being locked
+     */
+    private Tetromino lockingTet = null;
+
+    /**
+     * A counter for lock flash
+     */
+    private int lockFlashCnt = -1;
+
+    /**
      * Locks the current piece to the playing field and sets flags for the
      * animation and piece change.
      */
@@ -430,30 +395,21 @@ public class TetrisMatrix implements Paintable {
             for (int j = 0; j < 4; j++) {
                 if (temp[i][j] > 0) {
                     matrix[i + currentTet.getY()][j + currentTet.getX()]
-                            = temp[i][j];
+                            = FLASH;
                 }
             }
         }
 
-        if (!linesToClear.isEmpty()) {
-            throw new IllegalStateException("linesToClear ought to be empty!");
-        }
-
+        lockingTet = currentTet;
         currentTet = null;
         holdAvaliable = false;
-
-        for (int i = 0; i < matrix.length; i++) {
-            if (isLineFull(i)) {
-                clearLine(i);
-                linesToClear.add(i);
-            }
-        }
 
         if (linesToClear.isEmpty()) {
             pauseAnimationCnt = standardARE + 1;
         } else {
-            pauseAnimationCnt = lineClearARE + 1;
+            pauseAnimationCnt = lineClearDelay + 1;
         }
+        lockFlashCnt = 5;
     }
 
     /**
@@ -487,16 +443,65 @@ public class TetrisMatrix implements Paintable {
     }
 
     /**
+     * The amount of gravity per frame
+     */
+    private int gravity;
+
+    /**
      * A counter for a pause
      */
     private int pauseAnimationCnt = -1;
 
     /**
-     * Advances a frame for all animations.
+     * Advances a frame.
      *
      * @param handler a DASHandler so I know what to do
      */
-    public void advanceAnimationFrame(DASHandler handler) {
+    public void advanceFrame(DASHandler handler) {
+        if (currentTet != null && currentTet.intersects(this)) {
+            System.out.println(currentTet.getRotation());
+            System.out.println("**********");
+            currentTet.printState();
+            System.out.println("**********");
+            for (int[] is : matrix) {
+                for (int i : is) {
+                    System.out.print(i == 0 ? " " : i);
+                }
+                System.out.println();
+            }
+        }
+
+        if (lockingTet != null) {
+            // lockFlashCnt >= 0
+            if (lockFlashCnt > 0) {
+                lockFlashCnt--;
+            } else {
+                int[][] temp = lockingTet.getState();
+                for (int i = 0; i < 4; i++) {
+                    for (int j = 0; j < 4; j++) {
+                        if (temp[i][j] > 0) {
+                            matrix[i + lockingTet.getY()][j + lockingTet.getX()]
+                                    = temp[i][j];
+                        }
+                    }
+                }
+
+                if (!linesToClear.isEmpty()) {
+                    throw new IllegalStateException("linesToClear ought to be empty!");
+                }
+
+                for (int i = 0; i < matrix.length; i++) {
+                    if (isLineFull(i)) {
+                        clearLine(i);
+                        linesToClear.add(i);
+                    }
+                }
+
+                lockingTet = null;
+                lockFlashCnt = -1;
+            }
+        }
+
         if (pauseAnimationCnt >= 0) {
             pauseAnimationCnt--;
         }
@@ -505,7 +510,7 @@ public class TetrisMatrix implements Paintable {
             if (linesToClear.isEmpty()) {
                 currentTet = queue.removeTetromino();
                 activate(currentTet);
-                
+
                 if (handler.isPressed(VK_Z)) {
                     currentTet.rotateLeft();
                 }
@@ -532,6 +537,13 @@ public class TetrisMatrix implements Paintable {
                 linesToClear.clear();
 
                 pauseAnimationCnt = lineClearARE;
+            }
+        }
+
+        if (currentTet != null) {
+            for (int i = 0; i < gravity
+                    && !currentTet.intersects(this, 0, 1); i++) {
+                currentTet.moveDown();
             }
         }
     }
@@ -569,5 +581,139 @@ public class TetrisMatrix implements Paintable {
         for (int i = 0; i < matrix[r].length; i++) {
             matrix[r][i] = 0;
         }
+    }
+
+    /**
+     * Sets the gravity to the given integer
+     *
+     * @param gravity the gravity to use from now on
+     */
+    public void setGravity(int gravity) {
+        this.gravity = gravity;
+    }
+
+    /**
+     * Increases gravity by the given amount
+     *
+     * @param increase the amount to increase the gravity by
+     */
+    public void increaseGravity(int increase) {
+        gravity += increase;
+    }
+
+    /**
+     * Just an imitation
+     */
+    private class PaintableMatrix implements Paintable {
+
+        @Override
+        public void paint(Graphics2D g2D) {
+            MinoStyle style = minoStyle == null
+                    ? BasicMinoStyle.getMinoStyle()
+                    : minoStyle;
+
+            g2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                    RenderingHints.VALUE_ANTIALIAS_ON);
+            g2D.setStroke(new BasicStroke(1.0f));
+
+            g2D.setColor(Color.BLACK);
+            g2D.fillRect(0, (int) (19.5 * MINO_SIZE),
+                    10 * MINO_SIZE, (int) (20.5 * MINO_SIZE));
+
+            Color locked = new Color(0, 0, 0, 100);
+
+            for (int i = 0, y = 0; i < matrix.length; i++, y += MINO_SIZE) {
+                for (int j = 0, x = 0; j < matrix[i].length; j++, x += MINO_SIZE) {
+                    if (matrix[i][j] > 0) {
+                        style.drawMino(g2D, x, y, matrix[i][j]);
+
+                        g2D.setColor(locked);
+                        g2D.fillRect(x, y, MINO_SIZE, MINO_SIZE);
+                    } else {
+                        g2D.setColor(Color.WHITE);
+
+                        if (getBlock(i + 1, j) > 0) {
+                            g2D.drawLine(x, y + MINO_SIZE - 1,
+                                    x + MINO_SIZE - 1, y + MINO_SIZE - 1);
+                        }
+                        if (getBlock(i - 1, j) > 0) {
+                            g2D.drawLine(x, y, x + MINO_SIZE - 1, y);
+                        }
+                        if (getBlock(i, j + 1) > 0) {
+                            g2D.drawLine(x + MINO_SIZE - 1, y,
+                                    x + MINO_SIZE - 1, y + MINO_SIZE - 1);
+                        }
+                        if (getBlock(i, j - 1) > 0) {
+                            g2D.drawLine(x, y, x, y + MINO_SIZE - 1);
+                        }
+                    }
+                }
+            }
+
+            if (currentTet != null) {
+                int[][] state = currentTet.getState();
+                
+                int addY = 0;
+                while(!currentTet.intersects(TetrisMatrix.this, 0, addY + 1)) {
+                    addY++;
+                }
+                
+                if (addY != 0) {
+                    g2D.setComposite(MinoStyle.TRANSLUCENT_COMPOSITE);
+                    for (int i = 0, x = currentTet.getX() * MINO_SIZE; 
+                            i < state.length; i++, x += MINO_SIZE) {
+                        for (int j = 0, y = (currentTet.getY() + addY) * MINO_SIZE;
+                                j < state[i].length; j++, y += MINO_SIZE) {
+                            style.drawMino(g2D, x, y, state[j][i]);
+                        }
+                    }
+                    g2D.setComposite(AlphaComposite.SrcOver);
+                }
+                
+                for (int i = 0, x = currentTet.getX() * MINO_SIZE; i < state.length;
+                        i++, x += MINO_SIZE) {
+                    for (int j = 0, y = currentTet.getY() * MINO_SIZE;
+                            j < state[i].length; j++, y += MINO_SIZE) {
+                        style.drawMino(g2D, x, y, state[j][i]);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Sets the line clear ARE
+     *
+     * @param lineClearARE the new line clear ARE
+     */
+    public void setLineClearARE(int lineClearARE) {
+        this.lineClearARE = lineClearARE;
+    }
+
+    /**
+     * Sets the line clear delay
+     *
+     * @param lineClearDelay the new lnie clear delay
+     */
+    public void setLineClearDelay(int lineClearDelay) {
+        this.lineClearDelay = lineClearDelay;
+    }
+
+    /**
+     * Sets ARE under normal conditions
+     *
+     * @param standardARE the new standard ARE
+     */
+    public void setStandardARE(int standardARE) {
+        this.standardARE = standardARE;
+    }
+
+    /**
+     * Sets whether to draw the ghost piece
+     *
+     * @param drawGhost whether to draw the ghost piece
+     */
+    public void setDrawGhost(boolean drawGhost) {
+        this.drawGhost = drawGhost;
     }
 }

@@ -279,7 +279,7 @@ public class SRSSpinSystem extends SpinSystem<SRSTet> {
                     break;
             }
 
-            t.rotateLeft();
+            t.rotateRight();
         } else {
             switch (t.getRotation()) {
                 case UP:
@@ -356,7 +356,7 @@ public class SRSSpinSystem extends SpinSystem<SRSTet> {
                     break;
             }
 
-            t.rotateLeft();
+            t.rotateRight();
         }
     }
 

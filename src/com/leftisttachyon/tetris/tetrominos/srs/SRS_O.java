@@ -18,9 +18,9 @@ public final class SRS_O extends AbstractTetromino implements TetO, SRSTet {
      * in. It's different for each class since the color's different.
      */
     private static final int[][] ONLY_STATE = {
+        {0, 4, 4, 0},
+        {0, 4, 4, 0},
         {0, 0, 0, 0},
-        {0, 4, 4, 0},
-        {0, 4, 4, 0},
         {0, 0, 0, 0}
     };
 

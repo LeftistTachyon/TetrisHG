@@ -1,9 +1,11 @@
 package com.leftisttachyon.tetris.ui;
 
+import com.leftisttachyon.tetris.MinoStyle;
+import com.leftisttachyon.tetris.TGMMinoStyle;
 import com.leftisttachyon.tetris.TetrisMatrix;
 import com.leftisttachyon.tetris.tetrominos.Tetromino;
-import com.leftisttachyon.tetris.tetrominos.ars.ARSSpinSystem;
-import com.leftisttachyon.tetris.tetrominos.ars.ARSTetrominoFactory;
+import com.leftisttachyon.tetris.tetrominos.srs.SRSSpinSystem;
+import com.leftisttachyon.tetris.tetrominos.srs.SRSTetrominoFactory;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Point;
@@ -41,23 +43,24 @@ public final class TetrisPanel extends JPanel {
         super();
         
         handler = new DASHandler();
-        handler.setListener(VK_DOWN, new Point(9, 3));
+        handler.setListener(VK_DOWN, new Point(10, 1));
         handler.setListener(VK_Z, new Point(-1, -1));
         handler.setListener(VK_X, new Point(-1, -1));
         handler.setListener(VK_C, new Point(-1, -1));
         handler.setListener(VK_SPACE, new Point(-1, -1));
-        handler.setListener(VK_LEFT, new Point(9, 3));
-        handler.setListener(VK_RIGHT, new Point(9, 3));
+        handler.setListener(VK_LEFT, new Point(10, 1));
+        handler.setListener(VK_RIGHT, new Point(10, 1));
         handler.setListener(VK_UP, new Point(-1, -1));
         
         addKeyListener(handler);
         
-        setPreferredSize(new Dimension(10 * Tetromino.MINO_SIZE + 20, 
-                21 * Tetromino.MINO_SIZE + 20));
+        setPreferredSize(new Dimension(10 * MinoStyle.MINO_SIZE + 20, 
+                21 * MinoStyle.MINO_SIZE + 20));
         
         m = new TetrisMatrix();
-        m.setSpinSystem(ARSSpinSystem.getSpinSystem());
-        m.setTetrominoFactory(ARSTetrominoFactory.getTetrominoFactory());
+        m.setSpinSystem(SRSSpinSystem.getSpinSystem());
+        m.setTetrominoFactory(SRSTetrominoFactory.getTetrominoFactory());
+        m.setMinoStyle(TGMMinoStyle.getMinoStyle());
     }
     
     /**
@@ -66,11 +69,11 @@ public final class TetrisPanel extends JPanel {
     public void startFrames() {
         new Thread(() -> {
             while(!stop) {
-                // long start = System.nanoTime();
+                double start = System.nanoTime();
                 repaint();
-                /*long total = System.nanoTime() - start;
+                double total = System.nanoTime() - start;
                 total /= 1_000_000;
-                System.out.println(total + " ms");*/
+                System.out.printf("Frame: %.3f ms%n", total);
                 try {
                     Thread.sleep(16);
                 } catch (InterruptedException ex) {
@@ -98,11 +101,11 @@ public final class TetrisPanel extends JPanel {
         
         // then make updates
         m.executeActions(actions);
-        m.advanceAnimationFrame(handler);
+        m.advanceFrame(handler);
 
         // lastly draw
         try {
-            m.paint(g, 10, 10 - 19 * Tetromino.MINO_SIZE);
+            m.paint(g, 10, 10 - 19 * MinoStyle.MINO_SIZE);
         } catch (NoninvertibleTransformException ex) {
             ex.printStackTrace();
         }
