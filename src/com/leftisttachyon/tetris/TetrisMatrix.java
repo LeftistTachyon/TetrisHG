@@ -470,6 +470,11 @@ public class TetrisMatrix implements Paintable {
     private int lockDelayCnt = lockDelay;
 
     /**
+     * The previous Y value
+     */
+    private int previousY = -1;
+
+    /**
      * Advances a frame.
      *
      * @param handler a DASHandler so I know what to do
@@ -563,7 +568,8 @@ public class TetrisMatrix implements Paintable {
                 currentTet.moveDown();
             }
 
-            if (currentTet.intersects(this, 0, 1)) {
+            if (currentTet.intersects(this, 0, 1)
+                    && previousY == currentTet.getY()) {
                 if (lockDelayCnt == 0) {
                     lockDelayCnt = lockDelay;
                     lock();
@@ -572,6 +578,12 @@ public class TetrisMatrix implements Paintable {
             } else {
                 lockDelayCnt = lockDelay;
             }
+        }
+
+        if (currentTet == null) {
+            previousY = -1;
+        } else {
+            previousY = currentTet.getY();
         }
     }
 
