@@ -50,12 +50,12 @@ public class SRSSpinSystem extends SpinSystem<SRSTet> {
                     if (checkKick(t, m, -2, 0)) {
                         return;
                     }
-                    // +1, +2
-                    if (checkKick(t, m, 1, 2)) {
+                    // +1, -2
+                    if (checkKick(t, m, 1, -2)) {
                         return;
                     }
-                    // -2, -1
-                    if (checkKick(t, m, -2, -1)) {
+                    // -2, +1
+                    if (checkKick(t, m, -2, 1)) {
                         return;
                     }
                     break;
@@ -68,12 +68,12 @@ public class SRSSpinSystem extends SpinSystem<SRSTet> {
                     if (checkKick(t, m, 1, 0)) {
                         return;
                     }
-                    // -2, +1
-                    if (checkKick(t, m, -2, 1)) {
+                    // -2, -1
+                    if (checkKick(t, m, -2, -1)) {
                         return;
                     }
-                    // +1, -2
-                    if (checkKick(t, m, 1, -2)) {
+                    // +1, +2
+                    if (checkKick(t, m, 1, 2)) {
                         return;
                     }
                     break;
@@ -86,12 +86,12 @@ public class SRSSpinSystem extends SpinSystem<SRSTet> {
                     if (checkKick(t, m, 2, 0)) {
                         return;
                     }
-                    // -1, -2
-                    if (checkKick(t, m, -1, -2)) {
+                    // -1, +2
+                    if (checkKick(t, m, -1, 2)) {
                         return;
                     }
-                    // +2, +1
-                    if (checkKick(t, m, 2, 1)) {
+                    // +2, -1
+                    if (checkKick(t, m, 2, -1)) {
                         return;
                     }
                     break;
@@ -104,12 +104,12 @@ public class SRSSpinSystem extends SpinSystem<SRSTet> {
                     if (checkKick(t, m, -1, 0)) {
                         return;
                     }
-                    // +2, -1
-                    if (checkKick(t, m, 2, -1)) {
+                    // +2, +1
+                    if (checkKick(t, m, 2, 1)) {
                         return;
                     }
-                    // -1, +2
-                    if (checkKick(t, m, -1, 2)) {
+                    // -1, -2
+                    if (checkKick(t, m, -1, -2)) {
                         return;
                     }
                     break;
@@ -123,16 +123,16 @@ public class SRSSpinSystem extends SpinSystem<SRSTet> {
                     if (checkKick(t, m, -1, 0)) {
                         return;
                     }
-                    // -1, +1
-                    if (checkKick(t, m, -1, 1)) {
+                    // -1, -1
+                    if (checkKick(t, m, -1, -1)) {
                         return;
                     }
                     // 0, +2
                     if (checkKick(t, m, 0, 2)) {
                         return;
                     }
-                    // -1, -2
-                    if (checkKick(t, m, -1, -2)) {
+                    // -1, +2
+                    if (checkKick(t, m, -1, 2)) {
                         return;
                     }
                     break;
@@ -141,38 +141,20 @@ public class SRSSpinSystem extends SpinSystem<SRSTet> {
                     if (checkKick(t, m, -1, 0)) {
                         return;
                     }
-                    // -1, -1
-                    if (checkKick(t, m, -1, -1)) {
+                    // -1, +1
+                    if (checkKick(t, m, -1, 1)) {
                         return;
                     }
                     // 0, -2
                     if (checkKick(t, m, 0, -2)) {
                         return;
                     }
-                    // -1, +2
-                    if (checkKick(t, m, -1, 2)) {
+                    // -1, -2
+                    if (checkKick(t, m, -1, -2)) {
                         return;
                     }
                     break;
                 case DOWN:
-                    // +1, 0
-                    if (checkKick(t, m, 1, 0)) {
-                        return;
-                    }
-                    // +1, +1
-                    if (checkKick(t, m, 1, 1)) {
-                        return;
-                    }
-                    // 0, +2
-                    if (checkKick(t, m, 0, 2)) {
-                        return;
-                    }
-                    // +1, -2
-                    if (checkKick(t, m, 1, -2)) {
-                        return;
-                    }
-                    break;
-                case LEFT:
                     // +1, 0
                     if (checkKick(t, m, 1, 0)) {
                         return;
@@ -187,6 +169,24 @@ public class SRSSpinSystem extends SpinSystem<SRSTet> {
                     }
                     // +1, +2
                     if (checkKick(t, m, 1, 2)) {
+                        return;
+                    }
+                    break;
+                case LEFT:
+                    // +1, 0
+                    if (checkKick(t, m, 1, 0)) {
+                        return;
+                    }
+                    // +1, +1
+                    if (checkKick(t, m, 1, 1)) {
+                        return;
+                    }
+                    // 0, -2
+                    if (checkKick(t, m, 0, -2)) {
+                        return;
+                    }
+                    // +1, -2
+                    if (checkKick(t, m, 1, -2)) {
                         return;
                     }
                     break;
@@ -214,12 +214,12 @@ public class SRSSpinSystem extends SpinSystem<SRSTet> {
                     if (checkKick(t, m, -1, 0)) {
                         return;
                     }
-                    // +2, -1
-                    if (checkKick(t, m, 2, -1)) {
+                    // +2, +1
+                    if (checkKick(t, m, 2, 1)) {
                         return;
                     }
-                    // -1, +2
-                    if (checkKick(t, m, -1, 2)) {
+                    // -1, -2
+                    if (checkKick(t, m, -1, -2)) {
                         return;
                     }
                     break;
@@ -232,30 +232,30 @@ public class SRSSpinSystem extends SpinSystem<SRSTet> {
                     if (checkKick(t, m, -2, 0)) {
                         return;
                     }
-                    // +1, +2
-                    if (checkKick(t, m, 1, 2)) {
-                        return;
-                    }
-                    // -2, -1
-                    if (checkKick(t, m, -2, -1)) {
-                        return;
-                    }
-                    break;
-                case DOWN:
-                    // +2, 0
-                    if (checkKick(t, m, 2, 0)) {
-                        return;
-                    }
-                    // +1, 0
-                    if (checkKick(t, m, 1, 0)) {
+                    // +1, -2
+                    if (checkKick(t, m, 1, -2)) {
                         return;
                     }
                     // -2, +1
                     if (checkKick(t, m, -2, 1)) {
                         return;
                     }
-                    // +1, -2
-                    if (checkKick(t, m, 1, -2)) {
+                    break;
+                case DOWN:
+                    // -2, 0
+                    if (checkKick(t, m, -2, 0)) {
+                        return;
+                    }
+                    // +1, 0
+                    if (checkKick(t, m, 1, 0)) {
+                        return;
+                    }
+                    // -2, -1
+                    if (checkKick(t, m, -2, -1)) {
+                        return;
+                    }
+                    // +1, +2
+                    if (checkKick(t, m, 1, 2)) {
                         return;
                     }
                     break;
@@ -268,12 +268,12 @@ public class SRSSpinSystem extends SpinSystem<SRSTet> {
                     if (checkKick(t, m, 2, 0)) {
                         return;
                     }
-                    // -1, -2
-                    if (checkKick(t, m, -1, -2)) {
+                    // -1, +2
+                    if (checkKick(t, m, -1, 2)) {
                         return;
                     }
-                    // +2, +1
-                    if (checkKick(t, m, 2, 1)) {
+                    // +2, -1
+                    if (checkKick(t, m, 2, -1)) {
                         return;
                     }
                     break;
@@ -287,38 +287,20 @@ public class SRSSpinSystem extends SpinSystem<SRSTet> {
                     if (checkKick(t, m, 1, 0)) {
                         return;
                     }
-                    // +1, +1
-                    if (checkKick(t, m, 1, 1)) {
-                        return;
-                    }
-                    // 0, -2
-                    if (checkKick(t, m, 0, -2)) {
-                        return;
-                    }
-                    // +1, -2
-                    if (checkKick(t, m, 1, -2)) {
-                        return;
-                    }
-                    break;
-                case RIGHT:
-                    // -1, 0
-                    if (checkKick(t, m, -1, 0)) {
-                        return;
-                    }
-                    // -1, -1
-                    if (checkKick(t, m, -1, -1)) {
+                    // +1, -1
+                    if (checkKick(t, m, 1, -1)) {
                         return;
                     }
                     // 0, +2
                     if (checkKick(t, m, 0, 2)) {
                         return;
                     }
-                    // -1, +2
-                    if (checkKick(t, m, -1, 2)) {
+                    // +1, +2
+                    if (checkKick(t, m, 1, 2)) {
                         return;
                     }
                     break;
-                case DOWN:
+                case RIGHT:
                     // -1, 0
                     if (checkKick(t, m, -1, 0)) {
                         return;
@@ -336,21 +318,39 @@ public class SRSSpinSystem extends SpinSystem<SRSTet> {
                         return;
                     }
                     break;
-                case LEFT:
-                    // +1, 0
-                    if (checkKick(t, m, 1, 0)) {
+                case DOWN:
+                    // -1, 0
+                    if (checkKick(t, m, -1, 0)) {
                         return;
                     }
-                    //  +1, -1
-                    if (checkKick(t, m, 1, -1)) {
+                    // -1, -1
+                    if (checkKick(t, m, -1, -1)) {
                         return;
                     }
                     // 0, +2
                     if (checkKick(t, m, 0, 2)) {
                         return;
                     }
-                    // +1, +2
-                    if (checkKick(t, m, 1, 2)) {
+                    // -1, +2
+                    if (checkKick(t, m, -1, 2)) {
+                        return;
+                    }
+                    break;
+                case LEFT:
+                    // +1, 0
+                    if (checkKick(t, m, 1, 0)) {
+                        return;
+                    }
+                    // +1, +1
+                    if (checkKick(t, m, 1, 1)) {
+                        return;
+                    }
+                    // 0, -2
+                    if (checkKick(t, m, 0, -2)) {
+                        return;
+                    }
+                    // +1, -2
+                    if (checkKick(t, m, 1, -2)) {
                         return;
                     }
                     break;

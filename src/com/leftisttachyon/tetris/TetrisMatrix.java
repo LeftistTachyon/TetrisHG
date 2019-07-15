@@ -5,6 +5,10 @@ import com.leftisttachyon.tetris.tetrominos.AbstractTetromino;
 import static com.leftisttachyon.tetris.MinoStyle.*;
 import com.leftisttachyon.tetris.tetrominos.Tetromino;
 import com.leftisttachyon.tetris.tetrominos.TetrominoFactory;
+import com.leftisttachyon.tetris.tetrominos.ars.ARSSpinSystem;
+import com.leftisttachyon.tetris.tetrominos.ars.ARSTetrominoFactory;
+import com.leftisttachyon.tetris.tetrominos.srs.SRSSpinSystem;
+import com.leftisttachyon.tetris.tetrominos.srs.SRSTetrominoFactory;
 import com.leftisttachyon.tetris.ui.DASHandler;
 import com.leftisttachyon.util.Paintable;
 import java.awt.AlphaComposite;
@@ -33,14 +37,22 @@ public class TetrisMatrix implements Paintable {
     private int lineClearDelay = 40;
 
     /**
-     * ARE after a line clear; amount of frames to pause the piece coming in.
+     * ARE after a line clear; amount of frames to pause the tetromino coming
+     * in.
      */
     private int lineClearARE = 25;
 
     /**
-     * ARE without a line clear; amount of frames to pause the piece coming in.
+     * ARE without a line clear; amount of frames to pause the tetromino coming
+     * in.
      */
     private int standardARE = 25;
+
+    /**
+     * The amount of frames while touching the ground until the tetromino locks
+     * down.
+     */
+    private int lockDelay = 30;
 
     /**
      * A HashSet of cleared lines
@@ -453,6 +465,11 @@ public class TetrisMatrix implements Paintable {
     private int pauseAnimationCnt = -1;
 
     /**
+     * The lock delay counter
+     */
+    private int lockDelayCnt = lockDelay;
+
+    /**
      * Advances a frame.
      *
      * @param handler a DASHandler so I know what to do
@@ -545,6 +562,16 @@ public class TetrisMatrix implements Paintable {
                     && !currentTet.intersects(this, 0, 1); i++) {
                 currentTet.moveDown();
             }
+
+            if (currentTet.intersects(this, 0, 1)) {
+                if (lockDelayCnt == 0) {
+                    lockDelayCnt = lockDelay;
+                    lock();
+                }
+                lockDelayCnt--;
+            } else {
+                lockDelayCnt = lockDelay;
+            }
         }
     }
 
@@ -602,6 +629,25 @@ public class TetrisMatrix implements Paintable {
     }
 
     /**
+     * Based on this matrix's SpinSystem, determines the default MinoStyle.
+     *
+     * @return the default MinoStyle
+     */
+    private MinoStyle getDefaultMinoStyle() {
+        if (spinSystem == null) {
+            return BasicMinoStyle.getMinoStyle();
+        } else {
+            if (spinSystem instanceof SRSSpinSystem) {
+                return SRSMinoStyle.getMinoStyle();
+            } else if (spinSystem instanceof ARSSpinSystem) {
+                return TGMMinoStyle.getMinoStyle();
+            } else {
+                return BasicMinoStyle.getMinoStyle();
+            }
+        }
+    }
+
+    /**
      * Just an imitation
      */
     private class PaintableMatrix implements Paintable {
@@ -609,7 +655,7 @@ public class TetrisMatrix implements Paintable {
         @Override
         public void paint(Graphics2D g2D) {
             MinoStyle style = minoStyle == null
-                    ? BasicMinoStyle.getMinoStyle()
+                    ? getDefaultMinoStyle()
                     : minoStyle;
 
             g2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
@@ -621,6 +667,52 @@ public class TetrisMatrix implements Paintable {
                     10 * MINO_SIZE, (int) (20.5 * MINO_SIZE));
 
             Color locked = new Color(0, 0, 0, 100);
+
+            if (currentTet != null) {
+                int[][] state = currentTet.getState();
+
+                int addY = 0;
+                while (!currentTet.intersects(TetrisMatrix.this, 0, addY + 1)) {
+                    addY++;
+                }
+
+                if (addY != 0) {
+                    g2D.setComposite(MinoStyle.TRANSLUCENT_COMPOSITE);
+                    for (int i = 0, x = currentTet.getX() * MINO_SIZE;
+                            i < state.length; i++, x += MINO_SIZE) {
+                        for (int j = 0, y = (currentTet.getY() + addY) * MINO_SIZE;
+                                j < state[i].length; j++, y += MINO_SIZE) {
+                            style.drawMino(g2D, x, y, state[j][i]);
+                        }
+                    }
+                    g2D.setComposite(AlphaComposite.SrcOver);
+                }
+
+                if (lockDelayCnt != 0 && lockDelayCnt == lockDelay) {
+                    for (int i = 0, x = currentTet.getX() * MINO_SIZE;
+                            i < state.length; i++, x += MINO_SIZE) {
+                        for (int j = 0, y = currentTet.getY() * MINO_SIZE;
+                                j < state[i].length; j++, y += MINO_SIZE) {
+                            style.drawMino(g2D, x, y, state[j][i]);
+                        }
+                    }
+                } else {
+                    // System.out.println("lDC: " + lockDelayCnt + "\tlD: " + lockDelay);
+                    double shade = 1 - ((double) lockDelayCnt) / lockDelay;
+                    g2D.setColor(new Color(0, 0, 0, (int) (shade * 100)));
+
+                    for (int i = 0, x = currentTet.getX() * MINO_SIZE; i < state.length;
+                            i++, x += MINO_SIZE) {
+                        for (int j = 0, y = currentTet.getY() * MINO_SIZE;
+                                j < state[i].length; j++, y += MINO_SIZE) {
+                            if (state[j][i] > 0) {
+                                style.drawMino(g2D, x, y, state[j][i]);
+                                g2D.fillRect(x, y, MINO_SIZE, MINO_SIZE);
+                            }
+                        }
+                    }
+                }
+            }
 
             for (int i = 0, y = 0; i < matrix.length; i++, y += MINO_SIZE) {
                 for (int j = 0, x = 0; j < matrix[i].length; j++, x += MINO_SIZE) {
@@ -646,35 +738,6 @@ public class TetrisMatrix implements Paintable {
                         if (getBlock(i, j - 1) > 0) {
                             g2D.drawLine(x, y, x, y + MINO_SIZE - 1);
                         }
-                    }
-                }
-            }
-
-            if (currentTet != null) {
-                int[][] state = currentTet.getState();
-                
-                int addY = 0;
-                while(!currentTet.intersects(TetrisMatrix.this, 0, addY + 1)) {
-                    addY++;
-                }
-                
-                if (addY != 0) {
-                    g2D.setComposite(MinoStyle.TRANSLUCENT_COMPOSITE);
-                    for (int i = 0, x = currentTet.getX() * MINO_SIZE; 
-                            i < state.length; i++, x += MINO_SIZE) {
-                        for (int j = 0, y = (currentTet.getY() + addY) * MINO_SIZE;
-                                j < state[i].length; j++, y += MINO_SIZE) {
-                            style.drawMino(g2D, x, y, state[j][i]);
-                        }
-                    }
-                    g2D.setComposite(AlphaComposite.SrcOver);
-                }
-                
-                for (int i = 0, x = currentTet.getX() * MINO_SIZE; i < state.length;
-                        i++, x += MINO_SIZE) {
-                    for (int j = 0, y = currentTet.getY() * MINO_SIZE;
-                            j < state[i].length; j++, y += MINO_SIZE) {
-                        style.drawMino(g2D, x, y, state[j][i]);
                     }
                 }
             }
@@ -715,5 +778,43 @@ public class TetrisMatrix implements Paintable {
      */
     public void setDrawGhost(boolean drawGhost) {
         this.drawGhost = drawGhost;
+    }
+
+    /**
+     * Creates a new ARS-style matrix.
+     *
+     * @return a new ARS-style matrix.
+     */
+    public static TetrisMatrix generateARSMatrix() {
+        TetrisMatrix output = new TetrisMatrix();
+        output.setSpinSystem(ARSSpinSystem.getSpinSystem());
+        output.setTetrominoFactory(ARSTetrominoFactory.getTetrominoFactory());
+        output.setMinoStyle(TGMMinoStyle.getMinoStyle());
+        return output;
+    }
+
+    /**
+     * Creates a new SRS-style matrix
+     *
+     * @return a new SRS-style matrix
+     */
+    public static TetrisMatrix generateSRSMatrix() {
+        TetrisMatrix output = new TetrisMatrix();
+        output.setSpinSystem(SRSSpinSystem.getSpinSystem());
+        output.setTetrominoFactory(SRSTetrominoFactory.getTetrominoFactory());
+        output.setMinoStyle(SRSMinoStyle.getMinoStyle());
+        return output;
+    }
+
+    /**
+     * Sets the lock delay
+     *
+     * @param lockDelay the new lock delay
+     */
+    public void setLockDelay(int lockDelay) {
+        this.lockDelay = lockDelay;
+        if (lockDelayCnt > lockDelay) {
+            lockDelayCnt = lockDelay;
+        }
     }
 }

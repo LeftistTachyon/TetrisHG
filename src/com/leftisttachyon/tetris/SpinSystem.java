@@ -40,8 +40,8 @@ public abstract class SpinSystem<T extends Tetromino> {
      * @return whether the kick is valid or not
      */
     protected boolean checkKick(T t, TetrisMatrix m, int x_offset, int y_offset) {
-        if (!t.intersects(m, x_offset, y_offset)) {
-            t.transform(x_offset, y_offset);
+        if (!t.intersects(m, x_offset, -y_offset)) {
+            t.transform(x_offset, -y_offset);
             return true;
         } else {
             return false;
