@@ -17,6 +17,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import static java.awt.event.KeyEvent.*;
+import java.awt.geom.NoninvertibleTransformException;
 import java.util.HashSet;
 
 /**
@@ -172,15 +173,20 @@ public class TetrisMatrix implements Paintable {
      */
     public void setMinoStyle(MinoStyle minoStyle) {
         this.minoStyle = minoStyle;
+        
+        queue.setMinoStyle(minoStyle);
     }
 
     /**
-     * Returns the currently used MinoStyle
+     * Returns the currently used MinoStyle, or if the current style, the
+     * default one.
      *
      * @return the MinoStyle currently being used
      */
     public MinoStyle getMinoStyle() {
-        return minoStyle;
+        return minoStyle == null
+                ? getDefaultMinoStyle()
+                : minoStyle;
     }
 
     /**
@@ -233,7 +239,24 @@ public class TetrisMatrix implements Paintable {
 
     @Override
     public void paint(Graphics2D g2D) {
-        paintableMatrix.paint(g2D);
+        g2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                RenderingHints.VALUE_ANTIALIAS_ON);
+
+        g2D.setColor(Color.WHITE);
+        g2D.fillRect(0, 0, 80, 80);
+
+        if (holdTet != null) {
+            MinoStyle style = getMinoStyle();
+            style.drawTetromino(g2D, 0, 0, 80, holdTet);
+        }
+
+        try {
+            paintableMatrix.paint(g2D, 100, -19 * MinoStyle.MINO_SIZE);
+            
+            queue.paint(g2D, 10 * MinoStyle.MINO_SIZE + 120, 0);
+        } catch (NoninvertibleTransformException ex) {
+            ex.printStackTrace();
+        }
     }
 
     /**
@@ -245,7 +268,9 @@ public class TetrisMatrix implements Paintable {
     private void activate(Tetromino t) {
         t.setRotation(Tetromino.UP);
         t.setX(3);
-        t.setY(20);
+        t.setY(19);
+
+        lockDelayCnt = lockDelay;
     }
 
     /**
@@ -475,22 +500,36 @@ public class TetrisMatrix implements Paintable {
     private int previousY = -1;
 
     /**
+     * Called when player dies.
+     */
+    private void die() {
+        if (currentTet != null) {
+            int[][] temp = currentTet.getState();
+            for (int i = 0; i < 4; i++) {
+                for (int j = 0; j < 4; j++) {
+                    if (temp[i][j] > 0) {
+                        matrix[i + currentTet.getY()][j + currentTet.getX()]
+                                = temp[i][j];
+                    }
+                }
+            }
+            currentTet = null;
+            holdAvaliable = false;
+        }
+        inGame = false;
+    }
+
+    /**
      * Advances a frame.
      *
      * @param handler a DASHandler so I know what to do
      */
     public void advanceFrame(DASHandler handler) {
-        if (currentTet != null && currentTet.intersects(this)) {
-            System.out.println(currentTet.getRotation());
-            System.out.println("**********");
-            currentTet.printState();
-            System.out.println("**********");
-            for (int[] is : matrix) {
-                for (int i : is) {
-                    System.out.print(i == 0 ? " " : i);
-                }
-                System.out.println();
-            }
+        if (!inGame) {
+            currentTet = null;
+            holdAvaliable = false;
+
+            return;
         }
 
         if (lockingTet != null) {
@@ -533,11 +572,13 @@ public class TetrisMatrix implements Paintable {
                 currentTet = queue.removeTetromino();
                 activate(currentTet);
 
-                if (handler.isPressed(VK_Z)) {
-                    currentTet.rotateLeft();
+                if (handler.isPressed(VK_Z) && spinSystem != null) {
+                    // currentTet.rotateLeft();
+                    spinSystem.rotateLeft(currentTet, this);
                 }
-                if (handler.isPressed(VK_X)) {
-                    currentTet.rotateRight();
+                if (handler.isPressed(VK_X) && spinSystem != null) {
+                    // currentTet.rotateRight();
+                    spinSystem.rotateRight(currentTet, this);
                 }
                 holdAvaliable = true;
                 if (handler.isPressed(VK_C)) {
@@ -545,6 +586,11 @@ public class TetrisMatrix implements Paintable {
                 }
 
                 pauseAnimationCnt = -1;
+
+                if (currentTet.intersects(this)) {
+                    System.out.println("Topped out");
+                    die();
+                }
             } else {
                 for (int i = matrix.length - 1, temp = i; i >= 0; i--) {
                     if (!linesToClear.contains(i)) {
@@ -666,12 +712,8 @@ public class TetrisMatrix implements Paintable {
 
         @Override
         public void paint(Graphics2D g2D) {
-            MinoStyle style = minoStyle == null
-                    ? getDefaultMinoStyle()
-                    : minoStyle;
+            MinoStyle style = getMinoStyle();
 
-            g2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                    RenderingHints.VALUE_ANTIALIAS_ON);
             g2D.setStroke(new BasicStroke(1.0f));
 
             g2D.setColor(Color.BLACK);
@@ -726,7 +768,7 @@ public class TetrisMatrix implements Paintable {
                 }
             }
 
-            for (int i = 0, y = 0; i < matrix.length; i++, y += MINO_SIZE) {
+            for (int i = 19, y = 19 * MINO_SIZE; i < matrix.length; i++, y += MINO_SIZE) {
                 for (int j = 0, x = 0; j < matrix[i].length; j++, x += MINO_SIZE) {
                     if (matrix[i][j] > 0) {
                         style.drawMino(g2D, x, y, matrix[i][j]);
@@ -753,6 +795,9 @@ public class TetrisMatrix implements Paintable {
                     }
                 }
             }
+
+            g2D.setColor(Color.WHITE);
+            g2D.fillRect(0, 19 * MINO_SIZE, 10 * MINO_SIZE, MINO_SIZE / 2);
         }
     }
 

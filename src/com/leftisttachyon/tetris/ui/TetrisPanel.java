@@ -50,22 +50,22 @@ public final class TetrisPanel extends JPanel {
         
         addKeyListener(handler);
         
-        setPreferredSize(new Dimension(10 * MinoStyle.MINO_SIZE + 20, 
+        setPreferredSize(new Dimension(10 * MinoStyle.MINO_SIZE + 220, 
                 21 * MinoStyle.MINO_SIZE + 20));
         
         m = TetrisMatrix.generateSRSMatrix();
         
         // to the MAX
-        m.setStandardARE(12);
-        m.setLineClearARE(6);
-        m.setLockDelay(17);
-        m.setLineClearDelay(6);
+        m.setStandardARE(25);
+        m.setLineClearARE(25);
+        m.setLockDelay(30);
+        m.setLineClearDelay(25);
         
         m.setGravity(20); // 20G!
         
-        handler.setListener(VK_DOWN, new Point(6, 1));
-        handler.setListener(VK_LEFT, new Point(6, 1));
-        handler.setListener(VK_RIGHT, new Point(6, 1));
+        handler.setListener(VK_DOWN, new Point(8, 1));
+        handler.setListener(VK_LEFT, new Point(8, 1));
+        handler.setListener(VK_RIGHT, new Point(8, 1));
     }
     
     /**
@@ -73,12 +73,14 @@ public final class TetrisPanel extends JPanel {
      */
     public void startFrames() {
         new Thread(() -> {
-            while(!stop) {
+            m.startGame();
+            
+            while(!stop && m.isInGame()) {
                 double start = System.nanoTime();
                 repaint();
                 double total = System.nanoTime() - start;
                 total /= 1_000_000;
-                System.out.printf("Frame: %.1f ms%n", total);
+                System.out.printf("Frame: %.2f ms%n", total);
                 try {
                     Thread.sleep(16);
                 } catch (InterruptedException ex) {
@@ -97,10 +99,6 @@ public final class TetrisPanel extends JPanel {
 
     @Override
     public void paint(Graphics g) {
-        if (!m.isInGame()) {
-            m.startGame();
-        }
-        
         // first take inputs
         HashSet<Integer> actions = handler.advanceFrame();
         
@@ -110,7 +108,7 @@ public final class TetrisPanel extends JPanel {
 
         // lastly draw
         try {
-            m.paint(g, 10, 10 - 19 * MinoStyle.MINO_SIZE);
+            m.paint(g, 10, 10);
         } catch (NoninvertibleTransformException ex) {
             ex.printStackTrace();
         }

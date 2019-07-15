@@ -16,9 +16,9 @@ public final class SRS_J extends AbstractTetromino implements TetJ, SRSTet {
      * The UP state
      */
     private static final int[][] UP_STATE = {
+        {0, 0, 0, 0},
         {2, 0, 0, 0},
         {2, 2, 2, 0},
-        {0, 0, 0, 0},
         {0, 0, 0, 0}
     };
         
@@ -26,10 +26,10 @@ public final class SRS_J extends AbstractTetromino implements TetJ, SRSTet {
      * The RIGHT state
      */
     private static final int[][] RIGHT_STATE = {
+        {0, 0, 0, 0},
         {0, 2, 2, 0},
         {0, 2, 0, 0},
-        {0, 2, 0, 0},
-        {0, 0, 0, 0}
+        {0, 2, 0, 0}
     };
         
     /**
@@ -37,19 +37,19 @@ public final class SRS_J extends AbstractTetromino implements TetJ, SRSTet {
      */
     private static final int[][] DOWN_STATE = {
         {0, 0, 0, 0},
+        {0, 0, 0, 0},
         {2, 2, 2, 0},
-        {0, 0, 2, 0},
-        {0, 0, 0, 0}
+        {0, 0, 2, 0}
     };
         
     /**
      * The LEFT state
      */
     private static final int[][] LEFT_STATE = {
+        {0, 0, 0, 0},
         {0, 2, 0, 0},
         {0, 2, 0, 0},
         {2, 2, 0, 0},
-        {0, 0, 0, 0}
     };
     
     @Override

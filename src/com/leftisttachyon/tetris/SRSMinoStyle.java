@@ -9,6 +9,7 @@ import static com.leftisttachyon.tetris.MinoStyle.ORANGE;
 import static com.leftisttachyon.tetris.MinoStyle.PURPLE;
 import static com.leftisttachyon.tetris.MinoStyle.RED;
 import static com.leftisttachyon.tetris.MinoStyle.YELLOW;
+import com.leftisttachyon.tetris.tetrominos.Tetromino;
 import com.leftisttachyon.util.TetrisUtils;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -21,7 +22,7 @@ import java.io.IOException;
  * @author Jed Wang
  * @since 1.0.0
  */
-public class SRSMinoStyle implements MinoStyle {
+public class SRSMinoStyle extends MinoStyle {
 
     /**
      * No instantiation for you!
@@ -177,6 +178,77 @@ public class SRSMinoStyle implements MinoStyle {
                 break;
             case YELLOW:
                 g2D.drawImage(YELLOW_MINO, x, y, null);
+                break;
+        }
+    }
+
+    /*@Override
+    public void drawTetromino(Graphics2D g2D, int x_, int y_, int width,
+            Tetromino t) {
+        int[][] upState = t.getUpState();
+        int tempWidth = width / 4;
+        for (int i = 0, x = x_; i < 4; i++, x += tempWidth) {
+            for (int j = 0, y = y_; j < 4; j++, y += tempWidth) {
+                int color = upState[j][i];
+
+                switch (color) {
+                    case BLUE:
+                        g2D.drawImage(BLUE_MINO, x, y, tempWidth, tempWidth, null);
+                        break;
+                    case CYAN:
+                        g2D.drawImage(CYAN_MINO, x, y, tempWidth, tempWidth, null);
+                        break;
+                    case GREEN:
+                        g2D.drawImage(GREEN_MINO, x, y, tempWidth, tempWidth, null);
+                        break;
+                    case ORANGE:
+                        g2D.drawImage(ORANGE_MINO, x, y, tempWidth, tempWidth, null);
+                        break;
+                    case PURPLE:
+                        g2D.drawImage(PURPLE_MINO, x, y, tempWidth, tempWidth, null);
+                        break;
+                    case RED:
+                        g2D.drawImage(RED_MINO, x, y, tempWidth, tempWidth, null);
+                        break;
+                    case YELLOW:
+                        g2D.drawImage(YELLOW_MINO, x, y, tempWidth, tempWidth, null);
+                        break;
+                }
+            }
+        }
+    }*/
+
+    @Override
+    public void drawMino(Graphics2D g2D, int x, int y, int size, int color) {
+        if (size == MINO_SIZE) {
+            drawMino(g2D, x, y, color);
+            return;
+        }
+
+        switch (color) {
+            case BLUE:
+                g2D.drawImage(BLUE_MINO, x, y, size, size, null);
+                break;
+            case CYAN:
+                g2D.drawImage(CYAN_MINO, x, y, size, size, null);
+                break;
+            case FLASH:
+                g2D.drawImage(FLASH_MINO, x, y, size, size, null);
+                break;
+            case GREEN:
+                g2D.drawImage(GREEN_MINO, x, y, size, size, null);
+                break;
+            case ORANGE:
+                g2D.drawImage(ORANGE_MINO, x, y, size, size, null);
+                break;
+            case PURPLE:
+                g2D.drawImage(PURPLE_MINO, x, y, size, size, null);
+                break;
+            case RED:
+                g2D.drawImage(RED_MINO, x, y, size, size, null);
+                break;
+            case YELLOW:
+                g2D.drawImage(YELLOW_MINO, x, y, size, size, null);
                 break;
         }
     }

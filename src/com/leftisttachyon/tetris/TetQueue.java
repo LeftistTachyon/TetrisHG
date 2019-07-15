@@ -3,6 +3,7 @@ package com.leftisttachyon.tetris;
 import com.leftisttachyon.tetris.tetrominos.Tetromino;
 import com.leftisttachyon.tetris.tetrominos.TetrominoFactory;
 import com.leftisttachyon.util.Paintable;
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -19,7 +20,7 @@ public class TetQueue<T extends Tetromino> implements Paintable {
     /**
      * The internal queue
      */
-    private Queue<T> tetQueue;
+    private LinkedList<T> tetQueue;
 
     /**
      * The TetrominoFactory to use to create the tetrominos
@@ -45,6 +46,11 @@ public class TetQueue<T extends Tetromino> implements Paintable {
     private boolean isLeft;
 
     /**
+     * The MinoStyle used for drawing minos.
+     */
+    private MinoStyle minoStyle;
+
+    /**
      * Creates a default TetQueue, with 5 pieces in the outlook.
      *
      * @see #TetQueue(int)
@@ -63,10 +69,28 @@ public class TetQueue<T extends Tetromino> implements Paintable {
         this.outlook = outlook;
         isLeft = true;
         tf = null;
+        minoStyle = null;
     }
 
     @Override
     public void paint(Graphics2D g2D) {
+        MinoStyle style = getMinoStyle();
+        if (outlook >= 1) {
+            g2D.setColor(Color.WHITE);
+            g2D.fillRect(0, 0, 80, 80);
+            if (tetQueue.size() >= 1) {
+                style.drawTetromino(g2D, 0, 0, 80, tetQueue.get(0));
+            }
+            
+            int x = isLeft ? 20 : 0;
+            for (int i = 1, y = 90; i < outlook; i++, y += 70) {
+                g2D.setColor(Color.WHITE);
+                g2D.fillRect(x, y, 60, 60);
+                if (i < tetQueue.size()) {
+                    style.drawTetromino(g2D, x, y, 60, tetQueue.get(i));
+                }
+            }
+        }
     }
 
     /**
@@ -131,11 +155,29 @@ public class TetQueue<T extends Tetromino> implements Paintable {
     public TetrominoFactory<T> getTetrominoFactory() {
         return tf;
     }
-    
+
     /**
      * Clears all tetrominos from this queue.
      */
     public void clearQueue() {
         tetQueue.clear();
+    }
+
+    /**
+     * Sets the currently used MinoStyle to the given one
+     *
+     * @param minoStyle the MinoStyle to use from now on
+     */
+    public void setMinoStyle(MinoStyle minoStyle) {
+        this.minoStyle = minoStyle;
+    }
+
+    /**
+     * Returns the currently used MinoStyle
+     *
+     * @return the currently used MinoStyle
+     */
+    public MinoStyle getMinoStyle() {
+        return minoStyle == null ? BasicMinoStyle.getMinoStyle() : minoStyle;
     }
 }
