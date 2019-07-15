@@ -2,6 +2,7 @@ package com.leftisttachyon.tetris.ui;
 
 import com.leftisttachyon.tetris.MinoStyle;
 import com.leftisttachyon.tetris.TetrisMatrix;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Point;
@@ -75,7 +76,7 @@ public final class TetrisPanel extends JPanel {
         new Thread(() -> {
             m.startGame();
             
-            while(!stop && m.isInGame()) {
+            while(!stop) {
                 double start = System.nanoTime();
                 repaint();
                 double total = System.nanoTime() - start;
@@ -107,6 +108,8 @@ public final class TetrisPanel extends JPanel {
         m.advanceFrame(handler);
 
         // lastly draw
+        g.setColor(new Color(127, 127, 127));
+        g.fillRect(0, 0, getWidth(), getHeight());
         try {
             m.paint(g, 10, 10);
         } catch (NoninvertibleTransformException ex) {

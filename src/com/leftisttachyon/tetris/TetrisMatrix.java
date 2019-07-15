@@ -112,6 +112,18 @@ public class TetrisMatrix implements Paintable {
     private boolean drawGhost;
 
     /**
+     * Extra Y for when you need it ;). When the board falls, of course.
+     */
+    private int extraY;
+
+    /**
+     * Extra Y speed for when you need it.
+     *
+     * @see #extraY
+     */
+    private double extraYSpeed;
+
+    /**
      * Creates a new TetrisMatrix.
      */
     public TetrisMatrix() {
@@ -127,6 +139,8 @@ public class TetrisMatrix implements Paintable {
         linesToClear = new HashSet<>();
         gravity = 0;
         drawGhost = true;
+        extraY = 0;
+        extraYSpeed = 0;
     }
 
     /**
@@ -173,7 +187,7 @@ public class TetrisMatrix implements Paintable {
      */
     public void setMinoStyle(MinoStyle minoStyle) {
         this.minoStyle = minoStyle;
-        
+
         queue.setMinoStyle(minoStyle);
     }
 
@@ -251,8 +265,8 @@ public class TetrisMatrix implements Paintable {
         }
 
         try {
-            paintableMatrix.paint(g2D, 100, -19 * MinoStyle.MINO_SIZE);
-            
+            paintableMatrix.paint(g2D, 100, -19 * MinoStyle.MINO_SIZE + extraY);
+
             queue.paint(g2D, 10 * MinoStyle.MINO_SIZE + 120, 0);
         } catch (NoninvertibleTransformException ex) {
             ex.printStackTrace();
@@ -477,6 +491,20 @@ public class TetrisMatrix implements Paintable {
         matrix = new int[40][10];
         inGame = false;
         holdAvaliable = false;
+        drawGhost = true;
+        gravity = 0;
+        lineClearARE = 25;
+        standardARE = 25;
+        lineClearDelay = 40;
+        linesToClear = new HashSet<>();
+        lockDelay = 30;
+        lockDelayCnt = 30;
+        lockFlashCnt = -1;
+        lockingTet = null;
+        pauseAnimationCnt = -1;
+        previousY = -1;
+        extraY = 0;
+        extraYSpeed = 0;
     }
 
     /**
@@ -517,6 +545,11 @@ public class TetrisMatrix implements Paintable {
             holdAvaliable = false;
         }
         inGame = false;
+        
+        currentTet = null;
+        holdAvaliable = false;
+        
+        extraYSpeed = 0.1;
     }
 
     /**
@@ -525,13 +558,6 @@ public class TetrisMatrix implements Paintable {
      * @param handler a DASHandler so I know what to do
      */
     public void advanceFrame(DASHandler handler) {
-        if (!inGame) {
-            currentTet = null;
-            holdAvaliable = false;
-
-            return;
-        }
-
         if (lockingTet != null) {
             // lockFlashCnt >= 0
             if (lockFlashCnt > 0) {
@@ -630,6 +656,15 @@ public class TetrisMatrix implements Paintable {
             previousY = -1;
         } else {
             previousY = currentTet.getY();
+        }
+        
+        if (extraYSpeed != 0) {
+            extraY += extraYSpeed;
+            extraYSpeed += 0.1;
+            
+            if (extraY > 10000) {
+                extraYSpeed = 0;
+            }
         }
     }
 
