@@ -3,6 +3,7 @@ package com.leftisttachyon.tetris;
 import static com.leftisttachyon.tetris.MinoStyle.MINO_SIZE;
 import com.leftisttachyon.tetris.tetrominos.AbstractTetromino;
 import static com.leftisttachyon.tetris.MinoStyle.*;
+import com.leftisttachyon.tetris.tetrominos.TetT;
 import com.leftisttachyon.tetris.tetrominos.Tetromino;
 import com.leftisttachyon.tetris.tetrominos.TetrominoFactory;
 import com.leftisttachyon.tetris.tetrominos.ars.ARSSpinSystem;
@@ -15,6 +16,7 @@ import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.RenderingHints;
 import static java.awt.event.KeyEvent.*;
 import java.awt.geom.NoninvertibleTransformException;
@@ -124,6 +126,16 @@ public class TetrisMatrix implements Paintable {
     private double extraYSpeed;
 
     /**
+     * The last move
+     */
+    private int lastMove;
+
+    /**
+     * +2 kick?
+     */
+    private boolean bigSpin;
+
+    /**
      * Creates a new TetrisMatrix.
      */
     public TetrisMatrix() {
@@ -141,6 +153,8 @@ public class TetrisMatrix implements Paintable {
         drawGhost = true;
         extraY = 0;
         extraYSpeed = 0;
+        lastMove = -1;
+        bigSpin = false;
     }
 
     /**
@@ -285,6 +299,8 @@ public class TetrisMatrix implements Paintable {
         t.setY(19);
 
         lockDelayCnt = lockDelay;
+        lastMove = -1;
+        bigSpin = false;
     }
 
     /**
@@ -305,7 +321,10 @@ public class TetrisMatrix implements Paintable {
                 if (currentTet == null) {
                     System.err.println("Cannot rotate a null tetromino left");
                 } else {
+                    int prevY = currentTet.getY();
                     spinSystem.rotateLeft(currentTet, this);
+                    bigSpin = currentTet.getY() - prevY == 2;
+                    lastMove = VK_Z;
                 }
             }
         }
@@ -317,7 +336,10 @@ public class TetrisMatrix implements Paintable {
                 if (currentTet == null) {
                     System.err.println("Cannot rotate a null tetromino right");
                 } else {
+                    int prevY = currentTet.getY();
                     spinSystem.rotateRight(currentTet, this);
+                    bigSpin = currentTet.getY() - prevY == 2;
+                    lastMove = VK_X;
                 }
             }
         }
@@ -343,6 +365,7 @@ public class TetrisMatrix implements Paintable {
                 System.err.println("There is no tetromino to sonic drop");
             } else {
                 sonicDrop();
+                lastMove = VK_UP;
             }
         }
 
@@ -351,6 +374,7 @@ public class TetrisMatrix implements Paintable {
                 System.err.println("There is no tetromino to soft drop");
             } else {
                 softDrop();
+                lastMove = VK_DOWN;
             }
         }
 
@@ -360,6 +384,7 @@ public class TetrisMatrix implements Paintable {
             } else {
                 if (!currentTet.intersects(this, -1, 0)) {
                     currentTet.moveLeft();
+                    lastMove = VK_LEFT;
                 }
             }
         }
@@ -370,6 +395,7 @@ public class TetrisMatrix implements Paintable {
             } else {
                 if (!currentTet.intersects(this, 1, 0)) {
                     currentTet.moveRight();
+                    lastMove = VK_RIGHT;
                 }
             }
         }
@@ -455,6 +481,12 @@ public class TetrisMatrix implements Paintable {
         currentTet = null;
         holdAvaliable = false;
 
+        for (int i = 0; i < matrix.length; i++) {
+            if (isLineFull(i)) {
+                linesToClear.add(i);
+            }
+        }
+
         if (linesToClear.isEmpty()) {
             pauseAnimationCnt = standardARE + 1;
         } else {
@@ -505,6 +537,8 @@ public class TetrisMatrix implements Paintable {
         previousY = -1;
         extraY = 0;
         extraYSpeed = 0;
+        lastMove = -1;
+        bigSpin = false;
     }
 
     /**
@@ -545,10 +579,10 @@ public class TetrisMatrix implements Paintable {
             holdAvaliable = false;
         }
         inGame = false;
-        
+
         currentTet = null;
         holdAvaliable = false;
-        
+
         extraYSpeed = 0.1;
     }
 
@@ -563,6 +597,39 @@ public class TetrisMatrix implements Paintable {
             if (lockFlashCnt > 0) {
                 lockFlashCnt--;
             } else {
+                // T-spin?
+                if (lockingTet instanceof TetT
+                        && (lastMove == VK_Z || lastMove == VK_X)) {
+                    System.out.println("T-Spin?");
+                    TetT tee = (TetT) lockingTet;
+                    Point center = tee.getCenter();
+                    int x = tee.getX() + center.y, y = tee.getY() + center.x;
+                    int corners = 0;
+                    if (getBlock(y - 1, x + 1) != 0) {
+                        corners++;
+                    }
+                    if (getBlock(y + 1, x + 1) != 0) {
+                        corners++;
+                    }
+                    if (getBlock(y - 1, x - 1) != 0) {
+                        corners++;
+                    }
+                    if (getBlock(y + 1, x - 1) != 0) {
+                        corners++;
+                    }
+                    
+                    // corners can be 4
+                    if (corners >= 3) {
+                        // Ok, so T-spin
+                        // but mini?
+                        if (bigSpin || tee.filledFaceCorners(this) == 2) {
+                            System.out.println("T-spin!");
+                        } else {
+                            System.out.println("T-spin mini");
+                        }
+                    }
+                }
+                
                 int[][] temp = lockingTet.getState();
                 for (int i = 0; i < 4; i++) {
                     for (int j = 0; j < 4; j++) {
@@ -573,17 +640,10 @@ public class TetrisMatrix implements Paintable {
                     }
                 }
 
-                if (!linesToClear.isEmpty()) {
-                    throw new IllegalStateException("linesToClear ought to be empty!");
+                for (int i : linesToClear) {
+                    clearLine(i);
                 }
-
-                for (int i = 0; i < matrix.length; i++) {
-                    if (isLineFull(i)) {
-                        clearLine(i);
-                        linesToClear.add(i);
-                    }
-                }
-
+                
                 lockingTet = null;
                 lockFlashCnt = -1;
             }
@@ -638,6 +698,7 @@ public class TetrisMatrix implements Paintable {
             for (int i = 0; i < gravity
                     && !currentTet.intersects(this, 0, 1); i++) {
                 currentTet.moveDown();
+                lastMove = -1;
             }
 
             if (currentTet.intersects(this, 0, 1)
@@ -657,11 +718,11 @@ public class TetrisMatrix implements Paintable {
         } else {
             previousY = currentTet.getY();
         }
-        
+
         if (extraYSpeed != 0) {
             extraY += extraYSpeed;
             extraYSpeed += 0.1;
-            
+
             if (extraY > 10000) {
                 extraYSpeed = 0;
             }
@@ -896,6 +957,44 @@ public class TetrisMatrix implements Paintable {
         output.setTetrominoFactory(SRSTetrominoFactory.getTetrominoFactory());
         output.setMinoStyle(SRSMinoStyle.getMinoStyle());
         return output;
+    }
+
+    /**
+     * Makes the given matrix a ARS-style matrix
+     *
+     * @param matrix the matrix to convert
+     */
+    public static void setAsARSMatrix(TetrisMatrix matrix) {
+        if (matrix == null) {
+            return;
+        }
+
+        if (matrix.queue != null) {
+            matrix.queue.clearQueue();
+        }
+
+        matrix.setSpinSystem(ARSSpinSystem.getSpinSystem());
+        matrix.setTetrominoFactory(ARSTetrominoFactory.getTetrominoFactory());
+        matrix.setMinoStyle(TGMMinoStyle.getMinoStyle());
+    }
+
+    /**
+     * Makes the given matrix an SRS-style matrix
+     *
+     * @param matrix the matrix to convert
+     */
+    public static void setAsSRSMatrix(TetrisMatrix matrix) {
+        if (matrix == null) {
+            return;
+        }
+
+        if (matrix.queue != null) {
+            matrix.queue.clearQueue();
+        }
+
+        matrix.setSpinSystem(SRSSpinSystem.getSpinSystem());
+        matrix.setTetrominoFactory(SRSTetrominoFactory.getTetrominoFactory());
+        matrix.setMinoStyle(SRSMinoStyle.getMinoStyle());
     }
 
     /**

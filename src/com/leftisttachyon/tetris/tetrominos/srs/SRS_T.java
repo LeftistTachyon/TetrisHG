@@ -1,7 +1,9 @@
 package com.leftisttachyon.tetris.tetrominos.srs;
 
+import com.leftisttachyon.tetris.TetrisMatrix;
 import com.leftisttachyon.tetris.tetrominos.AbstractTetromino;
 import com.leftisttachyon.tetris.tetrominos.TetT;
+import java.awt.Point;
 
 /**
  * A class that represents the T tetromino in the Super Rotation System.
@@ -75,5 +77,33 @@ public final class SRS_T extends AbstractTetromino implements TetT, SRSTet {
     @Override
     public String getName() {
         return "SRS T";
+    }
+    
+    /**
+     * Always the center
+     */
+    private static final Point CENTER = new Point(2, 1);
+
+    @Override
+    public Point getCenter() {
+        return CENTER;
+    }
+
+    @Override
+    public int filledFaceCorners(TetrisMatrix m) {
+        int output = 0;
+        if ((rotation == UP || rotation == LEFT) && m.getBlock(x, y + 1) != 0) {
+            output++;
+        }
+        if ((rotation == UP || rotation == RIGHT) && m.getBlock(x + 2, y + 1) != 0) {
+            output++;
+        }
+        if ((rotation == DOWN || rotation == LEFT) && m.getBlock(x, y + 3) != 0) {
+            output++;
+        }
+        if ((rotation == DOWN || rotation == RIGHT) && m.getBlock(x + 2, y + 3) != 0) {
+            output++;
+        }
+        return output;
     }
 }

@@ -1,7 +1,9 @@
 package com.leftisttachyon.tetris.tetrominos.ars;
 
+import com.leftisttachyon.tetris.TetrisMatrix;
 import com.leftisttachyon.tetris.tetrominos.AbstractTetromino;
 import com.leftisttachyon.tetris.tetrominos.TetT;
+import java.awt.Point;
 
 /**
  * A class that represents the T tetromino in the Arika Rotation System.
@@ -76,6 +78,42 @@ public final class ARS_T extends AbstractTetromino implements TetT, ARSTet {
     @Override
     public String getName() {
         return "ARS T";
+    }
+    
+    /**
+     * The center when in the down rotation state
+     */
+    private static final Point DOWN_CENTER = new Point(2, 1);
+    
+    /**
+     * The center otherwise
+     */
+    private static final Point CENTER = new Point(1, 1);
+
+    @Override
+    public Point getCenter() {
+        return rotation == DOWN ? DOWN_CENTER : CENTER;
+    }
+
+    @Override
+    public int filledFaceCorners(TetrisMatrix m) {
+        Point center = getCenter();
+        int cx = center.x, cy = center.y;
+        
+        int output = 0;
+        if ((rotation == DOWN || rotation == LEFT) && m.getBlock(cx + 1, cy - 1) != 0) {
+            output++;
+        }
+        if ((rotation == DOWN || rotation == RIGHT) && m.getBlock(cx - 1, cy - 1) != 0) {
+            output++;
+        }
+        if ((rotation == UP || rotation == LEFT) && m.getBlock(cx + 1, cy  + 1) != 0) {
+            output++;
+        }
+        if ((rotation == UP || rotation == RIGHT) && m.getBlock(cx - 1, cy + 1) != 0) {
+            output++;
+        }
+        return output;
     }
     
 }
