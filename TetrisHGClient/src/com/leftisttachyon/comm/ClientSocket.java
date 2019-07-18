@@ -21,7 +21,7 @@ import javax.swing.JOptionPane;
  * @author Jed Wang
  * @since 0.9.1
  */
-public class ClientSocket {
+public final class ClientSocket {
 
     /**
      * The socket in where the communications take place
@@ -46,17 +46,12 @@ public class ClientSocket {
     /**
      * A queue that queues up things to be read
      */
-    // private final BlockingQueue<String> toReceive;
+    private final BlockingQueue<String> toReceive;
 
     /**
      * Whether this ClientSocket is currently communicating with the server
      */
     private volatile boolean communicating = false;
-    
-    /**
-     * Threads
-     */
-    private Thread one, two;
 
     /**
      * Creates a new ClientSocket, which attempts to establish a connection to
@@ -70,51 +65,11 @@ public class ClientSocket {
         in = null;
         out = null;
         toSend = new LinkedBlockingDeque<>();
-        
-        one = new Thread(() -> {
-            while (communicating) {
-                String read = null;
-                try {
-                    read = in.readLine();
-                } catch (SocketException se) {
-                    JOptionPane.showMessageDialog(null,
-                            "You have been disconnected from the server.",
-                            "Disconnected", JOptionPane.WARNING_MESSAGE);
-                    System.exit(0);
-                } catch (IOException ex) {
-                    System.err.println("Could not read line");
-                }
-                if (read == null) {
-                    JOptionPane.showMessageDialog(null,
-                            "The server has gone offline.",
-                            "Disconnected", JOptionPane.WARNING_MESSAGE);
-                    break;
-                }
-                
-                // System.out.println("I can read a " + read);
-
-                if (hasServerListeners()) {
-                    for (Consumer<String> listener : listeners) {
-                        listener.accept(read);
-                    }
-                }
-            }
-        });
-        
-        two = new Thread(() -> {
-            while (communicating) {
-                try {
-                    out.println(toSend.take());
-                } catch (InterruptedException ex) {
-                    System.err.println("Take from toSend was interrupted");
-                }
-            }
-        });
+        toReceive = new LinkedBlockingQueue<>();
         
         socket = new Socket(host, 9001);
         in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         out = new PrintWriter(socket.getOutputStream(), true);
-        // toReceive = new LinkedBlockingQueue<>();
         
         startCommunications();
     }
@@ -244,19 +199,7 @@ public class ClientSocket {
     public void startCommunications() {
         communicating = true;
         
-        one.start();
-
-        two.start();
-    }
-
-    /**
-     * Stops all communications... for now. Stops sending and receiving
-     * messages.
-     */
-    public void stopCommunications() {
-        communicating = false;
-        
-        one = new Thread(() -> {
+        new Thread(() -> {
             while (communicating) {
                 String read = null;
                 try {
@@ -282,11 +225,13 @@ public class ClientSocket {
                     for (Consumer<String> listener : listeners) {
                         listener.accept(read);
                     }
+                } else {
+                    toReceive.offer(read);
                 }
             }
-        });
-        
-        two = new Thread(() -> {
+        }).start();
+
+        new Thread(() -> {
             while (communicating) {
                 try {
                     out.println(toSend.take());
@@ -294,7 +239,15 @@ public class ClientSocket {
                     System.err.println("Take from toSend was interrupted");
                 }
             }
-        });
+        }).start();
+    }
+
+    /**
+     * Stops all communications... for now. Stops sending and receiving
+     * messages.
+     */
+    public void stopCommunications() {
+        communicating = false;
     }
 
     /**
@@ -305,9 +258,9 @@ public class ClientSocket {
      * @throws InterruptedException if the waiting for the next item is
      * interrupted.
      */
-    /*public String read() throws InterruptedException {
+    public String read() throws InterruptedException {
         return hasServerListeners() ? null : toReceive.take();
-    }*/
+    }
 
     /**
      * The Consumers listening to the server

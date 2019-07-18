@@ -8,8 +8,6 @@ import java.net.Socket;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 /**
  * A class that handles the client
@@ -32,12 +30,12 @@ public class MiniServer {
     /**
      * A reader coming from the user
      */
-    private BufferedReader in;
+    private final BufferedReader in;
 
     /**
      * A writer going to the user
      */
-    private PrintWriter out;
+    private final PrintWriter out;
 
     /**
      * The internal socket
@@ -67,6 +65,9 @@ public class MiniServer {
      */
     public MiniServer(Socket s) throws IOException {
         socket = s;
+        in = new BufferedReader(new InputStreamReader(
+                socket.getInputStream()));
+        out = new PrintWriter(socket.getOutputStream(), true);
         inGame = false;
         opponent = null;
     }
@@ -76,17 +77,11 @@ public class MiniServer {
      */
     public void go() {
         try {
-            // Create character streams for the socket.
-            in = new BufferedReader(new InputStreamReader(
-                    socket.getInputStream()));
-            out = new PrintWriter(socket.getOutputStream(), true);
-
             // Request a name from this client.  Keep requesting until
             // a name is submitted that is not already used.  Note that
             // checking for the existence of a name and adding the name
             // must be done while locking the set of names.
             while (true) {
-                System.out.println("SUBMITNAME");
                 out.println("SUBMITNAME");
                 // notify("SUBMITNAME", false);
                 name = in.readLine();
