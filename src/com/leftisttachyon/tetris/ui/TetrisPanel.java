@@ -23,7 +23,7 @@ import javax.swing.JPanel;
  * A class that draws everything and takes in key events.
  *
  * @author Jed Wang
- * @since 1.0.0
+ * @since 0.9.0
  */
 public final class TetrisPanel extends JPanel {
 

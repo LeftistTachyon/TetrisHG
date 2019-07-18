@@ -10,7 +10,7 @@ import java.awt.Graphics2D;
  * An abstract that controls how each mino is drawn.
  *
  * @author Jed Wang
- * @since 1.0.0
+ * @since 0.9.0
  */
 public abstract class MinoStyle {
 

@@ -8,7 +8,7 @@ import static com.leftisttachyon.tetris.tetrominos.Tetromino.*;
  * The SpinSystem object for SRS.
  *
  * @author Jed Wang
- * @since 1.0.0
+ * @since 0.9.0
  */
 public class SRSSpinSystem extends SpinSystem<SRSTet> {
 

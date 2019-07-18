@@ -7,7 +7,7 @@ import com.leftisttachyon.tetris.tetrominos.TetZ;
  * A class that represents the Z tetromino in the Super Rotation System.
  *
  * @author Jed Wang
- * @since 1.0.0
+ * @since 0.9.0
  */
 public final class SRS_Z extends AbstractTetromino implements TetZ, SRSTet {
     //red, so use 7

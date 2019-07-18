@@ -7,7 +7,7 @@ import com.leftisttachyon.tetris.tetrominos.Tetromino;
  *
  * @author Jed Wang
  * @param <T> the rotation system of the tetrominos to rotate
- * @since 1.0.0
+ * @since 0.9.0
  */
 public abstract class SpinSystem<T extends Tetromino> {
 

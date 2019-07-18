@@ -5,7 +5,7 @@ import com.leftisttachyon.tetris.ui.TetrisFrame;
 /**
  * The main class; entry point of the application
  * @author Jed Wang
- * @since 1.0.0
+ * @since 0.9.0
  */
 public class TetrisMain {
     /**

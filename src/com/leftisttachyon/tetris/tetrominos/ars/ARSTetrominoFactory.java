@@ -6,7 +6,7 @@ import com.leftisttachyon.tetris.tetrominos.TetrominoFactory;
  * A Tetromino factory that manufactures ARS tetrominos.
  *
  * @author Jed Wang
- * @since 1.0.0
+ * @since 0.9.0
  */
 public class ARSTetrominoFactory extends TetrominoFactory<ARSTet> {
 

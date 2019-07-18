@@ -6,7 +6,7 @@ import com.leftisttachyon.tetris.tetrominos.TetrominoFactory;
  * A Tetromino factory that manufactures SRS tetrominos.
  *
  * @author Jed Wang
- * @since 1.0.0
+ * @since 0.9.0
  */
 public class SRSTetrominoFactory extends TetrominoFactory<SRSTet> {
 

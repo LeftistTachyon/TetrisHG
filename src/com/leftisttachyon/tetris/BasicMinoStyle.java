@@ -8,7 +8,7 @@ import java.awt.Graphics2D;
  * A mino style that is solid colors.
  *
  * @author Jed Wang
- * @since 1.0.0
+ * @since 0.9.0
  */
 public class BasicMinoStyle extends MinoStyle {
 

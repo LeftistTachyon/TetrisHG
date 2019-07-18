@@ -7,7 +7,7 @@ import com.leftisttachyon.tetris.tetrominos.TetO;
  * A class that represents the O tetromino in the Super Rotation System.
  *
  * @author Jed Wang
- * @since 1.0.0
+ * @since 0.9.0
  */
 public final class SRS_O extends AbstractTetromino implements TetO, SRSTet {
     

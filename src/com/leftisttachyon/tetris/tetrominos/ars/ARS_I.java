@@ -7,7 +7,7 @@ import com.leftisttachyon.tetris.tetrominos.TetI;
  * A class that represents the I tetromino in the Arika Rotation System.
  *
  * @author Jed Wang
- * @since 1.0.0
+ * @since 0.9.0
  */
 public final class ARS_I extends AbstractTetromino implements TetI, ARSTet {
 

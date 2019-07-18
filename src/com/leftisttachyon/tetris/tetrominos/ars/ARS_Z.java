@@ -7,7 +7,7 @@ import com.leftisttachyon.tetris.tetrominos.TetZ;
  * A class that represents the Z tetromino in the Arika Rotation System.
  *
  * @author Jed Wang
- * @since 1.0.0
+ * @since 0.9.0
  */
 public final class ARS_Z extends AbstractTetromino implements TetZ, ARSTet {
 

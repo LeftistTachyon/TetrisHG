@@ -13,6 +13,7 @@ import java.util.LinkedList;
  *
  * @author Jed Wang
  * @param <T> the type of tetromino in the queue
+ * @since 0.9.0
  */
 public class TetQueue<T extends Tetromino> implements Paintable {
 

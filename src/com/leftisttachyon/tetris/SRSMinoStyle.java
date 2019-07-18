@@ -14,7 +14,7 @@ import net.coobird.thumbnailator.Thumbnails;
  * The SRS style of minos
  *
  * @author Jed Wang
- * @since 1.0.0
+ * @since 0.9.0
  */
 public class SRSMinoStyle extends MinoStyle {
 

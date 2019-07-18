@@ -9,7 +9,7 @@ import java.awt.Point;
  * A class that represents the T tetromino in the Super Rotation System.
  *
  * @author Jed Wang
- * @since 1.0.0
+ * @since 0.9.0
  */
 public final class SRS_T extends AbstractTetromino implements TetT, SRSTet {
     //purple, so use 6

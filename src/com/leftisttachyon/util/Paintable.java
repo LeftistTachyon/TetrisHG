@@ -12,7 +12,7 @@ import java.awt.geom.NoninvertibleTransformException;
  *
  * @author Jed Wang
  * @see Component#paint(java.awt.Graphics)
- * @since 1.0.0
+ * @since 0.9.0
  */
 @FunctionalInterface
 public interface Paintable {

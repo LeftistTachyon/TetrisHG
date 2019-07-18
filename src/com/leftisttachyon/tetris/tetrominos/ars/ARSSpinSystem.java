@@ -8,7 +8,7 @@ import com.leftisttachyon.tetris.tetrominos.Tetromino;
  * The SpinSystem object for ARS.
  *
  * @author Jed Wang
- * @since 1.0.0
+ * @since 0.9.0
  */
 public class ARSSpinSystem extends SpinSystem<ARSTet> {
 

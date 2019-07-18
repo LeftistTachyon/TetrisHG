@@ -7,7 +7,7 @@ import com.leftisttachyon.tetris.tetrominos.TetL;
  * A class that represents the L tetromino in the Arika Rotation System.
  *
  * @author Jed Wang
- * @since 1.0.0
+ * @since 0.9.0
  */
 public final class ARS_L extends AbstractTetromino implements TetL, ARSTet {
     // orange, so use 3

@@ -6,7 +6,7 @@ import com.leftisttachyon.tetris.TetrisMatrix;
  * An interface that represents a Tetris piece. (aka a tetromino)
  *
  * @author Jed Wang
- * @since 1.0.0
+ * @since 0.9.0
  */
 public interface Tetromino {
 

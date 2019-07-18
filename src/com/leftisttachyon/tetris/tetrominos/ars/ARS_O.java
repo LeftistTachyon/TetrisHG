@@ -7,7 +7,7 @@ import com.leftisttachyon.tetris.tetrominos.TetO;
  * A class that represents the O tetromino in the Arika Rotation System.
  *
  * @author Jed Wang
- * @since 1.0.0
+ * @since 0.9.0
  */
 public final class ARS_O extends AbstractTetromino implements TetO, ARSTet {
     

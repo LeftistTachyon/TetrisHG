@@ -11,7 +11,7 @@ import java.util.LinkedList;
  * A class that deals with adding and countering garbage.
  *
  * @author Jed Wang
- * @since 1.0.0
+ * @since 0.9.0
  */
 public class GarbageManager implements Paintable {
 

@@ -7,7 +7,7 @@ import com.leftisttachyon.tetris.tetrominos.TetL;
  * A class that represents the L tetromino in the Super Rotation System.
  *
  * @author Jed Wang
- * @since 1.0.0
+ * @since 0.9.0
  */
 public final class SRS_L extends AbstractTetromino implements TetL, SRSTet {
     //orange, so use 3

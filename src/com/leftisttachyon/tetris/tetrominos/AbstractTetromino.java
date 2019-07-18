@@ -6,7 +6,7 @@ import com.leftisttachyon.tetris.TetrisMatrix;
  * An implementing class of Tetromino that has more utility methods.
  *
  * @author Jed Wang
- * @since 1.0.0
+ * @since 0.9.0
  */
 public abstract class AbstractTetromino implements Tetromino {
 

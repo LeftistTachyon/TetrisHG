@@ -9,7 +9,7 @@ import java.awt.Point;
  * A class that represents the T tetromino in the Arika Rotation System.
  *
  * @author Jed Wang
- * @since 1.0.0
+ * @since 0.9.0
  */
 public final class ARS_T extends AbstractTetromino implements TetT, ARSTet {
     // cyan, so use 1
