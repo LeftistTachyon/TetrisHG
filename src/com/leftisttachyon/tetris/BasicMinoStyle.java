@@ -66,7 +66,7 @@ public class BasicMinoStyle extends MinoStyle {
             case RED:
                 g2D.setColor(Color.RED);
                 break;
-            case FLASH:
+            case GREY:
                 g2D.setColor(flash);
                 break;
             default:

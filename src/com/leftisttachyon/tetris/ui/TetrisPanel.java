@@ -14,6 +14,9 @@ import java.awt.Point;
 import static java.awt.event.KeyEvent.*;
 import java.awt.geom.NoninvertibleTransformException;
 import java.util.HashSet;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import javax.swing.JPanel;
 
 /**
@@ -35,11 +38,6 @@ public final class TetrisPanel extends JPanel {
     DASHandler handler;
 
     /**
-     * A flag for stopping
-     */
-    private volatile boolean stop;
-
-    /**
      * Whether the player has selected to use SRS or ARS
      */
     private volatile boolean selected;
@@ -55,20 +53,25 @@ public final class TetrisPanel extends JPanel {
     private int selection = 0;
 
     /**
+     * A service for a stable (?) framerate
+     */
+    private ScheduledExecutorService service;
+
+    /**
      * Creates a new, default TetrisPanel.
      */
     public TetrisPanel() {
         super();
 
         handler = new DASHandler();
-        // handler.setListener(VK_DOWN, new Point(14, 1));
+        // handler.setListener(VK_DOWN, new Point(8, 1));
         handler.setListener(VK_DOWN, new Point(-1, -1));
         handler.setListener(VK_Z, new Point(-1, -1));
         handler.setListener(VK_X, new Point(-1, -1));
         handler.setListener(VK_C, new Point(-1, -1));
         handler.setListener(VK_SPACE, new Point(-1, -1));
-        handler.setListener(VK_LEFT, new Point(14, 1));
-        handler.setListener(VK_RIGHT, new Point(14, 1));
+        handler.setListener(VK_LEFT, new Point(8, 1));
+        handler.setListener(VK_RIGHT, new Point(8, 1));
         handler.setListener(VK_UP, new Point(-1, -1));
 
         addKeyListener(handler);
@@ -79,45 +82,45 @@ public final class TetrisPanel extends JPanel {
         selected = false;
 
         m = new TetrisMatrix();
+
+        service = null;
     }
 
     /**
      * Starts rendering frames, accepting inputs, and running code.
      */
     public void startFrames() {
-        new Thread(() -> {
-            while (!stop) {
+        service = Executors.newSingleThreadScheduledExecutor();
+        service.scheduleAtFixedRate(() -> {
+            try {
                 // double start = System.nanoTime();
                 repaint();
                 /*double total = System.nanoTime() - start;
                 total /= 1_000_000;
                 System.out.printf("Frame: %.2f ms%n", total);*/
-
-                try {
-                    Thread.sleep(16);
-                } catch (InterruptedException ex) {
-                    ex.printStackTrace();
-                }
+            } catch (Exception e) {
+                System.err.println("Exception occured while executing frame");
+                e.printStackTrace();
             }
-        }).start();
+        }, 0, 16, TimeUnit.MILLISECONDS);
     }
 
     /**
      * Starts rendering frames, accepting inputs, and running code.
      */
     public void stopFrames() {
-        stop = true;
+        service.shutdown();
     }
 
     @Override
     public void paint(Graphics g) {
         Graphics2D g2D = (Graphics2D) g;
-        
+
         // first take inputs
         HashSet<Integer> actions = handler.advanceFrame();
 
+        // then make updates
         if (selected) {
-            // then make updates
             m.executeActions(actions);
             m.advanceFrame(handler);
         } else {
@@ -143,7 +146,7 @@ public final class TetrisPanel extends JPanel {
                         break;
                 }
 
-                handler.setListener(VK_DOWN, new Point(14, 1));
+                handler.setListener(VK_DOWN, new Point(8, 1));
                 m.startGame();
 
                 selected = true;
@@ -164,21 +167,21 @@ public final class TetrisPanel extends JPanel {
             g2D.setFont(new Font("Arial Black", Font.PLAIN, 15));
             FontMetrics metrics = g2D.getFontMetrics();
             g2D.setColor(Color.WHITE);
-            
+
             String toDraw;
-            
+
             toDraw = "SRS (normal garbage)";
             g2D.drawString(toDraw, 110 + (10 * MINO_SIZE - metrics.stringWidth(toDraw)) / 2, 150);
-            
-            toDraw = "ARS/TGM (2-5x garbage)";
+
+            toDraw = "ARS/TGM (2-4x garbage)";
             g2D.drawString(toDraw, 110 + (10 * MINO_SIZE - metrics.stringWidth(toDraw)) / 2, 250);
-            
+
             g2D.setColor(Color.RED);
-            g2D.setStroke(new BasicStroke(3.0f, BasicStroke.CAP_SQUARE, 
+            g2D.setStroke(new BasicStroke(3.0f, BasicStroke.CAP_SQUARE,
                     BasicStroke.JOIN_MITER));
-            
+
             int height = metrics.getHeight();
-            switch(selection) {
+            switch (selection) {
                 case 0:
                     g2D.drawRect(115, 130 - height / 4, 10 * MINO_SIZE - 10, 40);
                     break;
@@ -187,5 +190,26 @@ public final class TetrisPanel extends JPanel {
                     break;
             }
         }
+    }
+
+    /**
+     * Sets a new value for the DAS
+     *
+     * @param das the new DAS value
+     */
+    public void setDAS(int das) {
+        Point dasSettings = new Point(das, 1);
+        handler.setListener(VK_DOWN, dasSettings);
+        handler.setListener(VK_LEFT, dasSettings);
+        handler.setListener(VK_RIGHT, dasSettings);
+    }
+
+    /**
+     * Returns the internal TetrisMatrix
+     *
+     * @return the internal TetrisMatrix
+     */
+    public TetrisMatrix getMatrix() {
+        return m;
     }
 }

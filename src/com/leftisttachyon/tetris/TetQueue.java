@@ -6,7 +6,6 @@ import com.leftisttachyon.util.Paintable;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.LinkedList;
-import java.util.Queue;
 
 /**
  * A queue of tetrominos that control the bag randomization system as well as
@@ -77,15 +76,15 @@ public class TetQueue<T extends Tetromino> implements Paintable {
         MinoStyle style = getMinoStyle();
         if (outlook >= 1) {
             g2D.setColor(Color.WHITE);
-            g2D.fillRect(0, 0, 80, 80);
+            g2D.fillRect(0, 0, 80, 48);
             if (tetQueue.size() >= 1) {
                 style.drawTetromino(g2D, 0, 0, 80, tetQueue.get(0));
             }
             
             int x = isLeft ? 20 : 0;
-            for (int i = 1, y = 90; i < outlook; i++, y += 70) {
+            for (int i = 1, y = 58; i < outlook; i++, y += 46) {
                 g2D.setColor(Color.WHITE);
-                g2D.fillRect(x, y, 60, 60);
+                g2D.fillRect(x, y, 60, 36);
                 if (i < tetQueue.size()) {
                     style.drawTetromino(g2D, x, y, 60, tetQueue.get(i));
                 }

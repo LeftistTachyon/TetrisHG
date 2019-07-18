@@ -1,20 +1,14 @@
 package com.leftisttachyon.tetris;
 
-import static com.leftisttachyon.tetris.MinoStyle.BLUE;
-import static com.leftisttachyon.tetris.MinoStyle.CYAN;
-import static com.leftisttachyon.tetris.MinoStyle.FLASH;
-import static com.leftisttachyon.tetris.MinoStyle.GREEN;
-import static com.leftisttachyon.tetris.MinoStyle.MINO_SIZE;
-import static com.leftisttachyon.tetris.MinoStyle.ORANGE;
-import static com.leftisttachyon.tetris.MinoStyle.PURPLE;
-import static com.leftisttachyon.tetris.MinoStyle.RED;
-import static com.leftisttachyon.tetris.MinoStyle.YELLOW;
-import com.leftisttachyon.tetris.tetrominos.Tetromino;
+import static com.leftisttachyon.tetris.MinoStyle.*;
 import com.leftisttachyon.util.TetrisUtils;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import static com.leftisttachyon.tetris.MinoStyle.GREY;
+import java.util.HashMap;
+import net.coobird.thumbnailator.Thumbnails;
 
 /**
  * The SRS style of minos
@@ -28,6 +22,7 @@ public class SRSMinoStyle extends MinoStyle {
      * No instantiation for you!
      */
     private SRSMinoStyle() {
+        imageCache = new HashMap[9];
     }
 
     /**
@@ -55,9 +50,9 @@ public class SRSMinoStyle extends MinoStyle {
     private static final Image CYAN_MINO;
 
     /**
-     * An image of a flashing mino
+     * An image of a flashing/garbage mino
      */
-    private static final Image FLASH_MINO;
+    private static final Image GREY_MINO;
 
     /**
      * An image of a green mino
@@ -109,7 +104,7 @@ public class SRSMinoStyle extends MinoStyle {
         } catch (IOException ex) {
             ex.printStackTrace();
         }
-        FLASH_MINO = temp.getScaledInstance(MINO_SIZE, MINO_SIZE, Image.SCALE_SMOOTH);
+        GREY_MINO = temp.getScaledInstance(MINO_SIZE, MINO_SIZE, Image.SCALE_SMOOTH);
 
         temp = null;
         try {
@@ -161,8 +156,8 @@ public class SRSMinoStyle extends MinoStyle {
             case CYAN:
                 g2D.drawImage(CYAN_MINO, x, y, null);
                 break;
-            case FLASH:
-                g2D.drawImage(FLASH_MINO, x, y, null);
+            case GREY:
+                g2D.drawImage(GREY_MINO, x, y, null);
                 break;
             case GREEN:
                 g2D.drawImage(GREEN_MINO, x, y, null);
@@ -217,7 +212,6 @@ public class SRSMinoStyle extends MinoStyle {
             }
         }
     }*/
-
     @Override
     public void drawMino(Graphics2D g2D, int x, int y, int size, int color) {
         if (size == MINO_SIZE) {
@@ -225,31 +219,76 @@ public class SRSMinoStyle extends MinoStyle {
             return;
         }
 
-        switch (color) {
-            case BLUE:
-                g2D.drawImage(BLUE_MINO, x, y, size, size, null);
-                break;
-            case CYAN:
-                g2D.drawImage(CYAN_MINO, x, y, size, size, null);
-                break;
-            case FLASH:
-                g2D.drawImage(FLASH_MINO, x, y, size, size, null);
-                break;
-            case GREEN:
-                g2D.drawImage(GREEN_MINO, x, y, size, size, null);
-                break;
-            case ORANGE:
-                g2D.drawImage(ORANGE_MINO, x, y, size, size, null);
-                break;
-            case PURPLE:
-                g2D.drawImage(PURPLE_MINO, x, y, size, size, null);
-                break;
-            case RED:
-                g2D.drawImage(RED_MINO, x, y, size, size, null);
-                break;
-            case YELLOW:
-                g2D.drawImage(YELLOW_MINO, x, y, size, size, null);
-                break;
+        if (color != 0) {
+            g2D.drawImage(getScaledMino(color, size), x, y, null);
+        }
+    }
+
+    /**
+     * A cache of resized images
+     */
+    private final HashMap<Integer, Image>[] imageCache;
+
+    /**
+     * Gets a scaled instance of an image of a mino
+     *
+     * @param color the color of the mino to get
+     * @param size the size of the mino
+     * @return the scaled instance of an image
+     */
+    private Image getScaledMino(int color, int size) {
+        if(color < 1 || color > 9) {
+            return null;
+        }
+        
+        // HashMap<Integer, Image> colorCache = ;
+        if(imageCache[color - 1] == null) {
+            imageCache[color - 1] = new HashMap<>();
+        }
+        
+        if(imageCache[color - 1].containsKey(size)) {
+            return imageCache[color - 1].get(size);
+        } else {
+            try {
+                BufferedImage file;
+                switch(color) {
+                    case BLUE:
+                        file = TetrisUtils.getResource("/com/leftisttachyon/tetris/resources/srs/blue.png");
+                        break;
+                    case CYAN:
+                        file = TetrisUtils.getResource("/com/leftisttachyon/tetris/resources/srs/cyan.png");
+                        break;
+                    case GREEN:
+                        file = TetrisUtils.getResource("/com/leftisttachyon/tetris/resources/srs/green.png");
+                        break;
+                    case GREY:
+                        file = TetrisUtils.getResource("/com/leftisttachyon/tetris/resources/srs/lock.png");
+                        break;
+                    case ORANGE:
+                        file = TetrisUtils.getResource("/com/leftisttachyon/tetris/resources/srs/orange.png");
+                        break;
+                    case PURPLE:
+                        file = TetrisUtils.getResource("/com/leftisttachyon/tetris/resources/srs/purple.png");
+                        break;
+                    case RED:
+                        file = TetrisUtils.getResource("/com/leftisttachyon/tetris/resources/srs/red.png");
+                        break;
+                    case YELLOW:
+                        file = TetrisUtils.getResource("/com/leftisttachyon/tetris/resources/srs/yellow.png");
+                        break;
+                    default:
+                        return null;
+                }
+                
+                BufferedImage output = Thumbnails.of(file).height(size).asBufferedImage();
+                
+                imageCache[color - 1].put(size, output);
+                
+                return output;
+            } catch (IOException ex) {
+                ex.printStackTrace();
+                return null;
+            }
         }
     }
 }

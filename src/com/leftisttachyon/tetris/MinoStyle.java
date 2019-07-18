@@ -121,9 +121,10 @@ public abstract class MinoStyle {
     public static final int WALL = 8;
 
     /**
-     * Number representing a mino that is flashing (when a tetromino locks)
+     * Number representing a mino that is flashing (when a tetromino locks) or a
+     * garbage mino
      */
-    public static final int FLASH = 9;
+    public static final int GREY = 9;
 
     /**
      * Number representing no mino
@@ -157,14 +158,14 @@ public abstract class MinoStyle {
      */
     public void drawTetromino(
             Graphics2D g2D, int x_, int y_, int width, Tetromino t) {
-        int minoSize = width / 4;
+        int minoSize = width / 5;
         int[][] upState = t.getUpState();
         int top = highestRow(upState), bottom = lowestRow(upState),
                 left = leftmostCol(upState), right = rightmostCol(upState);
         int minoHeight = bottom - top + 1, minoWidth = right - left + 1;
-        int horizGap = (4 - minoWidth) * minoSize / 2, 
-                vertGap = (4 - minoHeight) * minoSize / 2;
-        
+        int horizGap = (5 - minoWidth) * minoSize / 2,
+                vertGap = (3 - minoHeight) * minoSize / 2;
+
         for (int i = left, x = x_ + horizGap; i <= right; i++, x += minoSize) {
             for (int j = top, y = y_ + vertGap; j <= bottom; j++, y += minoSize) {
                 drawMino(g2D, x, y, minoSize, upState[j][i]);
