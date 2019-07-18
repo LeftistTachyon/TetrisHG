@@ -5,10 +5,15 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.net.SocketException;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.function.Consumer;
+import javax.swing.JOptionPane;
 
 /**
  * A wrapper class of a Socket that streamlines communication with a server.
@@ -26,12 +31,12 @@ public class ClientSocket {
     /**
      * The BufferedReader which reads out of the socket
      */
-    private final BufferedReader in;
+    private BufferedReader in;
 
     /**
      * The PrintWriter which writes into the socket
      */
-    private final PrintWriter out;
+    private PrintWriter out;
 
     /**
      * A deque that queues up requests to the server
@@ -41,12 +46,17 @@ public class ClientSocket {
     /**
      * A queue that queues up things to be read
      */
-    private final BlockingQueue<String> toReceive;
+    // private final BlockingQueue<String> toReceive;
 
     /**
      * Whether this ClientSocket is currently communicating with the server
      */
     private volatile boolean communicating = false;
+    
+    /**
+     * Threads
+     */
+    private Thread one, two;
 
     /**
      * Creates a new ClientSocket, which attempts to establish a connection to
@@ -57,11 +67,56 @@ public class ClientSocket {
      * @see Socket#Socket(java.lang.String, int)
      */
     private ClientSocket(String host) throws IOException {
+        in = null;
+        out = null;
+        toSend = new LinkedBlockingDeque<>();
+        
+        one = new Thread(() -> {
+            while (communicating) {
+                String read = null;
+                try {
+                    read = in.readLine();
+                } catch (SocketException se) {
+                    JOptionPane.showMessageDialog(null,
+                            "You have been disconnected from the server.",
+                            "Disconnected", JOptionPane.WARNING_MESSAGE);
+                    System.exit(0);
+                } catch (IOException ex) {
+                    System.err.println("Could not read line");
+                }
+                if (read == null) {
+                    JOptionPane.showMessageDialog(null,
+                            "The server has gone offline.",
+                            "Disconnected", JOptionPane.WARNING_MESSAGE);
+                    break;
+                }
+                
+                // System.out.println("I can read a " + read);
+
+                if (hasServerListeners()) {
+                    for (Consumer<String> listener : listeners) {
+                        listener.accept(read);
+                    }
+                }
+            }
+        });
+        
+        two = new Thread(() -> {
+            while (communicating) {
+                try {
+                    out.println(toSend.take());
+                } catch (InterruptedException ex) {
+                    System.err.println("Take from toSend was interrupted");
+                }
+            }
+        });
+        
         socket = new Socket(host, 9001);
         in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         out = new PrintWriter(socket.getOutputStream(), true);
-        toSend = new LinkedBlockingDeque<>();
-        toReceive = new LinkedBlockingQueue<>();
+        // toReceive = new LinkedBlockingQueue<>();
+        
+        startCommunications();
     }
 
     /**
@@ -83,6 +138,7 @@ public class ClientSocket {
                 CURRENT = new ClientSocket(host);
                 return true;
             } catch (IOException ex) {
+                CURRENT = null;
                 return false;
             }
         } else {
@@ -92,6 +148,7 @@ public class ClientSocket {
                 temp.close();
                 return true;
             } catch (IOException ex) {
+                CURRENT = null;
                 return false;
             }
         }
@@ -117,7 +174,7 @@ public class ClientSocket {
      * @return whether there exists a connection
      */
     public static boolean isConnected() {
-        return CURRENT == null;
+        return CURRENT != null;
     }
 
     /**
@@ -186,26 +243,10 @@ public class ClientSocket {
      */
     public void startCommunications() {
         communicating = true;
+        
+        one.start();
 
-        new Thread(() -> {
-            while (communicating) {
-                try {
-                    out.println(toSend.take());
-                } catch (InterruptedException ex) {
-                    System.err.println("Take from toSend was interrupted");
-                }
-            }
-        }).start();
-
-        new Thread(() -> {
-            while (communicating) {
-                try {
-                    toReceive.offer(in.readLine());
-                } catch (IOException ex) {
-                    System.err.println("Could not read line");
-                }
-            }
-        }).start();
+        two.start();
     }
 
     /**
@@ -214,16 +255,152 @@ public class ClientSocket {
      */
     public void stopCommunications() {
         communicating = false;
+        
+        one = new Thread(() -> {
+            while (communicating) {
+                String read = null;
+                try {
+                    read = in.readLine();
+                } catch (SocketException se) {
+                    JOptionPane.showMessageDialog(null,
+                            "You have been disconnected from the server.",
+                            "Disconnected", JOptionPane.WARNING_MESSAGE);
+                    System.exit(0);
+                } catch (IOException ex) {
+                    System.err.println("Could not read line");
+                }
+                if (read == null) {
+                    JOptionPane.showMessageDialog(null,
+                            "The server has gone offline.",
+                            "Disconnected", JOptionPane.WARNING_MESSAGE);
+                    break;
+                }
+                
+                // System.out.println("I can read a " + read);
+
+                if (hasServerListeners()) {
+                    for (Consumer<String> listener : listeners) {
+                        listener.accept(read);
+                    }
+                }
+            }
+        });
+        
+        two = new Thread(() -> {
+            while (communicating) {
+                try {
+                    out.println(toSend.take());
+                } catch (InterruptedException ex) {
+                    System.err.println("Take from toSend was interrupted");
+                }
+            }
+        });
     }
 
     /**
-     * Attempts to read the next item from the server, waiting if need be.
+     * Attempts to read the next item from the server, waiting if need be. If a
+     * listener is attached, however, null will always be returned.
      *
-     * @return the next message from the server
+     * @return the next message from the server, if a listener is not attached
      * @throws InterruptedException if the waiting for the next item is
      * interrupted.
      */
-    public String read() throws InterruptedException {
-        return toReceive.take();
+    /*public String read() throws InterruptedException {
+        return hasServerListeners() ? null : toReceive.take();
+    }*/
+
+    /**
+     * The Consumers listening to the server
+     */
+    private List<Consumer<String>> listeners = null;
+
+    /**
+     * Sets the listener of this ClientSocket
+     *
+     * @param consumer the listener to add to this ClientSocket
+     */
+    public void addServerListener(Consumer<String> consumer) {
+        if (listeners == null) {
+            listeners = new LinkedList<>();
+        }
+
+        listeners.add(consumer);
+    }
+
+    /**
+     * Removes all the currently listening listeners.
+     */
+    public void removeAllServerListeners() {
+        listeners = null;
+    }
+
+    /**
+     * Removes the given listener from the list of listeners
+     *
+     * @param listener the listener to remove
+     */
+    public void removeServerListener(Consumer<String> listener) {
+        listeners.remove(listener);
+    }
+
+    /**
+     * Determines whether this ClientSocket object has anything listening to its
+     * server communications
+     *
+     * @return whether this ClientSocket object has anything listening to its
+     * server communications
+     */
+    private boolean hasServerListeners() {
+        return listeners != null && !listeners.isEmpty();
+    }
+
+    /**
+     * Connects to a server via a server prompt
+     *
+     * @return whether the operation was successful
+     */
+    public static boolean connectViaGUI() {
+        do {
+            String host = getServerAddress();
+            if (CURRENT == null) {
+                try {
+                    CURRENT = new ClientSocket(host);
+                } catch (IOException ex) {
+                    CURRENT = null;
+                }
+            } else {
+                ClientSocket temp = CURRENT;
+                try {
+                    CURRENT = new ClientSocket(host);
+                    temp.close();
+                } catch (IOException ex) {
+                    CURRENT = null;
+                }
+            }
+            if (!isConnected()) {
+                Object[] options = {"Reenter IP Adress", "Exit"};
+                int returned = JOptionPane.showOptionDialog(null,
+                        "Could not connect to server",
+                        "Connection Error", JOptionPane.OK_CANCEL_OPTION,
+                        JOptionPane.ERROR_MESSAGE, null, options, options[0]);
+                if (returned != JOptionPane.OK_OPTION) {
+                    System.exit(0);
+                    return false;
+                }
+            }
+        } while (!isConnected());
+
+        return true;
+    }
+
+    /**
+     * Prompt for and return the address of the server.
+     */
+    private static String getServerAddress() {
+        return JOptionPane.showInputDialog(
+                null,
+                "Enter IP Address of the Server:",
+                "Welcome to Socket Room",
+                JOptionPane.QUESTION_MESSAGE);
     }
 }
