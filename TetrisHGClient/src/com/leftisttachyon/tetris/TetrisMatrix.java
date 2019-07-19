@@ -640,6 +640,17 @@ public class TetrisMatrix implements Paintable {
         holdAvaliable = false;
 
         extraYSpeed = 0.1;
+        
+        if (sendGarbo != null) {
+            sendGarbo.accept(-1);
+        }
+    }
+    
+    /**
+     * Disappears the current tetromino
+     */
+    public void disappearTet() {
+        currentTet = null;
     }
 
     /**

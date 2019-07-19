@@ -388,17 +388,25 @@ public final class TetrisPanel extends JPanel {
             theirMatrix.startGame();
             
             theirMatrix.setGarbageConsumer((lines) -> {
-                int toSend = lines * getMultiplier(theirSelection);
-                // myMatrix.addGarbage(0);
-                myMatrix.queueGarbage(toSend);
+                if (lines == -1) {
+                    myMatrix.disappearTet();
+                } else {
+                    int toSend = (int) (lines * getMultiplier(theirSelection));
+                    // myMatrix.addGarbage(0);
+                    myMatrix.queueGarbage(toSend);
+                }
             });
         }
         if (!myMatrix.isInGame()) {
             myMatrix.startGame();
             
             myMatrix.setGarbageConsumer((lines) -> {
-                int toSend = lines * getMultiplier(mySelection);
-                theirMatrix.queueGarbage(toSend);
+                if (lines == -1) {
+                    theirMatrix.disappearTet();
+                } else {
+                    int toSend = (int) (lines * getMultiplier(mySelection));
+                    theirMatrix.queueGarbage(toSend);
+                }
             });
         }
     }
@@ -425,12 +433,12 @@ public final class TetrisPanel extends JPanel {
      * @param spinSelection the spin system to query
      * @return the damage multiplier
      */
-    private int getMultiplier(int spinSelection) {
+    private double getMultiplier(int spinSelection) {
         switch (spinSelection) {
             case 0:
                 return 1;
             case 1:
-                return 2;
+                return 1.5;
             default:
                 return 0;
         }
