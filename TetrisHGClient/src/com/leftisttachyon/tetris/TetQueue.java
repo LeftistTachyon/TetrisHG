@@ -1,11 +1,13 @@
 package com.leftisttachyon.tetris;
 
+import com.leftisttachyon.comm.ClientSocket;
 import com.leftisttachyon.tetris.tetrominos.Tetromino;
 import com.leftisttachyon.tetris.tetrominos.TetrominoFactory;
 import com.leftisttachyon.util.Paintable;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * A queue of tetrominos that control the bag randomization system as well as
@@ -53,23 +55,33 @@ public class TetQueue<T extends Tetromino> implements Paintable {
     /**
      * Creates a default TetQueue, with 5 pieces in the outlook.
      *
+     * @param isLeft is this going to be facing left?
      * @see #TetQueue(int)
      */
-    public TetQueue() {
-        this(5);
+    public TetQueue(boolean isLeft) {
+        this(isLeft, 5);
     }
 
     /**
      * Creates a new TetQueue with the given piece outlook
      *
+     * @param isLeft is this going to be facing left?
      * @param outlook the number of pieces to be seen in the outlook.
      */
-    public TetQueue(int outlook) {
+    public TetQueue(boolean isLeft, int outlook) {
         tetQueue = new LinkedList<>();
         this.outlook = outlook;
-        isLeft = true;
+        this.isLeft = isLeft;
         tf = null;
         minoStyle = null;
+        
+        if (!isLeft && ClientSocket.isConnected()) {
+            ClientSocket.getConnection().addServerListener((line) -> {
+                if(line.startsWith("NB")) {
+                    addBag(line.substring(2));
+                }
+            });
+        }
     }
 
     @Override
@@ -99,7 +111,17 @@ public class TetQueue<T extends Tetromino> implements Paintable {
      * @see TetrominoFactory#createRandomBag()
      */
     public void addBag() {
-        tetQueue.addAll(tf.createRandomBag());
+        List<T> bag = tf.createRandomBag();
+        tetQueue.addAll(bag);
+        
+        if (isLeft && ClientSocket.isConnected()) {
+            String message = "NB";
+            for (T t : bag) {
+                message += t.getType();
+            }
+            
+            ClientSocket.getConnection().send(message);
+        }
     }
 
     /**
@@ -130,7 +152,7 @@ public class TetQueue<T extends Tetromino> implements Paintable {
      */
     public T removeTetromino() {
         T output = tetQueue.remove();
-        if (tetQueue.size() < outlook) {
+        if (isLeft && tetQueue.size() < outlook) {
             addBag();
         }
         return output;

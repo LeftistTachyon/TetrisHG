@@ -30,7 +30,7 @@ public final class TetrisFrame extends JFrame {
         setTitle("Tetris HG");
         addKeyListener(panel.handler);
         setResizable(false);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     }
     
     /**
@@ -47,5 +47,15 @@ public final class TetrisFrame extends JFrame {
     public void stop() {
         panel.stopFrames();
         setVisible(false);
+    }
+    
+    /**
+     * Just a test
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) {
+        TetrisFrame frame = new TetrisFrame();
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.start();
     }
 }

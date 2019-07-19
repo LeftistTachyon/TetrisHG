@@ -66,11 +66,11 @@ public final class ClientSocket {
         out = null;
         toSend = new LinkedBlockingDeque<>();
         toReceive = new LinkedBlockingQueue<>();
-        
+
         socket = new Socket(host, 9001);
         in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         out = new PrintWriter(socket.getOutputStream(), true);
-        
+
         startCommunications();
     }
 
@@ -198,9 +198,18 @@ public final class ClientSocket {
      */
     public void startCommunications() {
         communicating = true;
-        
+
         new Thread(() -> {
             while (communicating) {
+                if (listeners != null) {
+                    while (!toReceive.isEmpty()) {
+                        String read = toReceive.poll();
+                        for (Consumer<String> listener : listeners) {
+                            listener.accept(read);
+                        }
+                    }
+                }
+
                 String read = null;
                 try {
                     read = in.readLine();
@@ -218,9 +227,8 @@ public final class ClientSocket {
                             "Disconnected", JOptionPane.WARNING_MESSAGE);
                     break;
                 }
-                
-                // System.out.println("I can read a " + read);
 
+                System.out.println("Received: " + read);
                 if (hasServerListeners()) {
                     for (Consumer<String> listener : listeners) {
                         listener.accept(read);
@@ -276,7 +284,6 @@ public final class ClientSocket {
         if (listeners == null) {
             listeners = new LinkedList<>();
         }
-
         listeners.add(consumer);
     }
 

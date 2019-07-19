@@ -1,5 +1,6 @@
 package com.leftisttachyon.tetris;
 
+import com.leftisttachyon.comm.ClientSocket;
 import static com.leftisttachyon.tetris.MinoStyle.MINO_SIZE;
 import com.leftisttachyon.tetris.tetrominos.AbstractTetromino;
 import static com.leftisttachyon.tetris.MinoStyle.*;
@@ -146,18 +147,26 @@ public class TetrisMatrix implements Paintable {
      * Stores back to back bonus
      */
     private boolean back2Back;
-    
+
     /**
      * The GarbageManager for this Matrix
      */
     private GarbageManager garbageManager;
 
     /**
-     * Creates a new TetrisMatrix.
+     * Whether this Matrix is on the left
      */
-    public TetrisMatrix() {
+    private final boolean onLeft;
+
+    /**
+     * Creates a new TetrisMatrix.
+     *
+     * @param onLeft is this matrix on the left?
+     */
+    public TetrisMatrix(boolean onLeft) {
+        this.onLeft = onLeft;
         matrix = new int[40][10];
-        queue = new TetQueue();
+        queue = new TetQueue(!onLeft);
         factory = null;
         spinSystem = null;
         currentTet = null;
@@ -289,27 +298,45 @@ public class TetrisMatrix implements Paintable {
     public void paint(Graphics2D g2D) {
         g2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_ON);
-        /*g2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION, 
-                RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-        g2D.setRenderingHint(RenderingHints.KEY_RENDERING, 
-                RenderingHints.VALUE_RENDER_QUALITY);*/
-
-        g2D.setColor(Color.WHITE);
-        g2D.fillRect(0, 0, 80, 48);
-
-        if (holdTet != null) {
-            MinoStyle style = getMinoStyle();
-            style.drawTetromino(g2D, 0, 0, 80, holdTet);
-        }
 
         try {
             paintableMatrix.paint(g2D, 100, -19 * MinoStyle.MINO_SIZE + extraY);
-
-            queue.paint(g2D, 10 * MinoStyle.MINO_SIZE + 120, 0);
-            
-            garbageManager.paint(g2D, 80, 10 + 5 * MINO_SIZE);
         } catch (NoninvertibleTransformException ex) {
             ex.printStackTrace();
+        }
+
+        if (onLeft) {
+            try {
+                queue.paint(g2D, 10 * MinoStyle.MINO_SIZE + 120, 0);
+
+                garbageManager.paint(g2D, 80, 10 + 5 * MINO_SIZE);
+            } catch (NoninvertibleTransformException ex) {
+                ex.printStackTrace();
+            }
+
+            g2D.setColor(Color.WHITE);
+            g2D.fillRect(0, 0, 80, 48);
+
+            if (holdTet != null) {
+                MinoStyle style = getMinoStyle();
+                style.drawTetromino(g2D, 0, 0, 80, holdTet);
+            }
+        } else {
+            g2D.setColor(Color.WHITE);
+            g2D.fillRect(10 * MinoStyle.MINO_SIZE + 120, 0, 80, 48);
+
+            if (holdTet != null) {
+                MinoStyle style = getMinoStyle();
+                style.drawTetromino(g2D, 10 * MinoStyle.MINO_SIZE + 120, 0, 80, holdTet);
+            }
+
+            try {
+                queue.paint(g2D, 0, 0);
+
+                garbageManager.paint(g2D, 110 + 10 * MINO_SIZE, 10 + 5 * MINO_SIZE);
+            } catch (NoninvertibleTransformException ex) {
+                ex.printStackTrace();
+            }
         }
     }
 
@@ -340,6 +367,30 @@ public class TetrisMatrix implements Paintable {
             return;
         }
 
+        if (keycodes.contains(VK_SPACE)) {
+            if (currentTet != null) {
+                hardDrop();
+            }
+        }
+
+        if (keycodes.contains(VK_UP)) {
+            if (currentTet != null) {
+                sonicDrop();
+            }
+        }
+
+        if (keycodes.contains(VK_DOWN)) {
+            if (currentTet != null) {
+                softDrop();
+            }
+        }
+
+        if (keycodes.contains(VK_C)) {
+            if (currentTet != null) {
+                hold();
+            }
+        }
+
         if (keycodes.contains(VK_Z)) {
             if (spinSystem == null) {
                 System.err.println("No spin system installed, cannot rotate left");
@@ -366,30 +417,6 @@ public class TetrisMatrix implements Paintable {
             }
         }
 
-        if (keycodes.contains(VK_C)) {
-            if (currentTet != null) {
-                hold();
-            }
-        }
-
-        if (keycodes.contains(VK_SPACE)) {
-            if (currentTet != null) {
-                hardDrop();
-            }
-        }
-
-        if (keycodes.contains(VK_UP)) {
-            if (currentTet != null) {
-                sonicDrop();
-            }
-        }
-
-        if (keycodes.contains(VK_DOWN)) {
-            if (currentTet != null) {
-                softDrop();
-            }
-        }
-
         if (keycodes.contains(VK_LEFT)) {
             if (currentTet != null) {
                 if (!currentTet.intersects(this, -1, 0)) {
@@ -406,6 +433,14 @@ public class TetrisMatrix implements Paintable {
                     lastMove = VK_RIGHT;
                 }
             }
+        }
+
+        if (onLeft && !keycodes.isEmpty()) {
+            String message = "ACTIONS";
+            for (Integer keycode : keycodes) {
+                message += keycode + " ";
+            }
+            ClientSocket.getConnection().send(message.trim());
         }
     }
 
@@ -502,13 +537,26 @@ public class TetrisMatrix implements Paintable {
             pauseAnimationCnt = lineClearDelay + 1;
         }
         lockFlashCnt = 5;
+        
+        System.out.println(onLeft + ": Lock complete");
+    }
+
+    /**
+     * Adds a bag of tetrominos
+     *
+     * @param bag the bag of tetrominos to add
+     */
+    public void addBag(String bag) {
+        queue.addBag(bag);
     }
 
     /**
      * Starts gameplay on this matrix.
      */
     public void startGame() {
-        queue.addBag();
+        if (onLeft) {
+            queue.addBag();
+        }
         currentTet = queue.removeTetromino();
         activate(currentTet);
         inGame = true;
@@ -611,7 +659,7 @@ public class TetrisMatrix implements Paintable {
             } else {
                 int linesToSend = 0;
                 boolean b2b;
-                
+
                 if (linesToClear.isEmpty()) {
                     combo = -1;
                     b2b = false;
@@ -624,19 +672,19 @@ public class TetrisMatrix implements Paintable {
                 if (combo > 0) {
                     int geg = combo + 1;
                     System.out.println(geg + " Combo!");
-                    if(geg > 10) {
+                    if (geg > 10) {
                         linesToSend += 5;
-                    } else if(geg > 7) {
+                    } else if (geg > 7) {
                         linesToSend += 4;
-                    } else if(geg > 5) {
+                    } else if (geg > 5) {
                         linesToSend += 3;
-                    } else if(geg > 3) {
+                    } else if (geg > 3) {
                         linesToSend += 2;
                     } else {
                         linesToSend++;
                     }
                 }
-                
+
                 boolean tSpin = false;
 
                 // T-spin?                
@@ -675,25 +723,25 @@ public class TetrisMatrix implements Paintable {
                         }
                     }
                 }
-                
-                switch(linesToClear.size()) {
+
+                switch (linesToClear.size()) {
                     case 0:
                         linesToSend = 0;
                         break;
                     case 1:
-                        if(tSpin) {
+                        if (tSpin) {
                             linesToSend += 2;
                         }
                         break;
                     case 2:
-                        if(tSpin) {
+                        if (tSpin) {
                             linesToSend += 4;
                         } else {
                             linesToSend++;
                         }
                         break;
                     case 3:
-                        if(tSpin) {
+                        if (tSpin) {
                             linesToSend += 6;
                         } else {
                             linesToSend += 2;
@@ -740,35 +788,37 @@ public class TetrisMatrix implements Paintable {
 
                 lockingTet = null;
                 lockFlashCnt = -1;
-                
+
                 if (linesToSend != 0) {
-                    System.out.println("You created " + linesToSend + 
-                            " lines of garbage!");
+                    System.out.println("You created " + linesToSend
+                            + " lines of garbage!");
                 }
-                
+
                 int through = garbageManager.counterGarbage(linesToSend);
                 if (through != 0) {
-                    System.out.println("You sent " + through + 
-                            " lines of garbage!");
+                    System.out.println("You sent " + through
+                            + " lines of garbage!");
                 }
-                
+
                 if (!garbageManager.isEmpty()) {
                     int total = 0;
-                    while(total <= 5) {
+                    while (total <= 5) {
                         int newG = garbageManager.peekGarbage();
-                        if(newG == 0) break;
+                        if (newG == 0) {
+                            break;
+                        }
                         total += garbageManager.pollGarbage();
-                        
+
                         int col = (int) (Math.random() * 10);
                         for (int i = 0; i < newG; i++) {
-                            if(Math.random() > 0.8) {
+                            if (Math.random() > 0.8) {
                                 col = (int) (Math.random() * 10);
                             }
-                            
+
                             addGarbage(col);
                         }
                     }
-                    
+
                     System.out.println("Oof! " + total + " lines of garbage!");
                 }
             }
@@ -780,27 +830,16 @@ public class TetrisMatrix implements Paintable {
 
         if (pauseAnimationCnt == 0) {
             if (linesToClear.isEmpty()) {
-                currentTet = queue.removeTetromino();
-                activate(currentTet);
-
-                if (handler.isPressed(VK_Z) && spinSystem != null) {
-                    // currentTet.rotateLeft();
-                    spinSystem.rotateLeft(currentTet, this);
-                }
-                if (handler.isPressed(VK_X) && spinSystem != null) {
-                    // currentTet.rotateRight();
-                    spinSystem.rotateRight(currentTet, this);
-                }
-                holdAvaliable = true;
-                if (handler.isPressed(VK_C)) {
-                    hold();
-                }
-
-                pauseAnimationCnt = -1;
-
-                if (currentTet.intersects(this)) {
-                    System.out.println("Topped out");
-                    die();
+                if (onLeft) {
+                    boolean left = handler.isPressed(VK_Z),
+                            right = handler.isPressed(VK_X),
+                            hold = handler.isPressed(VK_C);
+                    enter(left, right, hold);
+                    String message = "ENTER";
+                    message += left ? "1" : "0";
+                    message += right ? "1" : "0";
+                    message += hold ? "1" : "0";
+                    ClientSocket.getConnection().send(message);
                 }
             } else {
                 for (int i = matrix.length - 1, temp = i; i >= 0; i--) {
@@ -851,6 +890,37 @@ public class TetrisMatrix implements Paintable {
             if (extraY > 10000) {
                 extraYSpeed = 0;
             }
+        }
+    }
+    
+    /**
+     * Enters the next tetromino with the given parameters.
+     * @param left whether to rotate left
+     * @param right whether to rotate right
+     * @param hold whether to hold
+     */
+    public void enter(boolean left, boolean right, boolean hold) {
+        currentTet = queue.removeTetromino();
+        activate(currentTet);
+
+        if (left && spinSystem != null) {
+            // currentTet.rotateLeft();
+            spinSystem.rotateLeft(currentTet, this);
+        }
+        if (right && spinSystem != null) {
+            // currentTet.rotateRight();
+            spinSystem.rotateRight(currentTet, this);
+        }
+        holdAvaliable = true;
+        if (hold) {
+            hold();
+        }
+
+        pauseAnimationCnt = -1;
+
+        if (currentTet.intersects(this)) {
+            System.out.println("Topped out");
+            die();
         }
     }
 
@@ -1061,10 +1131,11 @@ public class TetrisMatrix implements Paintable {
     /**
      * Creates a new ARS-style matrix.
      *
+     * @param onLeft whether this matrix should be on the left
      * @return a new ARS-style matrix.
      */
-    public static TetrisMatrix generateARSMatrix() {
-        TetrisMatrix output = new TetrisMatrix();
+    public static TetrisMatrix generateARSMatrix(boolean onLeft) {
+        TetrisMatrix output = new TetrisMatrix(onLeft);
         output.setSpinSystem(ARSSpinSystem.getSpinSystem());
         output.setTetrominoFactory(ARSTetrominoFactory.getTetrominoFactory());
         output.setMinoStyle(TGMMinoStyle.getMinoStyle());
@@ -1074,10 +1145,11 @@ public class TetrisMatrix implements Paintable {
     /**
      * Creates a new SRS-style matrix
      *
+     * @param onLeft whether this matrix should be on the left
      * @return a new SRS-style matrix
      */
-    public static TetrisMatrix generateSRSMatrix() {
-        TetrisMatrix output = new TetrisMatrix();
+    public static TetrisMatrix generateSRSMatrix(boolean onLeft) {
+        TetrisMatrix output = new TetrisMatrix(onLeft);
         output.setSpinSystem(SRSSpinSystem.getSpinSystem());
         output.setTetrominoFactory(SRSTetrominoFactory.getTetrominoFactory());
         output.setMinoStyle(SRSMinoStyle.getMinoStyle());

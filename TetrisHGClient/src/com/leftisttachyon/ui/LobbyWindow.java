@@ -1,6 +1,7 @@
 package com.leftisttachyon.ui;
 
 import com.leftisttachyon.comm.ClientSocket;
+import com.leftisttachyon.tetris.ui.TetrisFrame;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -13,6 +14,8 @@ import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.HashMap;
 import java.util.function.Consumer;
 import javax.swing.BorderFactory;
@@ -31,7 +34,6 @@ import javax.swing.ListSelectionModel;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.WindowConstants;
-// import javax.swing.event.ListSelectionEvent;
 
 /**
  * A window that displays the GUI
@@ -51,6 +53,13 @@ public class LobbyWindow extends JFrame {
     private boolean inGame;
 
     /**
+     * A temp variable
+     */
+    private TetrisFrame tFrame = null;
+
+    private final String[] name;
+
+    /**
      * Creates new form LobbyWindow
      */
     public LobbyWindow() {
@@ -59,8 +68,9 @@ public class LobbyWindow extends JFrame {
         status = new HashMap<>();
         inGame = false;
 
+        name = new String[]{null};
+
         Consumer<String> listener = (line) -> {
-            String _name;
             int temp = 0;
 
             if (line.startsWith("NEWCLIENT")) {
@@ -68,6 +78,9 @@ public class LobbyWindow extends JFrame {
                 String[] data = line.substring(9).split(" ");
 
                 String newClient = data[1];
+                if ("null".equals(newClient)) {
+                    return;
+                }
                 System.out.println("new client: " + newClient);
                 addPlayer(newClient);
                 status.put(newClient, false);
@@ -78,21 +91,50 @@ public class LobbyWindow extends JFrame {
             } else if (line.startsWith("REMOVECLIENT")) {
                 // remove a client from the pool
                 String toRemove = line.substring(12);
+                if ("null".equals(toRemove)) {
+                    return;
+                }
                 removePlayer(toRemove);
                 status.remove(toRemove);
                 addLobbyMessage(toRemove + " has left");
             } else if (line.startsWith("BUSY")) {
                 status.put(line.substring(4), true);
             } else if (line.startsWith("FREE")) {
-                status.put(line.substring(4), false);
+                String toFree = line.substring(4);
+                status.put(toFree, false);
             } else if (line.startsWith("NLM")) {
                 addLobbyMessage(line.substring(3));
             } else {
                 if (inGame) {
-                    if (line.equals("EXIT")) {
+                    if (line.equals("ST")) {
+                        new Thread(() -> {
+                            tFrame = new TetrisFrame();
+                            Dimension ss = getSize();
+                            tFrame.setLocation(
+                                    getX() + (ss.width - tFrame.getWidth()) / 2,
+                                    getY() + (ss.height - tFrame.getHeight()) / 2);
+                            tFrame.addWindowListener(new WindowAdapter() {
+                                @Override
+                                public void windowClosed(WindowEvent e) {
+                                    System.err.println("Closin\'!");
+                                    super.windowClosing(e);
+                                    inGame = false;
+                                    ((TetrisFrame) e.getWindow()).stop();
+                                    ClientSocket.getConnection().sendImmediately("EXIT");
+                                }
+                            });
+                            tFrame.start();
+                        }).start();
+                    } else if (line.equals("EXIT")) {
                         System.err.println("The other person has left "
                                 + "the match.");
                         inGame = false;
+                        tFrame.stop();
+                        JOptionPane.showMessageDialog(LobbyWindow.this,
+                                "Your opponent has disconnected.",
+                                "Opponent disconnect",
+                                JOptionPane.INFORMATION_MESSAGE);
+                        tFrame.dispose();
                     } else if (line.startsWith("NM")) {
                         String message = line.substring(2);
                         System.err.println("OPPONENT: " + message);
@@ -100,9 +142,9 @@ public class LobbyWindow extends JFrame {
                 } else {
                     if (line.startsWith("SUBMITNAME")) {
                         // submit your name, duh
-                        _name = getName(temp++ == 0);
-                        ClientSocket.getConnection().send(_name);
-                        System.out.println(_name);
+                        name[0] = getName(temp++ == 0);
+                        ClientSocket.getConnection().send(name[0]);
+                        System.out.println(name[0]);
                     } else if (line.startsWith("NAMEACCEPTED")) {
                         // the server has accepted your name
                         temp = 0;
@@ -145,12 +187,12 @@ public class LobbyWindow extends JFrame {
         playerLabel = new JLabel();
         chatLabel = new JLabel();
         chatTextField = new JTextField();
-        playerListSP = new javax.swing.JScrollPane();
-        playerList = new javax.swing.JList<>();
+        playerListSP = new JScrollPane();
+        playerList = new JList<>();
         playerLModel = new DefaultListModel<>();
 
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        setTitle("LobbyWindow");
+        setTitle("Lobby");
 
         infoPanel.setBackground(new Color(255, 255, 255));
         infoPanel.setBorder(BorderFactory.createLineBorder(
@@ -522,7 +564,7 @@ public class LobbyWindow extends JFrame {
      * Exits the current game.
      */
     public void exitGame() {
-        ClientSocket.getConnection().send("EXIT");
+        ClientSocket.getConnection().sendImmediately("EXIT");
         inGame = false;
     }
 }

@@ -189,6 +189,9 @@ public class MiniServer {
 
                                 BUSY.add(opponent);
                                 BUSY.add(this);
+                                
+                                out.println("ST");
+                                opponent.out.println("ST");
                             } else {
                                 otherH.out.println("CHALLENGE_Rfalse");
                             }
