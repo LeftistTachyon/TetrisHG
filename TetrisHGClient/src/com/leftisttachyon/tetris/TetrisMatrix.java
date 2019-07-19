@@ -23,6 +23,7 @@ import static java.awt.event.KeyEvent.*;
 import java.awt.geom.NoninvertibleTransformException;
 import java.util.HashSet;
 import java.util.TreeSet;
+import java.util.function.Consumer;
 
 /**
  * A class that represents a playing field
@@ -166,7 +167,7 @@ public class TetrisMatrix implements Paintable {
     public TetrisMatrix(boolean onLeft) {
         this.onLeft = onLeft;
         matrix = new int[40][10];
-        queue = new TetQueue(!onLeft);
+        queue = new TetQueue(onLeft);
         factory = null;
         spinSystem = null;
         currentTet = null;
@@ -537,8 +538,6 @@ public class TetrisMatrix implements Paintable {
             pauseAnimationCnt = lineClearDelay + 1;
         }
         lockFlashCnt = 5;
-        
-        System.out.println(onLeft + ": Lock complete");
     }
 
     /**
@@ -554,9 +553,6 @@ public class TetrisMatrix implements Paintable {
      * Starts gameplay on this matrix.
      */
     public void startGame() {
-        if (onLeft) {
-            queue.addBag();
-        }
         currentTet = queue.removeTetromino();
         activate(currentTet);
         inGame = true;
@@ -798,10 +794,17 @@ public class TetrisMatrix implements Paintable {
                 if (through != 0) {
                     System.out.println("You sent " + through
                             + " lines of garbage!");
+                    if (sendGarbo != null) {
+                        sendGarbo.accept(through);
+                    }
                 }
 
-                if (!garbageManager.isEmpty()) {
+                if (onLeft && !garbageManager.isEmpty()) {
                     int total = 0;
+
+                    String message = "GL";
+                    int[] lines = {0, 0};
+
                     while (total <= 5) {
                         int newG = garbageManager.peekGarbage();
                         if (newG == 0) {
@@ -809,15 +812,23 @@ public class TetrisMatrix implements Paintable {
                         }
                         total += garbageManager.pollGarbage();
 
-                        int col = (int) (Math.random() * 10);
+                        lines[1] = (int) (Math.random() * 10);
                         for (int i = 0; i < newG; i++) {
                             if (Math.random() > 0.8) {
-                                col = (int) (Math.random() * 10);
+                                message += lines[0] + " " + lines[1] + " ";
+                                lines[1] = (int) (Math.random() * 10);
                             }
 
-                            addGarbage(col);
+                            addGarbage(lines[1]);
+                            lines[0]++;
                         }
                     }
+                    
+                    message += lines[0] + " " + lines[1] + " ";
+
+                    System.out.println("Garbage: " + message);
+
+                    ClientSocket.getConnection().send(message.trim());
 
                     System.out.println("Oof! " + total + " lines of garbage!");
                 }
@@ -892,9 +903,10 @@ public class TetrisMatrix implements Paintable {
             }
         }
     }
-    
+
     /**
      * Enters the next tetromino with the given parameters.
+     *
      * @param left whether to rotate left
      * @param right whether to rotate right
      * @param hold whether to hold
@@ -1014,12 +1026,13 @@ public class TetrisMatrix implements Paintable {
             Color locked = new Color(0, 0, 0, 100);
 
             if (currentTet != null) {
-                int[][] state = currentTet.getState();
-
                 int addY = 0;
-                while (!currentTet.intersects(TetrisMatrix.this, 0, addY + 1)) {
+                while (currentTet != null
+                        && !currentTet.intersects(TetrisMatrix.this, 0, addY + 1)) {
                     addY++;
                 }
+                
+                int[][] state = currentTet.getState();
 
                 if (addY != 0) {
                     g2D.setComposite(MinoStyle.TRANSLUCENT_COMPOSITE);
@@ -1240,5 +1253,42 @@ public class TetrisMatrix implements Paintable {
         if (lockingTet != null && lockingTet.intersects(this)) {
             lockingTet.moveDown(-1);
         }
+    }
+
+    /**
+     * Deletes the given amount of lines from the garbage queue
+     *
+     * @param lines the amount of lines to clear
+     */
+    public void deleteGarbage(int lines) {
+        if (!onLeft) {
+            garbageManager.counterGarbage(lines);
+        } else {
+            throw new UnsupportedOperationException(
+                    "You can\'t delete your own garbage!");
+        }
+    }
+
+    /**
+     * A Consumer object that is called when garbage is to be sent.
+     */
+    private Consumer<Integer> sendGarbo = null;
+
+    /**
+     * Sets the Consumer object to call when garbage is sent.
+     *
+     * @param consumer the consumer to use from now on
+     */
+    public void setGarbageConsumer(Consumer<Integer> consumer) {
+        sendGarbo = consumer;
+    }
+
+    /**
+     * Queues garbage up for the queue
+     *
+     * @param lines the lines to queue up
+     */
+    public void queueGarbage(int lines) {
+        garbageManager.offerGarbage(lines);
     }
 }

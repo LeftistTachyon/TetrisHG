@@ -133,18 +133,17 @@ public final class TetrisPanel extends JPanel {
                             generateStartBag();
 
                             if (++canStart == 2) {
-                                System.out.println("Sent");
                                 startGame();
                             }
                         }
                     }
                 } else if (meSelected) {
-                    if (!myMatrix.isInGame() && line.startsWith("NB")) {
-                        System.out.println("Received");
+                    if (line.startsWith("NB")) {
                         theirMatrix.addBag(line.substring(2));
-                        if (++canStart == 2) {
+                        if (!myMatrix.isInGame() && ++canStart == 2) {
                             startGame();
                         }
+                        // System.out.println("Added a bag of " + line.substring(2));
                     } else if (line.startsWith("ACTIONS")) {
                         HashSet<Integer> actions = new HashSet<>();
                         String[] data = line.substring(7).split(" ");
@@ -158,6 +157,17 @@ public final class TetrisPanel extends JPanel {
                                 right = line.charAt(6) == '1',
                                 hold = line.charAt(7) == '1';
                         theirMatrix.enter(left, right, hold);
+                    } else if (line.startsWith("GL")) {
+                        System.out.println("I got garbage: " + line);
+                        String[] data = line.substring(2).split(" ");
+                        for (int i = 0; i < data.length - 1; i += 2) {
+                            int lines = Integer.parseInt(data[i]),
+                                    hole = Integer.parseInt(data[i + 1]);
+                            for (int j = 0; j < lines; j++) {
+                                theirMatrix.addGarbage(hole);
+                            }
+                            theirMatrix.deleteGarbage(lines);
+                        }
                     }
                 }
             });
@@ -238,7 +248,6 @@ public final class TetrisPanel extends JPanel {
                     generateStartBag();
 
                     if (++canStart == 2) {
-                        System.out.println("Sent");
                         startGame();
                     }
                 }
@@ -376,8 +385,23 @@ public final class TetrisPanel extends JPanel {
      * Starts the game.
      */
     private void startGame() {
-        theirMatrix.startGame();
-        myMatrix.startGame();
+        if (!theirMatrix.isInGame()) {
+            theirMatrix.startGame();
+            
+            theirMatrix.setGarbageConsumer((lines) -> {
+                int toSend = lines * getMultiplier(theirSelection);
+                // myMatrix.addGarbage(0);
+                myMatrix.queueGarbage(toSend);
+            });
+        }
+        if (!myMatrix.isInGame()) {
+            myMatrix.startGame();
+            
+            myMatrix.setGarbageConsumer((lines) -> {
+                int toSend = lines * getMultiplier(mySelection);
+                theirMatrix.queueGarbage(toSend);
+            });
+        }
     }
 
     /**
@@ -393,5 +417,23 @@ public final class TetrisPanel extends JPanel {
         }
         ClientSocket.getConnection().send("NB" + message);
         myMatrix.addBag(message);
+    }
+
+    /**
+     * Finds the garbage multiplier depending on the given choice of spin
+     * system.
+     *
+     * @param spinSelection the spin system to query
+     * @return the damage multiplier
+     */
+    private int getMultiplier(int spinSelection) {
+        switch (spinSelection) {
+            case 0:
+                return 1;
+            case 1:
+                return 2;
+            default:
+                return 0;
+        }
     }
 }

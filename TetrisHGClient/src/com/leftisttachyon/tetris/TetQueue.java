@@ -74,14 +74,6 @@ public class TetQueue<T extends Tetromino> implements Paintable {
         this.isLeft = isLeft;
         tf = null;
         minoStyle = null;
-        
-        if (!isLeft && ClientSocket.isConnected()) {
-            ClientSocket.getConnection().addServerListener((line) -> {
-                if(line.startsWith("NB")) {
-                    addBag(line.substring(2));
-                }
-            });
-        }
     }
 
     @Override
@@ -111,16 +103,23 @@ public class TetQueue<T extends Tetromino> implements Paintable {
      * @see TetrominoFactory#createRandomBag()
      */
     public void addBag() {
-        List<T> bag = tf.createRandomBag();
-        tetQueue.addAll(bag);
-        
-        if (isLeft && ClientSocket.isConnected()) {
-            String message = "NB";
-            for (T t : bag) {
-                message += t.getType();
+        if (isLeft) {
+            List<T> bag = tf.createRandomBag();
+            tetQueue.addAll(bag);
+
+            if (ClientSocket.isConnected()) {
+                String message = "NB";
+                for (T t : bag) {
+                    message += t.getType();
+                }
+
+                ClientSocket.getConnection().send(message);
+                
+                // System.out.println("Add this: " + message.substring(2));
             }
-            
-            ClientSocket.getConnection().send(message);
+        } else {
+            throw new UnsupportedOperationException(
+                    "You shouldn\'t be generating random bags!");
         }
     }
 
@@ -153,8 +152,9 @@ public class TetQueue<T extends Tetromino> implements Paintable {
     public T removeTetromino() {
         T output = tetQueue.remove();
         if (isLeft && tetQueue.size() < outlook) {
+            // System.out.println("Added bag");
             addBag();
-        }
+        } // else System.out.println("No add bag");
         return output;
     }
 

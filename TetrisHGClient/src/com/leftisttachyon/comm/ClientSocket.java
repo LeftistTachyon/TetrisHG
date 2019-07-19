@@ -201,15 +201,6 @@ public final class ClientSocket {
 
         new Thread(() -> {
             while (communicating) {
-                if (listeners != null) {
-                    while (!toReceive.isEmpty()) {
-                        String read = toReceive.poll();
-                        for (Consumer<String> listener : listeners) {
-                            listener.accept(read);
-                        }
-                    }
-                }
-
                 String read = null;
                 try {
                     read = in.readLine();
@@ -228,7 +219,7 @@ public final class ClientSocket {
                     break;
                 }
 
-                System.out.println("Received: " + read);
+                // System.out.println("Received: " + read);
                 if (hasServerListeners()) {
                     for (Consumer<String> listener : listeners) {
                         listener.accept(read);
@@ -285,6 +276,13 @@ public final class ClientSocket {
             listeners = new LinkedList<>();
         }
         listeners.add(consumer);
+        
+        while (!toReceive.isEmpty()) {
+            String read = toReceive.poll();
+            for (Consumer<String> listener : listeners) {
+                listener.accept(read);
+            }
+        }
     }
 
     /**
