@@ -284,7 +284,7 @@ public final class TetrisPanel extends JPanel {
             } else {
                 g2D.setColor(Color.WHITE);
             }
-            toDraw = "ARS/TGM (2-4x garbage)";
+            toDraw = "ARS/TGM (1.5-2x garbage)";
             g2D.drawString(toDraw, temp_x
                     + (10 * MINO_SIZE - metrics.stringWidth(toDraw)) / 2, 250);
 
@@ -335,7 +335,7 @@ public final class TetrisPanel extends JPanel {
             } else {
                 g2D.setColor(Color.WHITE);
             }
-            toDraw = "ARS/TGM (2-4x garbage)";
+            toDraw = "ARS/TGM (1.5-2x garbage)";
             g2D.drawString(toDraw, temp_x
                     + (10 * MINO_SIZE - metrics.stringWidth(toDraw)) / 2, 250);
 
