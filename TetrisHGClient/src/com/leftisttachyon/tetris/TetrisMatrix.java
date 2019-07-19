@@ -817,6 +817,7 @@ public class TetrisMatrix implements Paintable {
                             if (Math.random() > 0.8) {
                                 message += lines[0] + " " + lines[1] + " ";
                                 lines[1] = (int) (Math.random() * 10);
+                                lines[0] = 0;
                             }
 
                             addGarbage(lines[1]);

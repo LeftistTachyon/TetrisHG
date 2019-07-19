@@ -158,7 +158,6 @@ public final class TetrisPanel extends JPanel {
                                 hold = line.charAt(7) == '1';
                         theirMatrix.enter(left, right, hold);
                     } else if (line.startsWith("GL")) {
-                        System.out.println("I got garbage: " + line);
                         String[] data = line.substring(2).split(" ");
                         for (int i = 0; i < data.length - 1; i += 2) {
                             int lines = Integer.parseInt(data[i]),
