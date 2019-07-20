@@ -1,0 +1,6 @@
+/dist/
+/nbproject/private/
+/TetrisHGServer/nbproject/private/
+/TetrisHGClient/build/
+/TetrisHGServer/build/
+/TetrisHGClient/dist/
