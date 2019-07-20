@@ -645,13 +645,6 @@ public class TetrisMatrix implements Paintable {
             sendGarbo.accept(-1);
         }
     }
-    
-    /**
-     * Disappears the current tetromino
-     */
-    public void disappearTet() {
-        currentTet = null;
-    }
 
     /**
      * Advances a frame.

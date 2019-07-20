@@ -389,7 +389,7 @@ public final class TetrisPanel extends JPanel {
             
             theirMatrix.setGarbageConsumer((lines) -> {
                 if (lines == -1) {
-                    myMatrix.disappearTet();
+                    myMatrix.endGame();
                 } else {
                     int toSend = (int) (lines * getMultiplier(theirSelection));
                     // myMatrix.addGarbage(0);
@@ -402,7 +402,7 @@ public final class TetrisPanel extends JPanel {
             
             myMatrix.setGarbageConsumer((lines) -> {
                 if (lines == -1) {
-                    theirMatrix.disappearTet();
+                    theirMatrix.endGame();
                 } else {
                     int toSend = (int) (lines * getMultiplier(mySelection));
                     theirMatrix.queueGarbage(toSend);
