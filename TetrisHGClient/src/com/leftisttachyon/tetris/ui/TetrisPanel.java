@@ -138,12 +138,12 @@ public final class TetrisPanel extends JPanel {
                         }
                     }
                 } else if (meSelected) {
-                    if (line.startsWith("NB")) {
-                        theirMatrix.addBag(line.substring(2));
-                        if (!myMatrix.isInGame() && ++canStart == 2) {
-                            startGame();
-                        }
-                        // System.out.println("Added a bag of " + line.substring(2));
+                    if (line.startsWith("LOCK")) {
+                        String[] data = line.substring(4).split(" ");
+                        int x = Integer.parseInt(data[0]),
+                                y = Integer.parseInt(data[1]),
+                                rotation = Integer.parseInt(data[2]);
+                        theirMatrix.lock(x, y, rotation);
                     } else if (line.startsWith("ACTIONS")) {
                         HashSet<Integer> actions = new HashSet<>();
                         String[] data = line.substring(7).split(" ");
@@ -157,6 +157,12 @@ public final class TetrisPanel extends JPanel {
                                 right = line.charAt(6) == '1',
                                 hold = line.charAt(7) == '1';
                         theirMatrix.enter(left, right, hold);
+                    } else if (line.startsWith("NB")) {
+                        theirMatrix.addBag(line.substring(2));
+                        if (!myMatrix.isInGame() && ++canStart == 2) {
+                            startGame();
+                        }
+                        // System.out.println("Added a bag of " + line.substring(2));
                     } else if (line.startsWith("GL")) {
                         String[] data = line.substring(2).split(" ");
                         for (int i = 0; i < data.length - 1; i += 2) {
@@ -386,7 +392,7 @@ public final class TetrisPanel extends JPanel {
     private void startGame() {
         if (!theirMatrix.isInGame()) {
             theirMatrix.startGame();
-            
+
             theirMatrix.setGarbageConsumer((lines) -> {
                 if (lines == -1) {
                     myMatrix.endGame();
@@ -399,7 +405,7 @@ public final class TetrisPanel extends JPanel {
         }
         if (!myMatrix.isInGame()) {
             myMatrix.startGame();
-            
+
             myMatrix.setGarbageConsumer((lines) -> {
                 if (lines == -1) {
                     theirMatrix.endGame();

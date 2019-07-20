@@ -508,6 +508,23 @@ public class TetrisMatrix implements Paintable {
     private int lockFlashCnt = -1;
 
     /**
+     * Locks the current tetromino in the given x and y coordinates, and the
+     * given rotation state.
+     *
+     * @param x the x coordinate to lock the tetromino at
+     * @param y the x coordinate to lock the tetromino at
+     * @param rotation the rotation state to lock the tetromino in
+     */
+    public void lock(int x, int y, int rotation) {
+        if (currentTet != null) {
+            currentTet.setX(x);
+            currentTet.setY(y);
+            currentTet.setRotation(rotation);
+            lock();
+        }
+    }
+
+    /**
      * Locks the current piece to the playing field and sets flags for the
      * animation and piece change.
      */
@@ -640,7 +657,7 @@ public class TetrisMatrix implements Paintable {
         holdAvaliable = false;
 
         extraYSpeed = 0.1;
-        
+
         if (sendGarbo != null) {
             sendGarbo.accept(-1);
         }
@@ -828,7 +845,7 @@ public class TetrisMatrix implements Paintable {
                             lines[0]++;
                         }
                     }
-                    
+
                     message += lines[0] + " " + lines[1] + " ";
 
                     System.out.println("Garbage: " + message);
@@ -883,8 +900,12 @@ public class TetrisMatrix implements Paintable {
 
             if (currentTet.intersects(this, 0, 1)
                     && previousY == currentTet.getY()) {
-                if (lockDelayCnt == 0) {
+                if (onLeft && lockDelayCnt == 0) {
                     lockDelayCnt = lockDelay;
+                    ClientSocket.getConnection().clearSendQueue();
+                    ClientSocket.getConnection().send("LOCK" + currentTet.getX()
+                            + " " + currentTet.getY() + " "
+                            + currentTet.getRotation());
                     lock();
                 }
                 lockDelayCnt--;
@@ -1036,7 +1057,7 @@ public class TetrisMatrix implements Paintable {
                         && !currentTet.intersects(TetrisMatrix.this, 0, addY + 1)) {
                     addY++;
                 }
-                
+
                 int[][] state = currentTet.getState();
 
                 if (addY != 0) {
