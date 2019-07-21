@@ -3,11 +3,9 @@ package com.leftisttachyon.tetris.ui;
 import java.awt.Point;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.util.ArrayList;
+import static java.awt.event.KeyEvent.*;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -27,16 +25,6 @@ public class DASHandler extends KeyAdapter {
      * A HashMap that stores the DAS settings for each key
      */
     private HashMap<Integer, Point> keys;
-    
-    /**
-     * A list of opposed keys
-     */
-    private LinkedList<List<Integer>> opposition;
-    
-    /**
-     * All opposed keys
-     */
-    private ArrayList<Integer> opposed;
 
     /**
      * Creates a new DASHandler.
@@ -44,8 +32,6 @@ public class DASHandler extends KeyAdapter {
     public DASHandler() {
         pressed = new HashMap<>();
         keys = new HashMap<>();
-        opposition = new LinkedList<>();
-        opposed = new ArrayList<>();
     }
 
     @Override
@@ -53,17 +39,11 @@ public class DASHandler extends KeyAdapter {
         int keyCode = e.getKeyCode();
         if (keys.containsKey(keyCode) && pressed.get(keyCode)[1] == -2) {
             pressed.put(keyCode, new int[]{1, 0});
-            if (opposed.contains(keyCode)) {
-                for (List<Integer> list : opposition) {
-                    if (list.contains(keyCode)) {
-                        for (int i : list) {
-                            if (isPressed(i)) {
-                                pressed.put(i, new int[]{2, -1});
-                            }
-                        }
-                    }
-                }
-            }
+        }
+        
+        if (isPressed(VK_RIGHT) && isPressed(VK_LEFT)) {
+            pressed.put(VK_RIGHT, new int[]{2, -2});
+            pressed.put(VK_LEFT, new int[]{2, -2});
         }
     }
 
@@ -150,16 +130,5 @@ public class DASHandler extends KeyAdapter {
         System.out.println(pressed.containsKey(keycode) && pressed.get(keycode)[0] > 0);*/
 
         return pressed.containsKey(keycode) && pressed.get(keycode)[0] > 0;
-    }
-
-    /**
-     * Adjusts this DASHandler so no more than one of the given keys can be
-     * pressed at the same time.
-     *
-     * @param keycodes the keys to set as opposable to each other
-     */
-    public void addOpposed(List<Integer> keycodes) {
-        opposition.add(keycodes);
-        opposed.addAll(keycodes);
     }
 }

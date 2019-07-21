@@ -98,7 +98,6 @@ public final class TetrisPanel extends JPanel {
         handler.setListener(VK_LEFT, new Point(8, 1));
         handler.setListener(VK_RIGHT, new Point(8, 1));
         handler.setListener(VK_UP, new Point(-1, -1));
-        handler.addOpposed(Arrays.asList(VK_RIGHT, VK_LEFT));
 
         addKeyListener(handler);
 
