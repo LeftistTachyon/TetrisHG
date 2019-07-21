@@ -45,6 +45,7 @@ public class DASHandler extends KeyAdapter {
         pressed = new HashMap<>();
         keys = new HashMap<>();
         opposition = new LinkedList<>();
+        opposed = new ArrayList<>();
     }
 
     @Override
