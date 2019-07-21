@@ -16,6 +16,7 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import static java.awt.event.KeyEvent.*;
 import java.awt.geom.NoninvertibleTransformException;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -97,6 +98,7 @@ public final class TetrisPanel extends JPanel {
         handler.setListener(VK_LEFT, new Point(8, 1));
         handler.setListener(VK_RIGHT, new Point(8, 1));
         handler.setListener(VK_UP, new Point(-1, -1));
+        handler.addOpposed(Arrays.asList(VK_RIGHT, VK_LEFT));
 
         addKeyListener(handler);
 

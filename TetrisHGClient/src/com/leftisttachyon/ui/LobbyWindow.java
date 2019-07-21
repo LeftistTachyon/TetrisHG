@@ -70,13 +70,14 @@ public class LobbyWindow extends JFrame {
 
         name = new String[]{null};
 
+        //<editor-fold defaultstate="collapsed" desc="listener">
         Consumer<String> listener = (line) -> {
             int temp = 0;
-
+            
             if (line.startsWith("NEWCLIENT")) {
                 // add a client to the pool
                 String[] data = line.substring(9).split(" ");
-
+                
                 String newClient = data[1];
                 if ("null".equals(newClient)) {
                     return;
@@ -84,7 +85,7 @@ public class LobbyWindow extends JFrame {
                 System.out.println("new client: " + newClient);
                 addPlayer(newClient);
                 status.put(newClient, false);
-
+                
                 if (Boolean.parseBoolean(data[0])) {
                     addLobbyMessage(newClient + " has joined");
                 }
@@ -168,6 +169,7 @@ public class LobbyWindow extends JFrame {
                 }
             }
         };
+//</editor-fold>
 
         ClientSocket.connectViaGUI();
         ClientSocket.getConnection().addServerListener(listener);
