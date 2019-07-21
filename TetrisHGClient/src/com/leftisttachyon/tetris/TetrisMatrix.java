@@ -351,6 +351,9 @@ public class TetrisMatrix implements Paintable {
         t.setRotation(Tetromino.UP);
         t.setX(3);
         t.setY(19);
+        for (int i = 0; i < 2 && t.intersects(this); i++) {
+            t.moveDown(-1);
+        }
 
         lockDelayCnt = lockDelay;
         lastMove = -1;
