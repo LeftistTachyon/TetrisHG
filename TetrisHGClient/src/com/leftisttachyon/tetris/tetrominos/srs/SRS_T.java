@@ -13,7 +13,7 @@ import java.awt.Point;
  */
 public final class SRS_T extends AbstractTetromino implements TetT, SRSTet {
     //purple, so use 6
-    
+
     /**
      * The UP state
      */
@@ -23,7 +23,7 @@ public final class SRS_T extends AbstractTetromino implements TetT, SRSTet {
         {6, 6, 6, 0},
         {0, 0, 0, 0}
     };
-        
+
     /**
      * The RIGHT state
      */
@@ -33,7 +33,7 @@ public final class SRS_T extends AbstractTetromino implements TetT, SRSTet {
         {0, 6, 6, 0},
         {0, 6, 0, 0}
     };
-        
+
     /**
      * The DOWN state
      */
@@ -43,7 +43,7 @@ public final class SRS_T extends AbstractTetromino implements TetT, SRSTet {
         {6, 6, 6, 0},
         {0, 6, 0, 0}
     };
-        
+
     /**
      * The LEFT state
      */
@@ -78,7 +78,7 @@ public final class SRS_T extends AbstractTetromino implements TetT, SRSTet {
     public String getName() {
         return "SRS T";
     }
-    
+
     /**
      * Always the center
      */
@@ -92,16 +92,16 @@ public final class SRS_T extends AbstractTetromino implements TetT, SRSTet {
     @Override
     public int filledFaceCorners(TetrisMatrix m) {
         int output = 0;
-        if ((rotation == UP || rotation == LEFT) && m.getBlock(x, y + 1) != 0) {
+        if ((rotation == UP || rotation == RIGHT) && m.getBlock(x, y + 1) != 0) {
             output++;
         }
-        if ((rotation == UP || rotation == RIGHT) && m.getBlock(x + 2, y + 1) != 0) {
+        if ((rotation == DOWN || rotation == RIGHT) && m.getBlock(x + 2, y + 1) != 0) {
             output++;
         }
-        if ((rotation == DOWN || rotation == LEFT) && m.getBlock(x, y + 3) != 0) {
+        if ((rotation == UP || rotation == LEFT) && m.getBlock(x, y + 3) != 0) {
             output++;
         }
-        if ((rotation == DOWN || rotation == RIGHT) && m.getBlock(x + 2, y + 3) != 0) {
+        if ((rotation == DOWN || rotation == LEFT) && m.getBlock(x + 2, y + 3) != 0) {
             output++;
         }
         return output;

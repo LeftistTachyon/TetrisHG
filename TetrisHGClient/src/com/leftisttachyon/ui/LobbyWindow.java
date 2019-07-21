@@ -45,7 +45,7 @@ public class LobbyWindow extends JFrame {
     /**
      * A storage of the statuses of each user
      */
-    private HashMap<String, Boolean> status;
+    private HashMap<String, Boolean> busy;
 
     /**
      * Are you in a game?
@@ -65,7 +65,7 @@ public class LobbyWindow extends JFrame {
     public LobbyWindow() {
         initComponents();
 
-        status = new HashMap<>();
+        busy = new HashMap<>();
         inGame = false;
 
         name = new String[]{null};
@@ -73,19 +73,19 @@ public class LobbyWindow extends JFrame {
         //<editor-fold defaultstate="collapsed" desc="listener">
         Consumer<String> listener = (line) -> {
             int temp = 0;
-            
+
             if (line.startsWith("NEWCLIENT")) {
                 // add a client to the pool
                 String[] data = line.substring(9).split(" ");
-                
+
                 String newClient = data[1];
                 if ("null".equals(newClient)) {
                     return;
                 }
                 System.out.println("new client: " + newClient);
                 addPlayer(newClient);
-                status.put(newClient, false);
-                
+                busy.put(newClient, false);
+
                 if (Boolean.parseBoolean(data[0])) {
                     addLobbyMessage(newClient + " has joined");
                 }
@@ -96,13 +96,13 @@ public class LobbyWindow extends JFrame {
                     return;
                 }
                 removePlayer(toRemove);
-                status.remove(toRemove);
+                busy.remove(toRemove);
                 addLobbyMessage(toRemove + " has left");
             } else if (line.startsWith("BUSY")) {
-                status.put(line.substring(4), true);
+                busy.put(line.substring(4), true);
             } else if (line.startsWith("FREE")) {
                 String toFree = line.substring(4);
-                status.put(toFree, false);
+                busy.put(toFree, false);
             } else if (line.startsWith("NLM")) {
                 addLobbyMessage(line.substring(3));
             } else {
@@ -145,7 +145,8 @@ public class LobbyWindow extends JFrame {
                         // submit your name, duh
                         name[0] = getName(temp++ == 0);
                         ClientSocket.getConnection().send(name[0]);
-                        System.out.println(name[0]);
+                        System.out.println("Your name is: " + name[0]);
+                        busy.put(name[0], false);
                     } else if (line.startsWith("NAMEACCEPTED")) {
                         // the server has accepted your name
                         temp = 0;
@@ -159,9 +160,16 @@ public class LobbyWindow extends JFrame {
                                 JOptionPane.INFORMATION_MESSAGE);
                         // whether I accept the challenge
                         boolean accepted = choice == JOptionPane.YES_OPTION;
-                        inGame = accepted;
-                        ClientSocket.getConnection().send("CHALLENGE_R"
-                                + challenger + " " + accepted);
+                        if (busy.get(challenger)) {
+                            JOptionPane.showMessageDialog(this, 
+                                    "Well, it appears that your opponent is busy right now.", 
+                                    "Match cancelled", 
+                                    JOptionPane.INFORMATION_MESSAGE);
+                        } else {
+                            inGame = accepted;
+                            ClientSocket.getConnection().send("CHALLENGE_R"
+                                    + challenger + " " + accepted);
+                        }
                     } else if (line.startsWith("CHALLENGE_R")) {
                         inGame = Boolean.parseBoolean(line.substring(11));
                         System.out.println(inGame);
@@ -304,6 +312,7 @@ public class LobbyWindow extends JFrame {
             }
         }
         playerLModel.add(i, name);
+        busy.put(name, false);
     }
 
     /**
@@ -396,11 +405,6 @@ public class LobbyWindow extends JFrame {
         }
 
         @Override
-        public void update(Graphics g) {
-            paint(g);
-        }
-
-        @Override
         public void paint(Graphics g) {
             g.setColor(Color.white);
             g.fillRect(0, 0, getWidth(), getHeight());
@@ -416,7 +420,8 @@ public class LobbyWindow extends JFrame {
                 g2D.setColor(Color.black);
                 g2D.drawString(selectedPlayer, 5, cbh + 5);
 
-                boolean isBusy = status.get(selectedPlayer);
+                boolean isBusy = busy.get(selectedPlayer)
+                        || busy.get(name[0]);
                 if (isBusy) {
                     g2D.setColor(Color.red);
                 } else {
@@ -456,12 +461,18 @@ public class LobbyWindow extends JFrame {
             int cbx = challengeButtonX(), cby = challengeButtonY();
             if (p.x >= cbx && p.x <= cbx + challengeButtonWidth()
                     && p.y >= cby && p.y <= cby + challengeButtonHeight()
-                    && !status.get(playerList.getSelectedValue())
+                    && !busy.get(name[0])
+                    && !busy.get(playerList.getSelectedValue())
                     && ClientSocket.isConnected()) {
                 // challenge(playerList.getSelectedValue());
                 // out.println("CHALLENGE_C" + player);
                 ClientSocket.getConnection().send("CHALLENGE_C"
                         + playerList.getSelectedValue());
+
+                JOptionPane.showMessageDialog(LobbyWindow.this,
+                        "Successfully challenged "
+                        + playerList.getSelectedValue(),
+                        "Challenge sent", JOptionPane.PLAIN_MESSAGE);
             }
         }
 

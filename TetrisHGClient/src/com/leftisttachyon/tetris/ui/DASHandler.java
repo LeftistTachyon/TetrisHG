@@ -39,11 +39,13 @@ public class DASHandler extends KeyAdapter {
         int keyCode = e.getKeyCode();
         if (keys.containsKey(keyCode) && pressed.get(keyCode)[1] == -2) {
             pressed.put(keyCode, new int[]{1, 0});
-        }
-        
-        if (isPressed(VK_RIGHT) && isPressed(VK_LEFT)) {
-            pressed.put(VK_RIGHT, new int[]{2, -2});
-            pressed.put(VK_LEFT, new int[]{2, -2});
+            
+            if (keyCode == VK_LEFT && isPressed(VK_RIGHT)) {
+                pressed.put(VK_RIGHT, new int[]{2, -1});
+            }
+            if (keyCode == VK_RIGHT && isPressed(VK_LEFT)) {
+                pressed.put(VK_LEFT, new int[]{2, -1});
+            }
         }
     }
 

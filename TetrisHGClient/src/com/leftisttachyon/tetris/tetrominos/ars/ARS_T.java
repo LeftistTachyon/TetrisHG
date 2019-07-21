@@ -101,16 +101,16 @@ public final class ARS_T extends AbstractTetromino implements TetT, ARSTet {
         int cx = center.x, cy = center.y;
         
         int output = 0;
-        if ((rotation == DOWN || rotation == LEFT) && m.getBlock(cx + 1, cy - 1) != 0) {
+        if ((rotation == UP || rotation == RIGHT) && m.getBlock(cx - 1, cy - 1) != 0) {
             output++;
         }
-        if ((rotation == DOWN || rotation == RIGHT) && m.getBlock(cx - 1, cy - 1) != 0) {
+        if ((rotation == DOWN || rotation == RIGHT) && m.getBlock(cx + 1, cy - 1) != 0) {
             output++;
         }
-        if ((rotation == UP || rotation == LEFT) && m.getBlock(cx + 1, cy  + 1) != 0) {
+        if ((rotation == UP || rotation == LEFT) && m.getBlock(cx - 1, cy  + 1) != 0) {
             output++;
         }
-        if ((rotation == UP || rotation == RIGHT) && m.getBlock(cx - 1, cy + 1) != 0) {
+        if ((rotation == DOWN || rotation == LEFT) && m.getBlock(cx + 1, cy + 1) != 0) {
             output++;
         }
         return output;
