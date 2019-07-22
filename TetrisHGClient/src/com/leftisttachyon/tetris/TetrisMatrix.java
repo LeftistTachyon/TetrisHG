@@ -189,7 +189,9 @@ public class TetrisMatrix implements Paintable {
         if (!onLeft && ClientSocket.isConnected()) {
             ClientSocket.getConnection().addServerListener((line) -> {
                 if (inGame) {
-                    if (line.startsWith("LOCK")) {
+                    if (line.equals("PAUSE0")) {
+                        pauseAnimationCnt = 0;
+                    } if (line.startsWith("LOCK")) {
                         String[] data = line.substring(4).split(" ");
                         int x = Integer.parseInt(data[0]),
                                 y = Integer.parseInt(data[1]),
@@ -877,11 +879,15 @@ public class TetrisMatrix implements Paintable {
             }
         }
 
-        if (pauseAnimationCnt >= 0) {
+        if (pauseAnimationCnt >= 0 && onLeft) {
             pauseAnimationCnt--;
         }
 
         if (pauseAnimationCnt == 0) {
+            if (onLeft) {
+                ClientSocket.getConnection().send("PAUSE0");
+            }
+            
             if (linesToClear.isEmpty()) {
                 if (onLeft) {
                     boolean left = handler.isPressed(VK_Z),
