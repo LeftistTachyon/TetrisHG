@@ -185,6 +185,40 @@ public class TetrisMatrix implements Paintable {
         combo = -1;
         back2Back = false;
         garbageManager = new GarbageManager();
+
+        if (!onLeft && ClientSocket.isConnected()) {
+            ClientSocket.getConnection().addServerListener((line) -> {
+                if (inGame) {
+                    if (line.startsWith("LOCK")) {
+                        String[] data = line.substring(4).split(" ");
+                        int x = Integer.parseInt(data[0]),
+                                y = Integer.parseInt(data[1]),
+                                rotation = Integer.parseInt(data[2]);
+                        if (currentTet != null) {
+                            currentTet.setX(x);
+                            currentTet.setY(y);
+                            currentTet.setRotation(rotation);
+                            lock();
+                        }
+                    } else if (line.startsWith("ENTER")) {
+                        boolean left = line.charAt(5) == '1',
+                                right = line.charAt(6) == '1',
+                                hold = line.charAt(7) == '1';
+                        enter(left, right, hold);
+                    } else if (line.startsWith("GL")) {
+                        String[] data = line.substring(2).split(" ");
+                        for (int i = 0; i < data.length - 1; i += 2) {
+                            int lines = Integer.parseInt(data[i]),
+                                    hole = Integer.parseInt(data[i + 1]);
+                            for (int j = 0; j < lines; j++) {
+                                addGarbage(hole);
+                            }
+                            garbageManager.counterGarbage(lines);
+                        }
+                    }
+                }
+            });
+        }
     }
 
     /**
@@ -509,23 +543,6 @@ public class TetrisMatrix implements Paintable {
      * A counter for lock flash
      */
     private int lockFlashCnt = -1;
-
-    /**
-     * Locks the current tetromino in the given x and y coordinates, and the
-     * given rotation state.
-     *
-     * @param x the x coordinate to lock the tetromino at
-     * @param y the x coordinate to lock the tetromino at
-     * @param rotation the rotation state to lock the tetromino in
-     */
-    public void lock(int x, int y, int rotation) {
-        if (currentTet != null) {
-            currentTet.setX(x);
-            currentTet.setY(y);
-            currentTet.setRotation(rotation);
-            lock();
-        }
-    }
 
     /**
      * Locks the current piece to the playing field and sets flags for the
@@ -940,7 +957,7 @@ public class TetrisMatrix implements Paintable {
      * @param right whether to rotate right
      * @param hold whether to hold
      */
-    public void enter(boolean left, boolean right, boolean hold) {
+    private void enter(boolean left, boolean right, boolean hold) {
         currentTet = queue.removeTetromino();
         activate(currentTet);
 
@@ -1281,20 +1298,6 @@ public class TetrisMatrix implements Paintable {
 
         if (lockingTet != null && lockingTet.intersects(this)) {
             lockingTet.moveDown(-1);
-        }
-    }
-
-    /**
-     * Deletes the given amount of lines from the garbage queue
-     *
-     * @param lines the amount of lines to clear
-     */
-    public void deleteGarbage(int lines) {
-        if (!onLeft) {
-            garbageManager.counterGarbage(lines);
-        } else {
-            throw new UnsupportedOperationException(
-                    "You can\'t delete your own garbage!");
         }
     }
 
