@@ -11,6 +11,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.RenderingHints;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -69,119 +70,6 @@ public class LobbyWindow extends JFrame {
         inGame = false;
 
         name = new String[]{null};
-
-        //<editor-fold defaultstate="collapsed" desc="listener">
-        Consumer<String> listener = (line) -> {
-            int temp = 0;
-
-            if (line.startsWith("NEWCLIENT")) {
-                // add a client to the pool
-                String[] data = line.substring(9).split(" ");
-
-                String newClient = data[1];
-                if ("null".equals(newClient)) {
-                    return;
-                }
-                System.out.println("new client: " + newClient);
-                addPlayer(newClient);
-                busy.put(newClient, false);
-
-                if (Boolean.parseBoolean(data[0])) {
-                    addLobbyMessage(newClient + " has joined");
-                }
-            } else if (line.startsWith("REMOVECLIENT")) {
-                // remove a client from the pool
-                String toRemove = line.substring(12);
-                if ("null".equals(toRemove)) {
-                    return;
-                }
-                removePlayer(toRemove);
-                busy.remove(toRemove);
-                addLobbyMessage(toRemove + " has left");
-            } else if (line.startsWith("BUSY")) {
-                busy.put(line.substring(4), true);
-            } else if (line.startsWith("FREE")) {
-                String toFree = line.substring(4);
-                busy.put(toFree, false);
-            } else if (line.startsWith("NLM")) {
-                addLobbyMessage(line.substring(3));
-            } else {
-                if (inGame) {
-                    if (line.equals("ST")) {
-                        new Thread(() -> {
-                            tFrame = new TetrisFrame();
-                            Dimension ss = getSize();
-                            tFrame.setLocation(
-                                    getX() + (ss.width - tFrame.getWidth()) / 2,
-                                    getY() + (ss.height - tFrame.getHeight()) / 2);
-                            tFrame.addWindowListener(new WindowAdapter() {
-                                @Override
-                                public void windowClosed(WindowEvent e) {
-                                    System.err.println("Closin\'!");
-                                    super.windowClosing(e);
-                                    inGame = false;
-                                    ((TetrisFrame) e.getWindow()).stop();
-                                    ClientSocket.getConnection().sendImmediately("EXIT");
-                                }
-                            });
-                            tFrame.start();
-                        }).start();
-                    } else if (line.equals("EXIT")) {
-                        System.err.println("The other person has left "
-                                + "the match.");
-                        inGame = false;
-                        tFrame.stop();
-                        JOptionPane.showMessageDialog(LobbyWindow.this,
-                                "Your opponent has disconnected.",
-                                "Opponent disconnect",
-                                JOptionPane.INFORMATION_MESSAGE);
-                        tFrame.dispose();
-                    } else if (line.startsWith("NM")) {
-                        String message = line.substring(2);
-                        System.err.println("OPPONENT: " + message);
-                    }
-                } else {
-                    if (line.startsWith("SUBMITNAME")) {
-                        // submit your name, duh
-                        name[0] = getName(temp++ == 0);
-                        ClientSocket.getConnection().send(name[0]);
-                        System.out.println("Your name is: " + name[0]);
-                        busy.put(name[0], false);
-                    } else if (line.startsWith("NAMEACCEPTED")) {
-                        // the server has accepted your name
-                        temp = 0;
-                        // init stuff
-                    } else if (line.startsWith("CHALLENGE_C")) {
-                        // I'm being challenged!
-                        String challenger = line.substring(11);
-                        int choice = JOptionPane.showConfirmDialog(this,
-                                challenger + " has challenged you!\nDo you accept?",
-                                "Challenge", JOptionPane.YES_NO_OPTION,
-                                JOptionPane.INFORMATION_MESSAGE);
-                        // whether I accept the challenge
-                        boolean accepted = choice == JOptionPane.YES_OPTION;
-                        if (busy.get(challenger)) {
-                            JOptionPane.showMessageDialog(this, 
-                                    "Well, it appears that your opponent is busy right now.", 
-                                    "Match cancelled", 
-                                    JOptionPane.INFORMATION_MESSAGE);
-                        } else {
-                            inGame = accepted;
-                            ClientSocket.getConnection().send("CHALLENGE_R"
-                                    + challenger + " " + accepted);
-                        }
-                    } else if (line.startsWith("CHALLENGE_R")) {
-                        inGame = Boolean.parseBoolean(line.substring(11));
-                        System.out.println(inGame);
-                    }
-                }
-            }
-        };
-//</editor-fold>
-
-        ClientSocket.connectViaGUI();
-        ClientSocket.getConnection().addServerListener(listener);
-
     }
 
     /**
@@ -358,6 +246,124 @@ public class LobbyWindow extends JFrame {
         });
 
         new Thread(lw.infoPanel).start();
+        
+        Dimension ss = Toolkit.getDefaultToolkit().getScreenSize();
+        lw.setLocation(
+                (ss.width - lw.getWidth()) / 2,
+                (ss.height - lw.getHeight()) / 2);
+        
+        //<editor-fold defaultstate="collapsed" desc="listener">
+        Consumer<String> listener = (line) -> {
+            int temp = 0;
+
+            if (line.startsWith("NEWCLIENT")) {
+                // add a client to the pool
+                String[] data = line.substring(9).split(" ");
+
+                String newClient = data[1];
+                if ("null".equals(newClient)) {
+                    return;
+                }
+                System.out.println("new client: " + newClient);
+                lw.addPlayer(newClient);
+                lw.busy.put(newClient, false);
+
+                if (Boolean.parseBoolean(data[0])) {
+                    lw.addLobbyMessage(newClient + " has joined");
+                }
+            } else if (line.startsWith("REMOVECLIENT")) {
+                // remove a client from the pool
+                String toRemove = line.substring(12);
+                if ("null".equals(toRemove)) {
+                    return;
+                }
+                lw.removePlayer(toRemove);
+                lw.busy.remove(toRemove);
+                lw.addLobbyMessage(toRemove + " has left");
+            } else if (line.startsWith("BUSY")) {
+                lw.busy.put(line.substring(4), true);
+            } else if (line.startsWith("FREE")) {
+                String toFree = line.substring(4);
+                lw.busy.put(toFree, false);
+            } else if (line.startsWith("NLM")) {
+                lw.addLobbyMessage(line.substring(3));
+            } else {
+                if (lw.inGame) {
+                    if (line.equals("ST")) {
+                        new Thread(() -> {
+                            lw.tFrame = new TetrisFrame();
+                            Dimension geg = lw.getSize();
+                            lw.tFrame.setLocation(
+                                    lw.getX() + (geg.width - lw.tFrame.getWidth()) / 2,
+                                    lw.getY() + (geg.height - lw.tFrame.getHeight()) / 2);
+                            lw.tFrame.addWindowListener(new WindowAdapter() {
+                                @Override
+                                public void windowClosed(WindowEvent e) {
+                                    System.err.println("Closin\'!");
+                                    super.windowClosing(e);
+                                    lw.inGame = false;
+                                    ((TetrisFrame) e.getWindow()).stop();
+                                    ClientSocket.getConnection().sendImmediately("EXIT");
+                                }
+                            });
+                            lw.tFrame.start();
+                        }).start();
+                    } else if (line.equals("EXIT")) {
+                        System.err.println("The other person has left "
+                                + "the match.");
+                        lw.inGame = false;
+                        lw.tFrame.stop();
+                        JOptionPane.showMessageDialog(lw,
+                                "Your opponent has disconnected.",
+                                "Opponent disconnect",
+                                JOptionPane.INFORMATION_MESSAGE);
+                        lw.tFrame.dispose();
+                    } else if (line.startsWith("NM")) {
+                        String message = line.substring(2);
+                        System.err.println("OPPONENT: " + message);
+                    }
+                } else {
+                    if (line.startsWith("SUBMITNAME")) {
+                        // submit your name, duh
+                        lw.name[0] = lw.getName(temp++ == 0);
+                        ClientSocket.getConnection().send(lw.name[0]);
+                        System.out.println("Your name is: " + lw.name[0]);
+                        lw.busy.put(lw.name[0], false);
+                    } else if (line.startsWith("NAMEACCEPTED")) {
+                        // the server has accepted your name
+                        temp = 0;
+                        // init stuff
+                    } else if (line.startsWith("CHALLENGE_C")) {
+                        // I'm being challenged!
+                        String challenger = line.substring(11);
+                        int choice = JOptionPane.showConfirmDialog(lw,
+                                challenger + " has challenged you!\nDo you accept?",
+                                "Challenge", JOptionPane.YES_NO_OPTION,
+                                JOptionPane.INFORMATION_MESSAGE);
+                        // whether I accept the challenge
+                        boolean accepted = choice == JOptionPane.YES_OPTION;
+                        if (lw.busy.get(challenger)) {
+                            JOptionPane.showMessageDialog(lw, 
+                                    "Well, it appears that your opponent is busy right now.", 
+                                    "Match cancelled", 
+                                    JOptionPane.INFORMATION_MESSAGE);
+                        } else {
+                            lw.inGame = accepted;
+                            ClientSocket.getConnection().send("CHALLENGE_R"
+                                    + challenger + " " + accepted);
+                        }
+                    } else if (line.startsWith("CHALLENGE_R")) {
+                        lw.inGame = Boolean.parseBoolean(line.substring(11));
+                        System.out.println(lw.inGame);
+                    }
+                }
+            }
+        };
+        //</editor-fold>
+        
+        ClientSocket.setFrame(lw);
+        ClientSocket.connectViaGUI();
+        ClientSocket.getConnection().addServerListener(listener);
 
         return lw;
     }

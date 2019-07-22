@@ -22,9 +22,5 @@ public class TetrisMain {
         frame.start();*/
 
         LobbyWindow frame = LobbyWindow.run();
-        Dimension ss = Toolkit.getDefaultToolkit().getScreenSize();
-        frame.setLocation(
-                (ss.width - frame.getWidth()) / 2,
-                (ss.height - frame.getHeight()) / 2);
     }
 }

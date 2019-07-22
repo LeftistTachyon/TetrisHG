@@ -13,6 +13,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Consumer;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 /**
@@ -205,7 +206,7 @@ public final class ClientSocket {
                 try {
                     read = in.readLine();
                 } catch (SocketException se) {
-                    JOptionPane.showMessageDialog(null,
+                    JOptionPane.showMessageDialog(frame,
                             "You have been disconnected from the server.",
                             "Disconnected", JOptionPane.WARNING_MESSAGE);
                     System.exit(0);
@@ -213,7 +214,7 @@ public final class ClientSocket {
                     System.err.println("Could not read line");
                 }
                 if (read == null) {
-                    JOptionPane.showMessageDialog(null,
+                    JOptionPane.showMessageDialog(frame,
                             "The server has gone offline.",
                             "Disconnected", JOptionPane.WARNING_MESSAGE);
                     break;
@@ -276,7 +277,7 @@ public final class ClientSocket {
             listeners = new LinkedList<>();
         }
         listeners.add(consumer);
-        
+
         while (!toReceive.isEmpty()) {
             String read = toReceive.poll();
             for (Consumer<String> listener : listeners) {
@@ -337,7 +338,7 @@ public final class ClientSocket {
             }
             if (!isConnected()) {
                 Object[] options = {"Reenter IP Adress", "Exit"};
-                int returned = JOptionPane.showOptionDialog(null,
+                int returned = JOptionPane.showOptionDialog(frame,
                         "Could not connect to server",
                         "Connection Error", JOptionPane.OK_CANCEL_OPTION,
                         JOptionPane.ERROR_MESSAGE, null, options, options[0]);
@@ -356,9 +357,24 @@ public final class ClientSocket {
      */
     private static String getServerAddress() {
         return JOptionPane.showInputDialog(
-                null,
+                frame,
                 "Enter IP Address of the Server:",
                 "Welcome to Socket Room",
                 JOptionPane.QUESTION_MESSAGE);
+    }
+
+    /**
+     * A frame to show dialogs for
+     */
+    private static JFrame frame = null;
+
+    /**
+     * Sets the internal JFrame for this ClientSocket; this JFrame will be the
+     * parent of all dialogs popped up by this class
+     *
+     * @param frame the JFrame to parent the dialogs
+     */
+    public static void setFrame(JFrame frame) {
+        ClientSocket.frame = frame;
     }
 }
