@@ -1,6 +1,6 @@
-/dist/
-/nbproject/private/
 /TetrisHGServer/nbproject/private/
+/TetrisHGClient/nbproject/private/
 /TetrisHGClient/build/
 /TetrisHGServer/build/
 /TetrisHGClient/dist/
+/TetrisHGServer/dist/
