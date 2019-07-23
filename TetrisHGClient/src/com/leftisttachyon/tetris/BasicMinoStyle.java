@@ -1,6 +1,5 @@
 package com.leftisttachyon.tetris;
 
-import com.leftisttachyon.tetris.tetrominos.Tetromino;
 import java.awt.Color;
 import java.awt.Graphics2D;
 
@@ -35,12 +34,12 @@ public class BasicMinoStyle extends MinoStyle {
     /**
      * The color purple
      */
-    private static final Color purple = new Color(128, 0, 128);
+    private static final Color PURPLE_C = new Color(128, 0, 128);
 
     /**
      * A flashy color
      */
-    private static final Color flash = new Color(186, 194, 194);
+    private static final Color FLASH = new Color(186, 194, 194);
 
     @Override
     public void drawMino(Graphics2D g2D, int x, int y, int size, int color) {
@@ -61,13 +60,13 @@ public class BasicMinoStyle extends MinoStyle {
                 g2D.setColor(Color.GREEN);
                 break;
             case PURPLE:
-                g2D.setColor(purple);
+                g2D.setColor(PURPLE_C);
                 break;
             case RED:
                 g2D.setColor(Color.RED);
                 break;
             case GREY:
-                g2D.setColor(flash);
+                g2D.setColor(FLASH);
                 break;
             default:
                 return;

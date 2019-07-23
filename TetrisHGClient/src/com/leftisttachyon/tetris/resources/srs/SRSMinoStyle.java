@@ -1,42 +1,44 @@
-package com.leftisttachyon.tetris;
+package com.leftisttachyon.tetris.resources.srs;
 
+import com.leftisttachyon.tetris.MinoStyle;
 import static com.leftisttachyon.tetris.MinoStyle.*;
 import com.leftisttachyon.util.TetrisUtils;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import static com.leftisttachyon.tetris.MinoStyle.GREY;
 import java.util.HashMap;
 import net.coobird.thumbnailator.Thumbnails;
 
 /**
- * The TGM style of minos
+ * The SRS style of minos
  *
  * @author Jed Wang
  * @since 0.9.0
  */
-public class TGMMinoStyle extends MinoStyle {
+public class SRSMinoStyle extends MinoStyle {
 
     /**
      * No instantiation for you!
      */
-    private TGMMinoStyle() {
+    private SRSMinoStyle() {
         imageCache = new HashMap[9];
     }
 
     /**
-     * Returns an instance of a TGMMinoStyle
+     * Returns an instance of a SRSMinoStyle
      *
-     * @return an instance of a TGMMinoStyle
+     * @return an instance of a SRSMinoStyle
      */
-    public static TGMMinoStyle getMinoStyle() {
+    public static SRSMinoStyle getMinoStyle() {
         return SINGLETON;
     }
 
     /**
      * The one and only.
      */
-    private static final TGMMinoStyle SINGLETON = new TGMMinoStyle();
+    private static final SRSMinoStyle SINGLETON = new SRSMinoStyle();
 
     /**
      * An image of a blue mino
@@ -83,7 +85,7 @@ public class TGMMinoStyle extends MinoStyle {
 
         temp = null;
         try {
-            temp = TetrisUtils.getResource("/com/leftisttachyon/tetris/resources/tgm/blue.png");
+            temp = TetrisUtils.getResource("/com/leftisttachyon/tetris/resources/srs/blue.png");
         } catch (IOException ex) {
             ex.printStackTrace();
         }
@@ -91,7 +93,7 @@ public class TGMMinoStyle extends MinoStyle {
 
         temp = null;
         try {
-            temp = TetrisUtils.getResource("/com/leftisttachyon/tetris/resources/tgm/cyan.png");
+            temp = TetrisUtils.getResource("/com/leftisttachyon/tetris/resources/srs/cyan.png");
         } catch (IOException ex) {
             ex.printStackTrace();
         }
@@ -99,7 +101,7 @@ public class TGMMinoStyle extends MinoStyle {
 
         temp = null;
         try {
-            temp = TetrisUtils.getResource("/com/leftisttachyon/tetris/resources/tgm/lock.png");
+            temp = TetrisUtils.getResource("/com/leftisttachyon/tetris/resources/srs/lock.png");
         } catch (IOException ex) {
             ex.printStackTrace();
         }
@@ -107,7 +109,7 @@ public class TGMMinoStyle extends MinoStyle {
 
         temp = null;
         try {
-            temp = TetrisUtils.getResource("/com/leftisttachyon/tetris/resources/tgm/green.png");
+            temp = TetrisUtils.getResource("/com/leftisttachyon/tetris/resources/srs/green.png");
         } catch (IOException ex) {
             ex.printStackTrace();
         }
@@ -115,7 +117,7 @@ public class TGMMinoStyle extends MinoStyle {
 
         temp = null;
         try {
-            temp = TetrisUtils.getResource("/com/leftisttachyon/tetris/resources/tgm/orange.png");
+            temp = TetrisUtils.getResource("/com/leftisttachyon/tetris/resources/srs/orange.png");
         } catch (IOException ex) {
             ex.printStackTrace();
         }
@@ -123,7 +125,7 @@ public class TGMMinoStyle extends MinoStyle {
 
         temp = null;
         try {
-            temp = TetrisUtils.getResource("/com/leftisttachyon/tetris/resources/tgm/purple.png");
+            temp = TetrisUtils.getResource("/com/leftisttachyon/tetris/resources/srs/purple.png");
         } catch (IOException ex) {
             ex.printStackTrace();
         }
@@ -131,7 +133,7 @@ public class TGMMinoStyle extends MinoStyle {
 
         temp = null;
         try {
-            temp = TetrisUtils.getResource("/com/leftisttachyon/tetris/resources/tgm/red.png");
+            temp = TetrisUtils.getResource("/com/leftisttachyon/tetris/resources/srs/red.png");
         } catch (IOException ex) {
             ex.printStackTrace();
         }
@@ -139,7 +141,7 @@ public class TGMMinoStyle extends MinoStyle {
 
         temp = null;
         try {
-            temp = TetrisUtils.getResource("/com/leftisttachyon/tetris/resources/tgm/yellow.png");
+            temp = TetrisUtils.getResource("/com/leftisttachyon/tetris/resources/srs/yellow.png");
         } catch (IOException ex) {
             ex.printStackTrace();
         }
@@ -211,7 +213,6 @@ public class TGMMinoStyle extends MinoStyle {
             }
         }
     }*/
-
     @Override
     public void drawMino(Graphics2D g2D, int x, int y, int size, int color) {
         if (size == MINO_SIZE) {
@@ -223,12 +224,12 @@ public class TGMMinoStyle extends MinoStyle {
             g2D.drawImage(getScaledMino(color, size), x, y, null);
         }
     }
-    
+
     /**
      * A cache of resized images
      */
     private final HashMap<Integer, Image>[] imageCache;
-    
+
     /**
      * Gets a scaled instance of an image of a mino
      *
@@ -253,28 +254,28 @@ public class TGMMinoStyle extends MinoStyle {
                 BufferedImage file;
                 switch(color) {
                     case BLUE:
-                        file = TetrisUtils.getResource("/com/leftisttachyon/tetris/resources/tgm/blue.png");
+                        file = TetrisUtils.getResource("/com/leftisttachyon/tetris/resources/srs/blue.png");
                         break;
                     case CYAN:
-                        file = TetrisUtils.getResource("/com/leftisttachyon/tetris/resources/tgm/cyan.png");
+                        file = TetrisUtils.getResource("/com/leftisttachyon/tetris/resources/srs/cyan.png");
                         break;
                     case GREEN:
-                        file = TetrisUtils.getResource("/com/leftisttachyon/tetris/resources/tgm/green.png");
+                        file = TetrisUtils.getResource("/com/leftisttachyon/tetris/resources/srs/green.png");
                         break;
                     case GREY:
-                        file = TetrisUtils.getResource("/com/leftisttachyon/tetris/resources/tgm/lock.png");
+                        file = TetrisUtils.getResource("/com/leftisttachyon/tetris/resources/srs/lock.png");
                         break;
                     case ORANGE:
-                        file = TetrisUtils.getResource("/com/leftisttachyon/tetris/resources/tgm/orange.png");
+                        file = TetrisUtils.getResource("/com/leftisttachyon/tetris/resources/srs/orange.png");
                         break;
                     case PURPLE:
-                        file = TetrisUtils.getResource("/com/leftisttachyon/tetris/resources/tgm/purple.png");
+                        file = TetrisUtils.getResource("/com/leftisttachyon/tetris/resources/srs/purple.png");
                         break;
                     case RED:
-                        file = TetrisUtils.getResource("/com/leftisttachyon/tetris/resources/tgm/red.png");
+                        file = TetrisUtils.getResource("/com/leftisttachyon/tetris/resources/srs/red.png");
                         break;
                     case YELLOW:
-                        file = TetrisUtils.getResource("/com/leftisttachyon/tetris/resources/tgm/yellow.png");
+                        file = TetrisUtils.getResource("/com/leftisttachyon/tetris/resources/srs/yellow.png");
                         break;
                     default:
                         return null;

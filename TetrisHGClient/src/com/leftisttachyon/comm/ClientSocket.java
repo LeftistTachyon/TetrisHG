@@ -118,8 +118,8 @@ public final class ClientSocket {
     public static boolean closeCurrent() {
         boolean output = CURRENT.close();
         if (output) {
-            CURRENT = null;
-        }
+        CURRENT = null;
+    }
         return output;
     }
 

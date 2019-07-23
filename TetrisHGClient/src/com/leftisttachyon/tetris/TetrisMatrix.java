@@ -1,5 +1,7 @@
 package com.leftisttachyon.tetris;
 
+import com.leftisttachyon.tetris.resources.srs.SRSMinoStyle;
+import com.leftisttachyon.tetris.resources.tgm.TGMMinoStyle;
 import com.leftisttachyon.comm.ClientSocket;
 import static com.leftisttachyon.tetris.MinoStyle.MINO_SIZE;
 import com.leftisttachyon.tetris.tetrominos.AbstractTetromino;
@@ -36,7 +38,7 @@ public class TetrisMatrix implements Paintable {
     /**
      * Just another internal Paintable object.
      */
-    private PaintableMatrix paintableMatrix = new PaintableMatrix();
+    private final PaintableMatrix paintableMatrix = new PaintableMatrix();
 
     /**
      * The amount of frames to delay blocks falling down after a line clear.
@@ -74,7 +76,7 @@ public class TetrisMatrix implements Paintable {
     /**
      * The internal TetQueue for this TetrisMatrix
      */
-    private TetQueue queue;
+    private final TetQueue queue;
 
     /**
      * The internal TetrominoFactory for this TetrisMatrix
@@ -1086,7 +1088,7 @@ public class TetrisMatrix implements Paintable {
 
                 int[][] state = currentTet.getState();
 
-                if (addY != 0) {
+                if (drawGhost && addY != 0) {
                     g2D.setComposite(MinoStyle.TRANSLUCENT_COMPOSITE);
                     for (int i = 0, x = currentTet.getX() * MINO_SIZE;
                             i < state.length; i++, x += MINO_SIZE) {

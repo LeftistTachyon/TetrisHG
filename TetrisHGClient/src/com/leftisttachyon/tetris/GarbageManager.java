@@ -30,9 +30,7 @@ public class GarbageManager implements Paintable {
     @Override
     public void paint(Graphics2D g2D) {
         int total = 0;
-        for (int i : garbageQueue) {
-            total += i;
-        }
+        total = garbageQueue.stream().map((i) -> i).reduce(total, Integer::sum);
         int div = total / 20, rem = total % 20;
 
         int yStep = MINO_SIZE * 3 / 4;
