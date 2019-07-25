@@ -13,6 +13,8 @@ import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
@@ -241,6 +243,7 @@ public class LobbyWindow extends JFrame {
         /* Create and display the form */
         LobbyWindow lw = new LobbyWindow();
         EventQueue.invokeLater(() -> {
+            lw.setMinimumSize(new Dimension(658, 326));
             lw.setResizable(true);
             lw.setVisible(true);
         });
