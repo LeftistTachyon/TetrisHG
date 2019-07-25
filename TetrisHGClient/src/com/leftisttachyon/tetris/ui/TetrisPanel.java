@@ -82,6 +82,11 @@ public final class TetrisPanel extends JPanel {
     private int canStart = 0;
 
     /**
+     * A countdown timer
+     */
+    private int countdown;
+
+    /**
      * Creates a new, default TetrisPanel.
      */
     public TetrisPanel() {
@@ -111,6 +116,8 @@ public final class TetrisPanel extends JPanel {
 
         service = null;
 
+        countdown = -1;
+
         if (ClientSocket.isConnected()) {
             ClientSocket.getConnection().addServerListener((line) -> {
                 if (!theySelected) {
@@ -138,7 +145,12 @@ public final class TetrisPanel extends JPanel {
                         }
                     }
                 } else if (meSelected) {
-                    if (line.startsWith("ACTIONS")) {
+                    if (line.equals("COUNT0")) {
+                        if (++canStart == 4) {
+                            countdown = -1;
+                            startGame();
+                        }
+                    } else if (line.startsWith("ACTIONS")) {
                         HashSet<Integer> actions = new HashSet<>();
                         String[] data = line.substring(7).split(" ");
                         for (String s : data) {
@@ -149,7 +161,7 @@ public final class TetrisPanel extends JPanel {
                     } else if (line.startsWith("NB")) {
                         theirMatrix.addBag(line.substring(2));
                         if (!myMatrix.isInGame() && ++canStart == 2) {
-                            startGame();
+                            startCountdown();
                         }
                         // System.out.println("Added a bag of " + line.substring(2));
                     }
@@ -193,13 +205,28 @@ public final class TetrisPanel extends JPanel {
 
         // then make updates
         if (meSelected && theySelected) {
-            myMatrix.executeActions(actions);
-            myMatrix.advanceFrame(handler);
+            if (countdown == -1) {
+                myMatrix.executeActions(actions);
+                myMatrix.advanceFrame(handler);
 
-            theirMatrix.advanceFrame(null);
+                theirMatrix.advanceFrame(null);
+            } else {
+                if (countdown > 0) {
+                    countdown--;
+                }
+                
+                if (countdown == 0) {
+                    ClientSocket.getConnection().send("COUNT0");
+                    
+                    if (++canStart == 4) {
+                        startGame();
+                        countdown = -1;
+                    }
+                }
+            }
         } else if (!meSelected) {
             int temp = mySelection;
-            
+
             if (actions.remove(VK_DOWN)) {
                 mySelection++;
                 mySelection %= selections;
@@ -210,11 +237,11 @@ public final class TetrisPanel extends JPanel {
                     mySelection += selections;
                 }
             }
-            
+
             if (mySelection != temp) {
                 ClientSocket.getConnection().send("SELECT" + mySelection);
             }
-            
+
             if (actions.contains(VK_Z) || actions.contains(VK_X)
                     || actions.contains(VK_C) || actions.contains(VK_SPACE)) {
                 switch (mySelection) {
@@ -236,7 +263,7 @@ public final class TetrisPanel extends JPanel {
                     generateStartBag();
 
                     if (++canStart == 2) {
-                        startGame();
+                        startCountdown();
                     }
                 }
             }
@@ -367,6 +394,13 @@ public final class TetrisPanel extends JPanel {
      */
     public TetrisMatrix getMatrix() {
         return myMatrix;
+    }
+
+    /**
+     * Starts the countdown
+     */
+    private void startCountdown() {
+        countdown = 120;
     }
 
     /**
