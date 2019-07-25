@@ -198,6 +198,8 @@ public final class TetrisPanel extends JPanel {
 
             theirMatrix.advanceFrame(null);
         } else if (!meSelected) {
+            int temp = mySelection;
+            
             if (actions.remove(VK_DOWN)) {
                 mySelection++;
                 mySelection %= selections;
@@ -208,9 +210,11 @@ public final class TetrisPanel extends JPanel {
                     mySelection += selections;
                 }
             }
-
-            ClientSocket.getConnection().send("SELECT" + mySelection);
-
+            
+            if (mySelection != temp) {
+                ClientSocket.getConnection().send("SELECT" + mySelection);
+            }
+            
             if (actions.contains(VK_Z) || actions.contains(VK_X)
                     || actions.contains(VK_C) || actions.contains(VK_SPACE)) {
                 switch (mySelection) {
