@@ -62,11 +62,11 @@ public class LobbyWindow extends JFrame {
      * Your name
      */
     private final String[] name;
-    
+
     /**
-     * Whether you are challenging someone or not
+     * Who you are challenging
      */
-    private boolean challenging;
+    private String challenging;
 
     /**
      * Creates new form LobbyWindow
@@ -76,7 +76,7 @@ public class LobbyWindow extends JFrame {
 
         busy = new HashMap<>();
         inGame = false;
-        challenging = false;
+        challenging = null;
 
         name = new String[]{null};
     }
@@ -256,12 +256,12 @@ public class LobbyWindow extends JFrame {
         });
 
         new Thread(lw.infoPanel).start();
-        
+
         Dimension ss = Toolkit.getDefaultToolkit().getScreenSize();
         lw.setLocation(
                 (ss.width - lw.getWidth()) / 2,
                 (ss.height - lw.getHeight()) / 2);
-        
+
         //<editor-fold defaultstate="collapsed" desc="listener">
         Consumer<String> listener = (line) -> {
             int temp = 0;
@@ -290,6 +290,13 @@ public class LobbyWindow extends JFrame {
                 lw.removePlayer(toRemove);
                 lw.busy.remove(toRemove);
                 lw.addLobbyMessage(toRemove + " has left");
+                if (toRemove.equals(lw.challenging)) {
+                    lw.challenging = null;
+                    JOptionPane.showMessageDialog(lw,
+                            "The person you have challenged has left",
+                            "Other person left",
+                            JOptionPane.INFORMATION_MESSAGE);
+                }
             } else if (line.startsWith("BUSY")) {
                 lw.busy.put(line.substring(4), true);
             } else if (line.startsWith("FREE")) {
@@ -345,8 +352,8 @@ public class LobbyWindow extends JFrame {
                         // init stuff
                     } else if (line.startsWith("CHALLENGE_C")) {
                         // I'm being challenged!
-                        lw.challenging = true;
-                        
+                        lw.challenging = "";
+
                         String challenger = line.substring(11);
                         int choice = JOptionPane.showConfirmDialog(lw,
                                 challenger + " has challenged you!\nDo you accept?",
@@ -355,27 +362,27 @@ public class LobbyWindow extends JFrame {
                         // whether I accept the challenge
                         boolean accepted = choice == JOptionPane.YES_OPTION;
                         if (lw.busy.get(challenger)) {
-                            JOptionPane.showMessageDialog(lw, 
-                                    "Well, it appears that your opponent is busy right now.", 
-                                    "Match cancelled", 
+                            JOptionPane.showMessageDialog(lw,
+                                    "Well, it appears that your opponent is busy right now.",
+                                    "Match cancelled",
                                     JOptionPane.INFORMATION_MESSAGE);
                         } else {
                             lw.inGame = accepted;
                             ClientSocket.getConnection().send("CHALLENGE_R"
                                     + challenger + " " + accepted);
                         }
-                        
-                        lw.challenging = false;
+
+                        lw.challenging = null;
                     } else if (line.startsWith("CHALLENGE_R")) {
                         lw.inGame = Boolean.parseBoolean(line.substring(11));
                         System.out.println(lw.inGame);
-                        lw.challenging = false;
+                        lw.challenging = null;
                     }
                 }
             }
         };
         //</editor-fold>
-        
+
         ClientSocket.setFrame(lw);
         ClientSocket.connectViaGUI();
         ClientSocket.getConnection().addServerListener(listener);
@@ -456,7 +463,7 @@ public class LobbyWindow extends JFrame {
                         BasicStroke.JOIN_ROUND));
                 int cbx = challengeButtonX(), cby = challengeButtonY(),
                         cbw = challengeButtonWidth();
-                if (isBusy || challenging || busy.get(name[0])) {
+                if (isBusy || challenging != null || busy.get(name[0])) {
                     g2D.setColor(Color.lightGray);
                     g2D.fillRect(cbx, cby, cbw, cbh);
                     g2D.setColor(Color.gray);
@@ -481,7 +488,7 @@ public class LobbyWindow extends JFrame {
             int cbx = challengeButtonX(), cby = challengeButtonY();
             if (p.x >= cbx && p.x <= cbx + challengeButtonWidth()
                     && p.y >= cby && p.y <= cby + challengeButtonHeight()
-                    && !challenging
+                    && challenging == null
                     && !busy.get(name[0])
                     && !busy.get(playerList.getSelectedValue())
                     && ClientSocket.isConnected()) {
@@ -490,8 +497,8 @@ public class LobbyWindow extends JFrame {
                 ClientSocket.getConnection().send("CHALLENGE_C"
                         + playerList.getSelectedValue());
 
-                challenging = true;
-                
+                challenging = playerList.getSelectedValue();
+
                 JOptionPane.showMessageDialog(LobbyWindow.this,
                         "Successfully challenged "
                         + playerList.getSelectedValue(),
