@@ -165,11 +165,11 @@ public final class TetrisPanel extends JPanel {
         service = Executors.newSingleThreadScheduledExecutor();
         service.scheduleAtFixedRate(() -> {
             try {
-                double start = System.nanoTime();
+                // double start = System.nanoTime();
                 repaint();
-                double total = System.nanoTime() - start;
+                /*double total = System.nanoTime() - start;
                 total /= 1_000_000;
-                System.out.printf("Frame: %.2f ms%n", total);
+                System.out.printf("Frame: %.2f ms%n", total);*/
             } catch (Exception e) {
                 System.err.println("Exception occured while executing frame");
                 e.printStackTrace();

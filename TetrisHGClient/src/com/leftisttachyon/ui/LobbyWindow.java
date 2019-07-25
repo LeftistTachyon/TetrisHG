@@ -13,8 +13,6 @@ import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
@@ -60,7 +58,15 @@ public class LobbyWindow extends JFrame {
      */
     private TetrisFrame tFrame = null;
 
+    /**
+     * Your name
+     */
     private final String[] name;
+    
+    /**
+     * Whether you are challenging someone or not
+     */
+    private boolean challenging;
 
     /**
      * Creates new form LobbyWindow
@@ -70,6 +76,7 @@ public class LobbyWindow extends JFrame {
 
         busy = new HashMap<>();
         inGame = false;
+        challenging = false;
 
         name = new String[]{null};
     }
@@ -338,6 +345,8 @@ public class LobbyWindow extends JFrame {
                         // init stuff
                     } else if (line.startsWith("CHALLENGE_C")) {
                         // I'm being challenged!
+                        lw.challenging = true;
+                        
                         String challenger = line.substring(11);
                         int choice = JOptionPane.showConfirmDialog(lw,
                                 challenger + " has challenged you!\nDo you accept?",
@@ -355,9 +364,12 @@ public class LobbyWindow extends JFrame {
                             ClientSocket.getConnection().send("CHALLENGE_R"
                                     + challenger + " " + accepted);
                         }
+                        
+                        lw.challenging = false;
                     } else if (line.startsWith("CHALLENGE_R")) {
                         lw.inGame = Boolean.parseBoolean(line.substring(11));
                         System.out.println(lw.inGame);
+                        lw.challenging = false;
                     }
                 }
             }
@@ -429,8 +441,7 @@ public class LobbyWindow extends JFrame {
                 g2D.setColor(Color.black);
                 g2D.drawString(selectedPlayer, 5, cbh + 5);
 
-                boolean isBusy = busy.get(selectedPlayer)
-                        || busy.get(name[0]);
+                boolean isBusy = busy.get(selectedPlayer);
                 if (isBusy) {
                     g2D.setColor(Color.red);
                 } else {
@@ -445,7 +456,7 @@ public class LobbyWindow extends JFrame {
                         BasicStroke.JOIN_ROUND));
                 int cbx = challengeButtonX(), cby = challengeButtonY(),
                         cbw = challengeButtonWidth();
-                if (isBusy) {
+                if (isBusy || challenging || busy.get(name[0])) {
                     g2D.setColor(Color.lightGray);
                     g2D.fillRect(cbx, cby, cbw, cbh);
                     g2D.setColor(Color.gray);
@@ -470,6 +481,7 @@ public class LobbyWindow extends JFrame {
             int cbx = challengeButtonX(), cby = challengeButtonY();
             if (p.x >= cbx && p.x <= cbx + challengeButtonWidth()
                     && p.y >= cby && p.y <= cby + challengeButtonHeight()
+                    && !challenging
                     && !busy.get(name[0])
                     && !busy.get(playerList.getSelectedValue())
                     && ClientSocket.isConnected()) {
@@ -478,6 +490,8 @@ public class LobbyWindow extends JFrame {
                 ClientSocket.getConnection().send("CHALLENGE_C"
                         + playerList.getSelectedValue());
 
+                challenging = true;
+                
                 JOptionPane.showMessageDialog(LobbyWindow.this,
                         "Successfully challenged "
                         + playerList.getSelectedValue(),
