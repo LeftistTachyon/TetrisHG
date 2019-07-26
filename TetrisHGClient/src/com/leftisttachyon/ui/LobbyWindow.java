@@ -324,6 +324,7 @@ public class LobbyWindow extends JFrame {
                                 }
                             });
                             lw.tFrame.start();
+                            lw.tFrame.toFront();
                         }).start();
                     } else if (line.equals("EXIT")) {
                         System.err.println("The other person has left "

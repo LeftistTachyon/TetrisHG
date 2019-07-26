@@ -280,7 +280,20 @@ public final class TetrisPanel extends JPanel {
 
         int temp_x = 110;
 
-        if (!meSelected || !theySelected) {
+        if (meSelected && theySelected) {
+            if (countdown != -1) {
+                g2D.setFont(new Font("Arial Black", Font.PLAIN, 60));
+                FontMetrics metrics = g2D.getFontMetrics();
+                
+                String toDraw = countdown >= 60 ? "Ready?" : "GO!";
+                int width = metrics.stringWidth(toDraw);
+                
+                g2D.setColor(Color.WHITE);
+                
+                g2D.drawString(toDraw, temp_x + 5 * MINO_SIZE - width / 2, 
+                        10 * MINO_SIZE + metrics.getHeight() / 2);
+            }
+        } else {
             g2D.setFont(new Font("Arial Black", Font.PLAIN, 15));
             FontMetrics metrics = g2D.getFontMetrics();
 
@@ -293,7 +306,7 @@ public final class TetrisPanel extends JPanel {
             }
             toDraw = "SRS (normal garbage)";
             g2D.drawString(toDraw, temp_x
-                    + (10 * MINO_SIZE - metrics.stringWidth(toDraw)) / 2, 150);
+                    + 5 * MINO_SIZE - metrics.stringWidth(toDraw) / 2, 150);
 
             if (meSelected && mySelection == 1) {
                 g2D.setColor(Color.RED);
@@ -302,7 +315,7 @@ public final class TetrisPanel extends JPanel {
             }
             toDraw = "ARS/TGM (1.5-2x garbage)";
             g2D.drawString(toDraw, temp_x
-                    + (10 * MINO_SIZE - metrics.stringWidth(toDraw)) / 2, 250);
+                    + 5 * MINO_SIZE - metrics.stringWidth(toDraw) / 2, 250);
 
             if (!meSelected) {
                 g2D.setColor(Color.RED);
@@ -331,7 +344,20 @@ public final class TetrisPanel extends JPanel {
 
         temp_x += 10 * MINO_SIZE + 210;
 
-        if (!meSelected || !theySelected) {
+        if (meSelected && theySelected) {
+            if (countdown != -1) {
+                g2D.setFont(new Font("Arial Black", Font.PLAIN, 60));
+                FontMetrics metrics = g2D.getFontMetrics();
+                
+                String toDraw = countdown >= 60 ? "Ready?" : "GO!";
+                int width = metrics.stringWidth(toDraw);
+                
+                g2D.setColor(Color.WHITE);
+                
+                g2D.drawString(toDraw, temp_x + 5 * MINO_SIZE - width / 2, 
+                        10 * MINO_SIZE + metrics.getHeight() / 2);
+            }
+        } else {
             g2D.setFont(new Font("Arial Black", Font.PLAIN, 15));
             FontMetrics metrics = g2D.getFontMetrics();
 
@@ -344,7 +370,7 @@ public final class TetrisPanel extends JPanel {
             }
             toDraw = "SRS (normal garbage)";
             g2D.drawString(toDraw, temp_x
-                    + (10 * MINO_SIZE - metrics.stringWidth(toDraw)) / 2, 150);
+                    + 5 * MINO_SIZE - metrics.stringWidth(toDraw) / 2, 150);
 
             if (theySelected && theirSelection == 1) {
                 g2D.setColor(Color.RED);
@@ -353,7 +379,7 @@ public final class TetrisPanel extends JPanel {
             }
             toDraw = "ARS/TGM (1.5-2x garbage)";
             g2D.drawString(toDraw, temp_x
-                    + (10 * MINO_SIZE - metrics.stringWidth(toDraw)) / 2, 250);
+                    + 5 * MINO_SIZE - metrics.stringWidth(toDraw) / 2, 250);
 
             if (!theySelected) {
                 g2D.setColor(Color.RED);

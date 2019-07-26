@@ -1126,32 +1126,30 @@ public class TetrisMatrix implements Paintable {
                     }
                 }
             }
+            
+            for (int i = 19, y = 19 * MINO_SIZE; i < matrix.length; i++, y += MINO_SIZE) {
+                for (int j = 0, x = 0; j < matrix[i].length; j++, x += MINO_SIZE) {
+                    if (matrix[i][j] > 0) {
+                        style.drawMino(g2D, x, y, matrix[i][j]);
 
-            if (inGame) {
-                for (int i = 19, y = 19 * MINO_SIZE; i < matrix.length; i++, y += MINO_SIZE) {
-                    for (int j = 0, x = 0; j < matrix[i].length; j++, x += MINO_SIZE) {
-                        if (matrix[i][j] > 0) {
-                            style.drawMino(g2D, x, y, matrix[i][j]);
+                        g2D.setColor(locked);
+                        g2D.fillRect(x, y, MINO_SIZE, MINO_SIZE);
+                    } else {
+                        g2D.setColor(Color.WHITE);
 
-                            g2D.setColor(locked);
-                            g2D.fillRect(x, y, MINO_SIZE, MINO_SIZE);
-                        } else {
-                            g2D.setColor(Color.WHITE);
-
-                            if (getBlock(i + 1, j) > 0) {
-                                g2D.drawLine(x, y + MINO_SIZE - 1,
-                                        x + MINO_SIZE - 1, y + MINO_SIZE - 1);
-                            }
-                            if (getBlock(i - 1, j) > 0) {
-                                g2D.drawLine(x, y, x + MINO_SIZE - 1, y);
-                            }
-                            if (getBlock(i, j + 1) > 0) {
-                                g2D.drawLine(x + MINO_SIZE - 1, y,
-                                        x + MINO_SIZE - 1, y + MINO_SIZE - 1);
-                            }
-                            if (getBlock(i, j - 1) > 0) {
-                                g2D.drawLine(x, y, x, y + MINO_SIZE - 1);
-                            }
+                        if (getBlock(i + 1, j) > 0) {
+                            g2D.drawLine(x, y + MINO_SIZE - 1,
+                                    x + MINO_SIZE - 1, y + MINO_SIZE - 1);
+                        }
+                        if (getBlock(i - 1, j) > 0) {
+                            g2D.drawLine(x, y, x + MINO_SIZE - 1, y);
+                        }
+                        if (getBlock(i, j + 1) > 0) {
+                            g2D.drawLine(x + MINO_SIZE - 1, y,
+                                    x + MINO_SIZE - 1, y + MINO_SIZE - 1);
+                        }
+                        if (getBlock(i, j - 1) > 0) {
+                            g2D.drawLine(x, y, x, y + MINO_SIZE - 1);
                         }
                     }
                 }
