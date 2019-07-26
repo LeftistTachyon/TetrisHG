@@ -45,6 +45,7 @@ public class ARSSpinSystem extends SpinSystem<ARSTet> {
         }
 
         if (t instanceof ARS_I) {
+            t.rotateLeft();
             return;
         }
 
@@ -87,6 +88,7 @@ public class ARSSpinSystem extends SpinSystem<ARSTet> {
         }
 
         if (t instanceof ARS_I) {
+            t.rotateRight();
             return;
         }
 
