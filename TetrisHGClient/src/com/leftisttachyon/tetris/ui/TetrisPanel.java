@@ -32,6 +32,24 @@ import javax.swing.JPanel;
 public final class TetrisPanel extends JPanel {
 
     /**
+     * A matrix of delays
+     */
+    private static final int[][] DELAYS;
+
+    static {
+        DELAYS = new int[][]{
+            {25, 25, 8, 30, 25},
+            {25, 16, 8, 30, 16},
+            {16, 12, 8, 30, 12},
+            {12, 6, 8, 30, 6},
+            {12, 6, 6, 17, 6},
+            {6, 6, 6, 17, 6},
+            {5, 5, 6, 15, 6},
+            {4, 4, 6, 15, 6}
+        };
+    }
+
+    /**
      * The matrix being drawn
      */
     private TetrisMatrix myMatrix;
@@ -85,6 +103,21 @@ public final class TetrisPanel extends JPanel {
      * A countdown timer
      */
     private int countdown;
+
+    /**
+     * The action to execute
+     */
+    private String toExecute = null;
+
+    /**
+     * A counter that counts downwards for gravity and delay updates.
+     */
+    private int downCnt = -1;
+
+    /**
+     * The row in the delay matrix currently being used
+     */
+    private int delayRow = -1;
 
     /**
      * Creates a new, default TetrisPanel.
@@ -145,12 +178,57 @@ public final class TetrisPanel extends JPanel {
                         }
                     }
                 } else if (meSelected) {
-                    if (line.equals("COUNT0")) {
-                        if (++canStart == 4) {
-                            countdown = -1;
-                            startGame();
-                        }
-                    } else if (line.startsWith("ACTIONS")) {
+                    switch(line) {
+                        case "COUNT0":
+                            if (++canStart == 4) {
+                                countdown = -1;
+                                startGame();
+                            }
+                            return;
+                        case "GRAVUP":
+                            int gravity = myMatrix.getGravity();
+                            
+                            if (toExecute != null && toExecute.equals("GRAVUP")) {
+                                toExecute = null;
+
+                                // dew it
+                                myMatrix.setGravity(gravity += 4);
+                                theirMatrix.setGravity(gravity);
+                                
+                                if (gravity == 20) {
+                                    downCnt = 1800;
+                                } else {
+                                    downCnt = 1200;
+                                }
+                            } else {
+                                toExecute = "GRAVUP";
+                            }
+                            return;
+                        case "NXTDELAY":
+                            if (toExecute != null && toExecute.equals("NXTDELAY")) {
+                                toExecute = null;
+
+                                if (++delayRow < DELAYS.length) {
+                                    // dew it
+                                    int[] row = DELAYS[delayRow];
+                                    myMatrix.setStandardARE(row[0]);
+                                    theirMatrix.setStandardARE(row[0]);
+                                    myMatrix.setLineClearARE(row[1]);
+                                    theirMatrix.setLineClearARE(row[1]);
+                                    setDAS(row[2]);
+                                    myMatrix.setLockDelay(row[3]);
+                                    theirMatrix.setLockDelay(row[3]);
+                                    myMatrix.setLineClearDelay(row[4]);
+                                    theirMatrix.setLineClearDelay(row[4]);
+
+                                    downCnt = 1800;
+                                }
+                            } else {
+                                toExecute = "NXTDELAY";
+                            }
+                            return;
+                    }
+                    if (line.startsWith("ACTIONS")) {
                         HashSet<Integer> actions = new HashSet<>();
                         String[] data = line.substring(7).split(" ");
                         for (String s : data) {
@@ -206,6 +284,58 @@ public final class TetrisPanel extends JPanel {
         // then make updates
         if (meSelected && theySelected) {
             if (countdown == -1) {
+                if (downCnt == 0) {
+                    // execute stuff
+                    int gravity = myMatrix.getGravity();
+                    if (gravity == 20) {
+                        if (toExecute != null && toExecute.equals("NXTDELAY")) {
+                            toExecute = null;
+
+                            if (++delayRow < DELAYS.length) {
+                                // dew it
+                                int[] row = DELAYS[delayRow];
+                                myMatrix.setStandardARE(row[0]);
+                                theirMatrix.setStandardARE(row[0]);
+                                myMatrix.setLineClearARE(row[1]);
+                                theirMatrix.setLineClearARE(row[1]);
+                                setDAS(row[2]);
+                                myMatrix.setLockDelay(row[3]);
+                                theirMatrix.setLockDelay(row[3]);
+                                myMatrix.setLineClearDelay(row[4]);
+                                theirMatrix.setLineClearDelay(row[4]);
+
+                                downCnt = 1800;
+                            }
+                        } else {
+                            toExecute = "NXTDELAY";
+                        }
+
+                        ClientSocket.getConnection().send("NXTDELAY");
+                    } else {
+                        if (toExecute != null && toExecute.equals("GRAVUP")) {
+                            toExecute = null;
+
+                            // dew it
+                            myMatrix.setGravity(gravity += 4);
+                            theirMatrix.setGravity(gravity);
+
+                            if (gravity == 20) {
+                                downCnt = 1800;
+                            } else {
+                                downCnt = 1200;
+                            }
+                        } else {
+                            toExecute = "GRAVUP";
+                        }
+
+                        ClientSocket.getConnection().send("GRAVUP");
+                    }
+                    
+                    downCnt = -1;
+                } else if (downCnt > 0) {
+                    downCnt--;
+                }
+
                 myMatrix.executeActions(actions);
                 myMatrix.advanceFrame(handler);
 
@@ -214,10 +344,10 @@ public final class TetrisPanel extends JPanel {
                 if (countdown > 0) {
                     countdown--;
                 }
-                
+
                 if (countdown == 0) {
                     ClientSocket.getConnection().send("COUNT0");
-                    
+
                     if (++canStart == 4) {
                         startGame();
                         countdown = -1;
@@ -284,13 +414,13 @@ public final class TetrisPanel extends JPanel {
             if (countdown != -1) {
                 g2D.setFont(new Font("Arial Black", Font.PLAIN, 40));
                 FontMetrics metrics = g2D.getFontMetrics();
-                
+
                 String toDraw = countdown >= 60 ? "Ready?" : "GO!";
                 int width = metrics.stringWidth(toDraw);
-                
+
                 g2D.setColor(Color.WHITE);
-                
-                g2D.drawString(toDraw, temp_x + 5 * MINO_SIZE - width / 2, 
+
+                g2D.drawString(toDraw, temp_x + 5 * MINO_SIZE - width / 2,
                         10 * MINO_SIZE + metrics.getHeight() / 2);
             }
         } else {
@@ -348,13 +478,13 @@ public final class TetrisPanel extends JPanel {
             if (countdown != -1) {
                 g2D.setFont(new Font("Arial Black", Font.PLAIN, 40));
                 FontMetrics metrics = g2D.getFontMetrics();
-                
+
                 String toDraw = countdown >= 60 ? "Ready?" : "GO!";
                 int width = metrics.stringWidth(toDraw);
-                
+
                 g2D.setColor(Color.WHITE);
-                
-                g2D.drawString(toDraw, temp_x + 5 * MINO_SIZE - width / 2, 
+
+                g2D.drawString(toDraw, temp_x + 5 * MINO_SIZE - width / 2,
                         10 * MINO_SIZE + metrics.getHeight() / 2);
             }
         } else {
@@ -458,6 +588,8 @@ public final class TetrisPanel extends JPanel {
                 }
             });
         }
+
+        downCnt = 1200;
     }
 
     /**

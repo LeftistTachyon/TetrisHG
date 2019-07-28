@@ -122,7 +122,7 @@ public class MiniServer {
                     return;
                 }
 
-                println("\"" + line + "\"");
+                // println("\"" + line + "\"");
 
                 // handle input
                 if (line.equals("PING")) {

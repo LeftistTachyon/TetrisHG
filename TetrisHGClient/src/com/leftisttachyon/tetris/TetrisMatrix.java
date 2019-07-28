@@ -1334,4 +1334,13 @@ public class TetrisMatrix implements Paintable {
     public void queueGarbage(int lines) {
         garbageManager.offerGarbage(lines);
     }
+
+    /**
+     * Returns the amount of gravity this TetrisMatrix is using
+     *
+     * @return the amount of gravity this TetrisMatrix is using
+     */
+    public int getGravity() {
+        return gravity;
+    }
 }
