@@ -735,6 +735,10 @@ public class TetrisMatrix implements Paintable {
                     TetT tee = (TetT) lockingTet;
                     Point center = tee.getCenter();
                     int x = tee.getX() + center.y, y = tee.getY() + center.x;
+                    System.out.printf("%d %d%n", getBlock(y - 1, x - 1),
+                            getBlock(y - 1, x + 1));
+                    System.out.printf("%d %d%n", getBlock(y + 1, x - 1),
+                            getBlock(y + 1, x + 1));
                     int corners = 0;
                     if (getBlock(y - 1, x + 1) != 0) {
                         corners++;
@@ -872,8 +876,6 @@ public class TetrisMatrix implements Paintable {
                     }
 
                     message += lines[0] + " " + lines[1] + " ";
-
-                    System.out.println("Garbage: " + message);
 
                     ClientSocket.getConnection().send(message.trim());
 
@@ -1126,7 +1128,7 @@ public class TetrisMatrix implements Paintable {
                     }
                 }
             }
-            
+
             for (int i = 19, y = 19 * MINO_SIZE; i < matrix.length; i++, y += MINO_SIZE) {
                 for (int j = 0, x = 0; j < matrix[i].length; j++, x += MINO_SIZE) {
                     if (matrix[i][j] > 0) {

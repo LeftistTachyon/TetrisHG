@@ -98,7 +98,7 @@ public final class ARS_T extends AbstractTetromino implements TetT, ARSTet {
     @Override
     public int filledFaceCorners(TetrisMatrix m) {
         Point center = getCenter();
-        int cx = center.x, cy = center.y;
+        int cx = center.x + x, cy = center.y + y;
         
         int output = 0;
         if ((rotation == UP || rotation == RIGHT) && m.getBlock(cx - 1, cy - 1) != 0) {
