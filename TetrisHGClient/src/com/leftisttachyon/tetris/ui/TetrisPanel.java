@@ -173,89 +173,63 @@ public final class TetrisPanel extends JPanel {
                             generateStartBag();
 
                             if (++canStart == 2) {
-                                startGame();
+                                startCountdown();
                             }
                         }
                     }
-                } else if (meSelected) {
-                    switch(line) {
-                        case "COUNT0":
-                            if (++canStart == 4) {
-                                countdown = -1;
-                                startGame();
-                            }
-                            return;
-                        case "GRAVUP":
-                            int gravity = myMatrix.getGravity();
-                            
-                            if (toExecute != null && toExecute.equals("GRAVUP")) {
-                                toExecute = null;
-
-                                // dew it
-                                switch(gravity) {
-                                    case 0:
-                                        gravity = 1;
-                                        break;
-                                    case 1:
-                                        gravity = 3;
-                                        break;
-                                    case 3:
-                                        gravity = 5;
-                                        break;
-                                    case 5:
-                                        gravity = 20;
-                                        break;
+                } else {
+                    if (line.equals("DESELECT")) {
+                        theySelected = false;
+                        canStart--;
+                        return;
+                    }
+                    if (meSelected) {
+                        switch (line) {
+                            case "COUNT0":
+                                if (++canStart == 4) {
+                                    countdown = -1;
+                                    startGame();
                                 }
-                                myMatrix.setGravity(gravity);
-                                theirMatrix.setGravity(gravity);
-                                
-                                if (gravity == 20) {
-                                    downCnt = 1800;
+                                return;
+                            case "NXTDELAY":
+                                if (toExecute != null && toExecute.equals("NXTDELAY")) {
+                                    toExecute = null;
+
+                                    if (++delayRow < DELAYS.length) {
+                                        // dew it
+                                        int[] row = DELAYS[delayRow];
+                                        myMatrix.setStandardARE(row[0]);
+                                        theirMatrix.setStandardARE(row[0]);
+                                        myMatrix.setLineClearARE(row[1]);
+                                        theirMatrix.setLineClearARE(row[1]);
+                                        setDAS(row[2]);
+                                        myMatrix.setLockDelay(row[3]);
+                                        theirMatrix.setLockDelay(row[3]);
+                                        myMatrix.setLineClearDelay(row[4]);
+                                        theirMatrix.setLineClearDelay(row[4]);
+
+                                        downCnt = 1800;
+                                    }
                                 } else {
-                                    downCnt = 1200;
+                                    toExecute = "NXTDELAY";
                                 }
-                            } else {
-                                toExecute = "GRAVUP";
-                            }
-                            return;
-                        case "NXTDELAY":
-                            if (toExecute != null && toExecute.equals("NXTDELAY")) {
-                                toExecute = null;
-
-                                if (++delayRow < DELAYS.length) {
-                                    // dew it
-                                    int[] row = DELAYS[delayRow];
-                                    myMatrix.setStandardARE(row[0]);
-                                    theirMatrix.setStandardARE(row[0]);
-                                    myMatrix.setLineClearARE(row[1]);
-                                    theirMatrix.setLineClearARE(row[1]);
-                                    setDAS(row[2]);
-                                    myMatrix.setLockDelay(row[3]);
-                                    theirMatrix.setLockDelay(row[3]);
-                                    myMatrix.setLineClearDelay(row[4]);
-                                    theirMatrix.setLineClearDelay(row[4]);
-
-                                    downCnt = 1800;
-                                }
-                            } else {
-                                toExecute = "NXTDELAY";
-                            }
-                            return;
-                    }
-                    if (line.startsWith("ACTIONS")) {
-                        HashSet<Integer> actions = new HashSet<>();
-                        String[] data = line.substring(7).split(" ");
-                        for (String s : data) {
-                            actions.add(Integer.parseInt(s));
+                                return;
                         }
+                        if (line.startsWith("ACTIONS")) {
+                            HashSet<Integer> actions = new HashSet<>();
+                            String[] data = line.substring(7).split(" ");
+                            for (String s : data) {
+                                actions.add(Integer.parseInt(s));
+                            }
 
-                        theirMatrix.executeActions(actions);
-                    } else if (line.startsWith("NB")) {
-                        theirMatrix.addBag(line.substring(2));
-                        if (!myMatrix.isInGame() && ++canStart == 2) {
-                            startCountdown();
+                            theirMatrix.executeActions(actions);
+                        } else if (line.startsWith("NB")) {
+                            theirMatrix.addBag(line.substring(2));
+                            if (!myMatrix.isInGame() && ++canStart == 2) {
+                                startCountdown();
+                            }
+                            // System.out.println("Added a bag of " + line.substring(2));
                         }
-                        // System.out.println("Added a bag of " + line.substring(2));
                     }
                 }
             });
@@ -298,10 +272,17 @@ public final class TetrisPanel extends JPanel {
         // then make updates
         if (meSelected && theySelected) {
             if (countdown == -1) {
+                double myGravity = myMatrix.getGravity(),
+                        theirGravity = theirMatrix.getGravity();
+                boolean both20 = myGravity == 20 && theirGravity == 20;
+                if (both20 && delayRow == -1) {
+                    downCnt = 1800;
+                }
+
                 if (downCnt == 0) {
                     // execute stuff
-                    int gravity = myMatrix.getGravity();
-                    if (gravity == 20) {
+
+                    if (both20) {
                         if (toExecute != null && toExecute.equals("NXTDELAY")) {
                             toExecute = null;
 
@@ -325,26 +306,8 @@ public final class TetrisPanel extends JPanel {
                         }
 
                         ClientSocket.getConnection().send("NXTDELAY");
-                    } else {
-                        if (toExecute != null && toExecute.equals("GRAVUP")) {
-                            toExecute = null;
-
-                            // dew it
-                            myMatrix.setGravity(gravity += 4);
-                            theirMatrix.setGravity(gravity);
-
-                            if (gravity == 20) {
-                                downCnt = 1800;
-                            } else {
-                                downCnt = 1200;
-                            }
-                        } else {
-                            toExecute = "GRAVUP";
-                        }
-
-                        ClientSocket.getConnection().send("GRAVUP");
                     }
-                    
+
                     downCnt = -1;
                 } else if (downCnt > 0) {
                     downCnt--;
@@ -368,6 +331,13 @@ public final class TetrisPanel extends JPanel {
                     }
                 }
             }
+        } else if (meSelected) {
+            if (actions.remove(VK_Z)) {
+                handler.setListener(VK_DOWN, new Point(-1, -1));
+                meSelected = false;
+                canStart--;
+                ClientSocket.getConnection().send("DESELECT");
+            }
         } else if (!meSelected) {
             int temp = mySelection;
 
@@ -386,8 +356,8 @@ public final class TetrisPanel extends JPanel {
                 ClientSocket.getConnection().send("SELECT" + mySelection);
             }
 
-            if (actions.contains(VK_Z) || actions.contains(VK_X)
-                    || actions.contains(VK_C) || actions.contains(VK_SPACE)) {
+            if (actions.contains(VK_X) || actions.contains(VK_C)
+                    || actions.contains(VK_SPACE)) {
                 switch (mySelection) {
                     case 0:
                         TetrisMatrix.setAsSRSMatrix(myMatrix);

@@ -178,7 +178,7 @@ public class TetrisMatrix implements Paintable {
         holdAvaliable = false;
         minoStyle = null;
         linesToClear = new TreeSet<>();
-        gravity = 0;
+        gravity = 0.015625;
         drawGhost = true;
         extraY = 0;
         extraYSpeed = 0;
@@ -187,6 +187,9 @@ public class TetrisMatrix implements Paintable {
         combo = -1;
         back2Back = false;
         garbageManager = new GarbageManager();
+        gravityCnt = 0;
+        gravityNum = -1;
+        lockCnt = 0;
 
         if (!onLeft && ClientSocket.isConnected()) {
             ClientSocket.getConnection().addServerListener((line) -> {
@@ -219,6 +222,11 @@ public class TetrisMatrix implements Paintable {
                                 addGarbage(hole);
                             }
                             garbageManager.counterGarbage(lines);
+                        }
+                    } else if (line.charAt(0) == 'G') {
+                        if (currentTet != null) {
+                            currentTet.moveDown(
+                                    Integer.parseInt(line.substring(1)));
                         }
                     }
                 }
@@ -580,6 +588,11 @@ public class TetrisMatrix implements Paintable {
             pauseAnimationCnt = lineClearDelay + 1;
         }
         lockFlashCnt = 5;
+
+        if (++lockCnt == 10) {
+            gravity = GRAVITY[++gravityNum];
+            lockCnt = 0;
+        }
     }
 
     /**
@@ -619,7 +632,7 @@ public class TetrisMatrix implements Paintable {
         inGame = false;
         holdAvaliable = false;
         drawGhost = true;
-        gravity = 0;
+        gravity = 0.015625;
         lineClearARE = 25;
         standardARE = 25;
         lineClearDelay = 40;
@@ -637,12 +650,39 @@ public class TetrisMatrix implements Paintable {
         combo = -1;
         back2Back = false;
         garbageManager.reset();
+        gravityCnt = 0;
+        gravityNum = -1;
+        lockCnt = 0;
     }
+
+    /**
+     * An internal level counter
+     */
+    private int lockCnt;
+
+    /**
+     * The entry in the gravity table currently on
+     */
+    private int gravityNum;
+
+    /**
+     * An array of the progression of gravity
+     */
+    private static final double[] GRAVITY = {
+        0.015625, 0.0234375, 0.03125, 0.0390625, 0.046875, 0.0625, 0.125,
+        0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.015625, 0.125,
+        0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1, 2, 3, 4, 5, 4, 3, 20
+    };
 
     /**
      * The amount of gravity per frame
      */
-    private int gravity;
+    private double gravity;
+
+    /**
+     * A counter for gravity
+     */
+    private double gravityCnt;
 
     /**
      * A counter for a pause
@@ -923,10 +963,31 @@ public class TetrisMatrix implements Paintable {
         }
 
         if (currentTet != null) {
-            for (int i = 0; i < gravity
-                    && !currentTet.intersects(this, 0, 1); i++) {
-                currentTet.moveDown();
-                lastMove = -1;
+            if (onLeft) {
+                if (gravity >= 1) {
+                    int i;
+                    for (i = 0; i < gravity
+                            && !currentTet.intersects(this, 0, 1); i++) {
+                        currentTet.moveDown();
+                        lastMove = -1;
+                    }
+
+                    ClientSocket.getConnection().send("G" + i);
+                } else {
+                    if (!handler.isPressed(VK_DOWN)
+                            && !currentTet.intersects(this, 0, 1)) {
+                        gravityCnt += gravity;
+                        if (gravityCnt >= 1) {
+                            currentTet.moveDown();
+                            lastMove = -1;
+                            gravityCnt = 0;
+
+                            ClientSocket.getConnection().send("G1");
+                        }
+                    } else {
+                        gravityCnt = 0;
+                    }
+                }
             }
 
             if (currentTet.intersects(this, 0, 1)
@@ -1033,7 +1094,7 @@ public class TetrisMatrix implements Paintable {
      *
      * @param gravity the gravity to use from now on
      */
-    public void setGravity(int gravity) {
+    public void setGravity(double gravity) {
         this.gravity = gravity;
     }
 
@@ -1340,7 +1401,7 @@ public class TetrisMatrix implements Paintable {
      *
      * @return the amount of gravity this TetrisMatrix is using
      */
-    public int getGravity() {
+    public double getGravity() {
         return gravity;
     }
 }
