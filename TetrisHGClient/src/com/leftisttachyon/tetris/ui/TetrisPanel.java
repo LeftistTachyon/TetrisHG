@@ -192,7 +192,21 @@ public final class TetrisPanel extends JPanel {
                                 toExecute = null;
 
                                 // dew it
-                                myMatrix.setGravity(gravity += 4);
+                                switch(gravity) {
+                                    case 0:
+                                        gravity = 1;
+                                        break;
+                                    case 1:
+                                        gravity = 3;
+                                        break;
+                                    case 3:
+                                        gravity = 5;
+                                        break;
+                                    case 5:
+                                        gravity = 20;
+                                        break;
+                                }
+                                myMatrix.setGravity(gravity);
                                 theirMatrix.setGravity(gravity);
                                 
                                 if (gravity == 20) {
