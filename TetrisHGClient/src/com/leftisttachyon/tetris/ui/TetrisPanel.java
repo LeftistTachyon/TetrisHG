@@ -317,6 +317,10 @@ public final class TetrisPanel extends JPanel {
                 myMatrix.advanceFrame(handler);
 
                 theirMatrix.advanceFrame(null);
+                
+                if (!theirMatrix.isInGame()) {
+                    myMatrix.endGame();
+                }
             } else {
                 if (countdown > 0) {
                     countdown--;
