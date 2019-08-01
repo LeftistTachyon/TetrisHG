@@ -215,13 +215,9 @@ public class TetrisMatrix implements Paintable {
                         enter(left, right, hold);
                     } else if (line.startsWith("GL")) {
                         String[] data = line.substring(2).split(" ");
-                        for (int i = 0; i < data.length - 1; i += 2) {
-                            int lines = Integer.parseInt(data[i]),
-                                    hole = Integer.parseInt(data[i + 1]);
-                            for (int j = 0; j < lines; j++) {
-                                addGarbage(hole);
-                            }
-                            garbageManager.counterGarbage(lines);
+                        for (String s : data) {
+                            addGarbage(Integer.parseInt(s));
+                            garbageManager.counterGarbage(1);
                         }
                     } else if (line.charAt(0) == 'G') {
                         if (currentTet != null) {
@@ -775,10 +771,6 @@ public class TetrisMatrix implements Paintable {
                     TetT tee = (TetT) lockingTet;
                     Point center = tee.getCenter();
                     int x = tee.getX() + center.y, y = tee.getY() + center.x;
-                    System.out.printf("%d %d%n", getBlock(y - 1, x - 1),
-                            getBlock(y - 1, x + 1));
-                    System.out.printf("%d %d%n", getBlock(y + 1, x - 1),
-                            getBlock(y + 1, x + 1));
                     int corners = 0;
                     if (getBlock(y - 1, x + 1) != 0) {
                         corners++;
@@ -893,7 +885,6 @@ public class TetrisMatrix implements Paintable {
                     int total = 0;
 
                     String message = "GL";
-                    int[] lines = {0, 0};
 
                     while (total <= 5) {
                         int newG = garbageManager.peekGarbage();
@@ -902,20 +893,16 @@ public class TetrisMatrix implements Paintable {
                         }
                         total += garbageManager.pollGarbage();
 
-                        lines[1] = (int) (Math.random() * 10);
+                        int hole = (int) (Math.random() * 10);
                         for (int i = 0; i < newG; i++) {
                             if (Math.random() > 0.8) {
-                                message += lines[0] + " " + lines[1] + " ";
-                                lines[1] = (int) (Math.random() * 10);
-                                lines[0] = 0;
+                                hole = (int) (Math.random() * 10);
                             }
 
-                            addGarbage(lines[1]);
-                            lines[0]++;
+                            addGarbage(hole);
+                            message += hole + " ";
                         }
                     }
-
-                    message += lines[0] + " " + lines[1] + " ";
 
                     ClientSocket.getConnection().send(message.trim());
 
