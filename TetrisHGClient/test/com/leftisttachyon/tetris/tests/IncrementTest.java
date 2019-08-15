@@ -1,4 +1,4 @@
-package com.leftisttachyon.tetris.tests;
+package com.github.leftisttachyon.tetris.tests;
 
 /**
  * A test to find the speed difference between pre-increment and post-increment

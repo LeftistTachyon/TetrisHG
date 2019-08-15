@@ -1,4 +1,4 @@
-package com.leftisttachyon.tetris.tests;
+package com.github.leftisttachyon.tetris.tests;
 
 import java.util.Random;
 

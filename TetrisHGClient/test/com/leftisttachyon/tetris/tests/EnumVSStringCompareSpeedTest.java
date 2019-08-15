@@ -1,4 +1,4 @@
-package com.leftisttachyon.tetris.tests;
+package com.github.leftisttachyon.tetris.tests;
 
 /**
  * A test that compares whether comparing Enums or Strings is faster.

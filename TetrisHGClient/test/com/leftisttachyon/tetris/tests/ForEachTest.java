@@ -1,4 +1,4 @@
-package com.leftisttachyon.tetris.tests;
+package com.github.leftisttachyon.tetris.tests;
 
 /**
  * Just probing the behavior of for each loops

@@ -1,7 +1,7 @@
-package com.leftisttachyon.tetris.tests;
+package com.github.leftisttachyon.tetris.tests;
 
-import com.leftisttachyon.tetris.tests.EnumVSStringCompareSpeedTest.Enum;
-import static com.leftisttachyon.tetris.tests.EnumVSStringCompareSpeedTest.Enum.NORTH;
+import com.github.leftisttachyon.tetris.tests.EnumVSStringCompareSpeedTest.Enum;
+import static com.github.leftisttachyon.tetris.tests.EnumVSStringCompareSpeedTest.Enum.NORTH;
 
 /**
  * A test that compares whether comparing Enums or Integers is faster.

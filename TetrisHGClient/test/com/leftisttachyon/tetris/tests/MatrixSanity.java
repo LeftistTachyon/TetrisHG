@@ -1,6 +1,6 @@
-package com.leftisttachyon.tetris.tests;
+package com.github.leftisttachyon.tetris.tests;
 
-import com.leftisttachyon.util.TetrisUtils;
+import com.github.leftisttachyon.util.TetrisUtils;
 
 /**
  * A sanity check to make sure my topmost and other code works
