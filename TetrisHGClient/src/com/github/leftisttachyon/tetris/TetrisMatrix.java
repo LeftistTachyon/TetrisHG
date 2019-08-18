@@ -1,7 +1,7 @@
 package com.github.leftisttachyon.tetris;
 
-import com.github.leftisttachyon.tetris.resources.srs.SRSMinoStyle;
-import com.github.leftisttachyon.tetris.resources.tgm.TGMMinoStyle;
+import com.github.leftisttachyon.tetris.tetrominos.srs.SRSMinoStyle;
+import com.github.leftisttachyon.tetris.tetrominos.ars.TGMMinoStyle;
 import com.github.leftisttachyon.comm.ClientSocket;
 import static com.github.leftisttachyon.tetris.MinoStyle.MINO_SIZE;
 import com.github.leftisttachyon.tetris.tetrominos.AbstractTetromino;
@@ -414,67 +414,53 @@ public class TetrisMatrix implements Paintable {
             return;
         }
 
-        if (keycodes.contains(VK_SPACE)) {
-            if (currentTet != null) {
+        if (currentTet != null) {
+            if (keycodes.contains(VK_SPACE)) {
                 hardDrop();
             }
-        }
 
-        if (keycodes.contains(VK_UP)) {
-            if (currentTet != null) {
+            if (keycodes.contains(VK_UP)) {
                 sonicDrop();
             }
-        }
 
-        if (keycodes.contains(VK_DOWN)) {
-            if (currentTet != null) {
+            if (keycodes.contains(VK_DOWN)) {
                 softDrop();
             }
-        }
 
-        if (keycodes.contains(VK_C)) {
-            if (currentTet != null) {
+            if (keycodes.contains(VK_C)) {
                 hold();
             }
-        }
 
-        if (keycodes.contains(VK_Z)) {
-            if (spinSystem == null) {
-                System.err.println("No spin system installed, cannot rotate left");
-            } else {
-                if (currentTet != null) {
+            if (keycodes.contains(VK_Z)) {
+                if (spinSystem == null) {
+                    System.err.println("No spin system installed, cannot rotate left");
+                } else {
                     int prevY = currentTet.getY();
                     spinSystem.rotateLeft(currentTet, this);
                     bigSpin = currentTet.getY() - prevY == 2;
                     lastMove = VK_Z;
                 }
             }
-        }
 
-        if (keycodes.contains(VK_X)) {
-            if (spinSystem == null) {
-                System.err.println("No spin system installed, cannot rotate right");
-            } else {
-                if (currentTet != null) {
+            if (keycodes.contains(VK_X)) {
+                if (spinSystem == null) {
+                    System.err.println("No spin system installed, cannot rotate right");
+                } else {
                     int prevY = currentTet.getY();
                     spinSystem.rotateRight(currentTet, this);
                     bigSpin = currentTet.getY() - prevY == 2;
                     lastMove = VK_X;
                 }
             }
-        }
 
-        if (keycodes.contains(VK_LEFT)) {
-            if (currentTet != null) {
+            if (keycodes.contains(VK_LEFT)) {
                 if (!currentTet.intersects(this, -1, 0)) {
                     currentTet.moveLeft();
                     lastMove = VK_LEFT;
                 }
             }
-        }
 
-        if (keycodes.contains(VK_RIGHT)) {
-            if (currentTet != null) {
+            if (keycodes.contains(VK_RIGHT)) {
                 if (!currentTet.intersects(this, 1, 0)) {
                     currentTet.moveRight();
                     lastMove = VK_RIGHT;
@@ -725,6 +711,23 @@ public class TetrisMatrix implements Paintable {
     }
 
     /**
+     * Determines if this matrix is empty
+     *
+     * @return if this matrix is empty
+     */
+    private boolean isClear() {
+        outer:
+        for (int[] row : matrix) {
+            for (int j = 0; j < row.length; j++) {
+                if (row[j] != 0) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
      * Advances a frame.
      *
      * @param handler a DASHandler so I know what to do
@@ -735,104 +738,7 @@ public class TetrisMatrix implements Paintable {
             if (lockFlashCnt > 0) {
                 lockFlashCnt--;
             } else {
-                int linesToSend = 0;
-                boolean b2b;
-
-                if (linesToClear.isEmpty()) {
-                    combo = -1;
-                    b2b = false;
-                } else {
-                    combo++;
-                    b2b = back2Back;
-                    back2Back = linesToClear.size() == 4;
-                }
-
-                if (combo > 0) {
-                    int geg = combo + 1;
-                    System.out.println(geg + " Combo!");
-                    if (geg > 10) {
-                        linesToSend += 5;
-                    } else if (geg > 7) {
-                        linesToSend += 4;
-                    } else if (geg > 5) {
-                        linesToSend += 3;
-                    } else if (geg > 3) {
-                        linesToSend += 2;
-                    } else {
-                        linesToSend++;
-                    }
-                }
-
-                boolean tSpin = false;
-
-                // T-spin?                
-                if (lockingTet instanceof TetT
-                        && (lastMove == VK_Z || lastMove == VK_X)) {
-                    TetT tee = (TetT) lockingTet;
-                    Point center = tee.getCenter();
-                    int x = tee.getX() + center.y, y = tee.getY() + center.x;
-                    int corners = 0;
-                    if (getBlock(y - 1, x + 1) != 0) {
-                        corners++;
-                    }
-                    if (getBlock(y + 1, x + 1) != 0) {
-                        corners++;
-                    }
-                    if (getBlock(y - 1, x - 1) != 0) {
-                        corners++;
-                    }
-                    if (getBlock(y + 1, x - 1) != 0) {
-                        corners++;
-                    }
-
-                    // corners can be 4
-                    if (corners >= 3) {
-                        // Ok, so T-spin
-                        if (!linesToClear.isEmpty()) {
-                            back2Back = true;
-                        }
-                        // but mini?
-                        if (bigSpin || tee.filledFaceCorners(this) == 2) {
-                            System.out.println("T-spin!");
-                            tSpin = true;
-                        } else {
-                            System.out.println("T-spin mini");
-                            tSpin = false;
-                        }
-                    }
-                }
-
-                switch (linesToClear.size()) {
-                    case 0:
-                        linesToSend = 0;
-                        break;
-                    case 1:
-                        if (tSpin) {
-                            linesToSend += 2;
-                        }
-                        break;
-                    case 2:
-                        if (tSpin) {
-                            linesToSend += 4;
-                        } else {
-                            linesToSend++;
-                        }
-                        break;
-                    case 3:
-                        if (tSpin) {
-                            linesToSend += 6;
-                        } else {
-                            linesToSend += 2;
-                        }
-                        break;
-                    case 4:
-                        linesToSend += 4;
-                }
-
-                if (b2b && back2Back) {
-                    System.out.println("B2B!");
-                    linesToSend++;
-                }
+                int linesToSend = linesToSend();
 
                 int[][] temp = lockingTet.getState();
                 for (int i = 0; i < 4; i++) {
@@ -848,29 +754,13 @@ public class TetrisMatrix implements Paintable {
                     clearLine(i);
                 }
 
-                boolean perfectClear = true;
-                outer:
-                for (int[] row : matrix) {
-                    for (int j = 0; j < row.length; j++) {
-                        if (row[j] != 0) {
-                            perfectClear = false;
-                            break outer;
-                        }
-                    }
-                }
-
-                if (perfectClear) {
+                if (isClear()) {
                     System.out.println("PC!");
                     linesToSend += 7;
                 }
 
                 lockingTet = null;
                 lockFlashCnt = -1;
-
-                if (linesToSend != 0) {
-                    System.out.println("You created " + linesToSend
-                            + " lines of garbage!");
-                }
 
                 int through = garbageManager.counterGarbage(linesToSend);
                 if (through != 0) {
@@ -881,33 +771,7 @@ public class TetrisMatrix implements Paintable {
                     }
                 }
 
-                if (onLeft && !garbageManager.isEmpty()) {
-                    int total = 0;
-
-                    String message = "GL";
-
-                    while (total <= 5) {
-                        int newG = garbageManager.peekGarbage();
-                        if (newG == 0) {
-                            break;
-                        }
-                        total += garbageManager.pollGarbage();
-
-                        int hole = (int) (Math.random() * 10);
-                        for (int i = 0; i < newG; i++) {
-                            if (Math.random() > 0.8) {
-                                hole = (int) (Math.random() * 10);
-                            }
-
-                            addGarbage(hole);
-                            message += hole + " ";
-                        }
-                    }
-
-                    ClientSocket.getConnection().send(message.trim());
-
-                    System.out.println("Oof! " + total + " lines of garbage!");
-                }
+                placeGarbage();
             }
         }
 
@@ -920,61 +784,12 @@ public class TetrisMatrix implements Paintable {
                 ClientSocket.getConnection().send("PAUSE0");
             }
 
-            if (linesToClear.isEmpty()) {
-                if (onLeft) {
-                    boolean left = handler.isPressed(VK_Z),
-                            right = handler.isPressed(VK_X),
-                            hold = handler.isPressed(VK_C);
-                    enter(left, right, hold);
-                    String message = "ENTER";
-                    message += left ? "1" : "0";
-                    message += right ? "1" : "0";
-                    message += hold ? "1" : "0";
-                    ClientSocket.getConnection().send(message);
-                }
-            } else {
-                for (int i = matrix.length - 1, temp = i; i >= 0; i--) {
-                    if (!linesToClear.contains(i)) {
-                        if (temp != i) {
-                            System.arraycopy(matrix[i], 0,
-                                    matrix[temp], 0, matrix[i].length);
-                        }
-                        temp--;
-                    }
-                }
-
-                linesToClear.clear();
-
-                pauseAnimationCnt = lineClearARE;
-            }
+            pause0(handler);
         }
 
         if (currentTet != null) {
             if (onLeft) {
-                if (gravity >= 1) {
-                    int i;
-                    for (i = 0; i < gravity
-                            && !currentTet.intersects(this, 0, 1); i++) {
-                        currentTet.moveDown();
-                        lastMove = -1;
-                    }
-
-                    ClientSocket.getConnection().send("G" + i);
-                } else {
-                    if (!handler.isPressed(VK_DOWN)
-                            && !currentTet.intersects(this, 0, 1)) {
-                        gravityCnt += gravity;
-                        if (gravityCnt >= 1) {
-                            currentTet.moveDown();
-                            lastMove = -1;
-                            gravityCnt = 0;
-
-                            ClientSocket.getConnection().send("G1");
-                        }
-                    } else {
-                        gravityCnt = 0;
-                    }
-                }
+                processGravity(handler);
             }
 
             if (currentTet.intersects(this, 0, 1)
@@ -1006,6 +821,40 @@ public class TetrisMatrix implements Paintable {
             if (extraY > 10000) {
                 extraYSpeed = 0;
             }
+        }
+    }
+
+    /**
+     * Places garbage at the bottom of the matrix, randomizing the holes and
+     * also notifying the opponent that this matrix just took garbage.
+     */
+    private void placeGarbage() {
+        if (onLeft && !garbageManager.isEmpty()) {
+            int total = 0;
+
+            String message = "GL";
+
+            while (total <= 5) {
+                int newG = garbageManager.peekGarbage();
+                if (newG == 0) {
+                    break;
+                }
+                total += garbageManager.pollGarbage();
+
+                int hole = (int) (Math.random() * 10);
+                for (int i = 0; i < newG; i++) {
+                    if (Math.random() > 0.8) {
+                        hole = (int) (Math.random() * 10);
+                    }
+
+                    addGarbage(hole);
+                    message += hole + " ";
+                }
+            }
+
+            ClientSocket.getConnection().send(message.trim());
+
+            System.out.println("Oof! " + total + " lines of garbage!");
         }
     }
 
@@ -1109,6 +958,187 @@ public class TetrisMatrix implements Paintable {
                 return TGMMinoStyle.getMinoStyle();
             } else {
                 return BasicMinoStyle.getMinoStyle();
+            }
+        }
+    }
+
+    /**
+     * Determines how many lines should be sent to the opponent, given that the
+     * tetromino is now locked down. This method does not take into account
+     * perfect clears.
+     *
+     * @return how many lines should be sent
+     */
+    private int linesToSend() {
+        int linesToSend = 0;
+        boolean b2b;
+
+        if (linesToClear.isEmpty()) {
+            combo = -1;
+            b2b = false;
+        } else {
+            combo++;
+            b2b = back2Back;
+            back2Back = linesToClear.size() == 4;
+        }
+
+        if (combo > 0) {
+            int geg = combo + 1;
+            System.out.println(geg + " Combo!");
+            if (geg > 10) {
+                linesToSend += 5;
+            } else if (geg > 7) {
+                linesToSend += 4;
+            } else if (geg > 5) {
+                linesToSend += 3;
+            } else if (geg > 3) {
+                linesToSend += 2;
+            } else {
+                linesToSend++;
+            }
+        }
+
+        boolean tSpin = false;
+
+        // T-spin?                
+        if (lockingTet instanceof TetT
+                && (lastMove == VK_Z || lastMove == VK_X)) {
+            TetT tee = (TetT) lockingTet;
+            Point center = tee.getCenter();
+            int x = tee.getX() + center.y, y = tee.getY() + center.x;
+            int corners = 0;
+            if (getBlock(y - 1, x + 1) != 0) {
+                corners++;
+            }
+            if (getBlock(y + 1, x + 1) != 0) {
+                corners++;
+            }
+            if (getBlock(y - 1, x - 1) != 0) {
+                corners++;
+            }
+            if (getBlock(y + 1, x - 1) != 0) {
+                corners++;
+            }
+
+            // corners can be 4
+            if (corners >= 3) {
+                // Ok, so T-spin
+                if (!linesToClear.isEmpty()) {
+                    back2Back = true;
+                }
+                // but mini?
+                if (bigSpin || tee.filledFaceCorners(this) == 2) {
+                    System.out.println("T-spin!");
+                    tSpin = true;
+                } else {
+                    System.out.println("T-spin mini");
+                    tSpin = false;
+                }
+            }
+        }
+
+        switch (linesToClear.size()) {
+            case 0:
+                linesToSend = 0;
+                break;
+            case 1:
+                if (tSpin) {
+                    linesToSend += 2;
+                }
+                break;
+            case 2:
+                if (tSpin) {
+                    linesToSend += 4;
+                } else {
+                    linesToSend++;
+                }
+                break;
+            case 3:
+                if (tSpin) {
+                    linesToSend += 6;
+                } else {
+                    linesToSend += 2;
+                }
+                break;
+            case 4:
+                linesToSend += 4;
+                break;
+            default:
+                assert false : "You cleared less than 0 lines or more than 4.";
+        }
+
+        if (b2b && back2Back) {
+            System.out.println("B2B!");
+            linesToSend++;
+        }
+
+        return linesToSend;
+    }
+
+    /**
+     * Called when the pause counter is 0. That means either enter the next
+     * piece or clear some lines.
+     *
+     * @param handler the DAS Handler used
+     */
+    private void pause0(DASHandler handler) {
+        if (linesToClear.isEmpty()) {
+            if (onLeft) {
+                boolean left = handler.isPressed(VK_Z),
+                        right = handler.isPressed(VK_X),
+                        hold = handler.isPressed(VK_C);
+                enter(left, right, hold);
+                String message = "ENTER";
+                message += left ? "1" : "0";
+                message += right ? "1" : "0";
+                message += hold ? "1" : "0";
+                ClientSocket.getConnection().send(message);
+            }
+        } else {
+            for (int i = matrix.length - 1, temp = i; i >= 0; i--) {
+                if (!linesToClear.contains(i)) {
+                    if (temp != i) {
+                        System.arraycopy(matrix[i], 0,
+                                matrix[temp], 0, matrix[i].length);
+                    }
+                    temp--;
+                }
+            }
+
+            linesToClear.clear();
+
+            pauseAnimationCnt = lineClearARE;
+        }
+    }
+
+    /**
+     * Processes gravity on the piece
+     *
+     * @param handler the DAS Handler being used
+     */
+    private void processGravity(DASHandler handler) {
+        if (gravity >= 1) {
+            int i;
+            for (i = 0; i < gravity
+                    && !currentTet.intersects(this, 0, 1); i++) {
+                currentTet.moveDown();
+                lastMove = -1;
+            }
+
+            ClientSocket.getConnection().send("G" + i);
+        } else {
+            if (!handler.isPressed(VK_DOWN)
+                    && !currentTet.intersects(this, 0, 1)) {
+                gravityCnt += gravity;
+                if (gravityCnt >= 1) {
+                    currentTet.moveDown();
+                    lastMove = -1;
+                    gravityCnt = 0;
+
+                    ClientSocket.getConnection().send("G1");
+                }
+            } else {
+                gravityCnt = 0;
             }
         }
     }
@@ -1390,5 +1420,83 @@ public class TetrisMatrix implements Paintable {
      */
     public double getGravity() {
         return gravity;
+    }
+
+    /**
+     * Sets the parameters in the given matrix to the type of the given number:
+     * 0 means SRS, and 1 means ARS. Any other value will result in an error.
+     *
+     * @param matrix the matrix to configure
+     * @param type the type of the matrix after this operation
+     */
+    public static void setMatrixAs(TetrisMatrix matrix, int type) {
+        System.out.println("Before:");
+        matrix.printAllInfo();
+        switch (type) {
+            case 0:
+                TetrisMatrix.setAsSRSMatrix(matrix);
+                break;
+            case 1:
+                TetrisMatrix.setAsARSMatrix(matrix);
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid parameter type with value " + type);
+        }
+        System.out.println("After:");
+        matrix.printAllInfo();
+    }
+
+    /**
+     * Attempts to print as much info about this object as possible.
+     */
+    public void printAllInfo() {
+        System.out.println(toString());
+        System.out.println("  Objects:");
+        System.out.printf("    currentTet:%20s%n", currentTet);
+        System.out.printf("    factory:%23s%n", factory == null ? "null"
+                : factory.getClass().getSimpleName());
+        System.out.printf("    garbageManager:%16s%n", garbageManager);
+        System.out.printf("    holdTet:%22s%n", holdTet);
+        System.out.printf("    linesToClear:%18s%n", linesToClear);
+        System.out.printf("    lockingTet:%20s%n", lockingTet);
+        System.out.println("    matrix:");
+        for (int[] is : matrix) {
+            System.out.print("    ");
+            for (int i : is) {
+                System.out.print(i);
+            }
+            System.out.println();
+        }
+        System.out.printf("    minoStyle:%21s%n", minoStyle == null ? "null"
+                : minoStyle.getClass().getSimpleName());
+        System.out.printf("    paintableMatrix:%15s%n", paintableMatrix);
+        System.out.printf("    queue:%24s%n", queue);
+        System.out.printf("    sendGarbo:%21s%n", sendGarbo);
+        System.out.printf("    spinSystem:%20s%n", spinSystem == null ? "null"
+                : spinSystem.getClass().getSimpleName());
+        System.out.println("  Numbers:");
+        System.out.println("    combo:             " + combo);
+        System.out.println("    extraY:            " + extraY);
+        System.out.println("    extraYSpeed:       " + extraYSpeed);
+        System.out.println("    gravity:           " + gravity);
+        System.out.println("    gravityCnt:        " + gravityCnt);
+        System.out.println("    gravityNum:        " + gravityNum);
+        System.out.println("    lastMove:          " + lastMove);
+        System.out.println("    lineClearARE:      " + lineClearARE);
+        System.out.println("    lineClearDelay:    " + lineClearDelay);
+        System.out.println("    lockCnt:           " + lockCnt);
+        System.out.println("    lockDelay:         " + lockDelay);
+        System.out.println("    lockDelayCnt:      " + lockDelayCnt);
+        System.out.println("    lockFlashCnt:      " + lockFlashCnt);
+        System.out.println("    pauseAnimationCnt: " + pauseAnimationCnt);
+        System.out.println("    previousY:         " + previousY);
+        System.out.println("    standardARE:       " + standardARE);
+        System.out.println("  Booleans:");
+        System.out.println("    back2Back:     " + back2Back);
+        System.out.println("    bigSpin:       " + bigSpin);
+        System.out.println("    drawGhost:     " + drawGhost);
+        System.out.println("    holdAvaliable: " + holdAvaliable);
+        System.out.println("    inGame:        " + inGame);
+        System.out.println("    onLeft:        " + onLeft);
     }
 }

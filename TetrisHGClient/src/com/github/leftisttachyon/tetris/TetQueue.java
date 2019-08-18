@@ -85,7 +85,7 @@ public class TetQueue<T extends Tetromino> implements Paintable {
             if (tetQueue.size() >= 1) {
                 style.drawTetromino(g2D, 0, 0, 80, tetQueue.get(0));
             }
-            
+
             int x = isLeft ? 20 : 0;
             for (int i = 1, y = 58; i < outlook; i++, y += 46) {
                 g2D.setColor(Color.WHITE);
@@ -114,7 +114,7 @@ public class TetQueue<T extends Tetromino> implements Paintable {
                 }
 
                 ClientSocket.getConnection().send(message);
-                
+
                 // System.out.println("Add this: " + message.substring(2));
             }
         } else {
@@ -201,5 +201,15 @@ public class TetQueue<T extends Tetromino> implements Paintable {
      */
     public MinoStyle getMinoStyle() {
         return minoStyle == null ? BasicMinoStyle.getMinoStyle() : minoStyle;
+    }
+
+    @Override
+    public String toString() {
+        return "TetQueue isLeft=" + isLeft
+                + " minoStyle=" + (minoStyle == null ? "null"
+                        : minoStyle.getClass().getSimpleName())
+                + " outlook=" + outlook
+                + " tetQueue=" + tetQueue
+                + " tf=" + (tf == null ? "null" : tf.getClass().getSimpleName());
     }
 }

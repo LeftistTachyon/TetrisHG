@@ -132,4 +132,9 @@ public class GarbageManager implements Paintable {
     public void reset() {
         garbageQueue = new LinkedList<>();
     }
+
+    @Override
+    public String toString() {
+        return "GarbageQueue " + garbageQueue.toString();
+    }
 }

@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import javax.swing.JPanel;
 
 /**
@@ -127,14 +128,16 @@ public final class TetrisPanel extends JPanel {
 
         handler = new DASHandler();
         // handler.setListener(VK_DOWN, new Point(8, 1));
-        handler.setListener(VK_DOWN, new Point(-1, -1));
+
         handler.setListener(VK_Z, new Point(-1, -1));
         handler.setListener(VK_X, new Point(-1, -1));
         handler.setListener(VK_C, new Point(-1, -1));
         handler.setListener(VK_SPACE, new Point(-1, -1));
+        handler.setListener(VK_UP, new Point(-1, -1));
+
+        handler.setListener(VK_DOWN, new Point(-1, -1));
         handler.setListener(VK_LEFT, new Point(8, 1));
         handler.setListener(VK_RIGHT, new Point(8, 1));
-        handler.setListener(VK_UP, new Point(-1, -1));
 
         addKeyListener(handler);
 
@@ -152,87 +155,7 @@ public final class TetrisPanel extends JPanel {
         countdown = -1;
 
         if (ClientSocket.isConnected()) {
-            ClientSocket.getConnection().addServerListener((line) -> {
-                if (!theySelected) {
-                    if (line.startsWith("SELECT")) {
-                        theirSelection = Integer.parseInt(line.substring(6));
-                    } else if (line.startsWith("CHOOSE")) {
-                        theirSelection = Integer.parseInt(line.substring(6));
-                        theySelected = true;
-
-                        switch (theirSelection) {
-                            case 0:
-                                TetrisMatrix.setAsSRSMatrix(theirMatrix);
-                                break;
-                            case 1:
-                                TetrisMatrix.setAsARSMatrix(theirMatrix);
-                                break;
-                        }
-
-                        if (meSelected) {
-                            generateStartBag();
-
-                            if (++canStart == 2) {
-                                startCountdown();
-                            }
-                        }
-                    }
-                } else {
-                    if (line.equals("DESELECT")) {
-                        theySelected = false;
-                        canStart--;
-                        return;
-                    }
-                    if (meSelected) {
-                        switch (line) {
-                            case "COUNT0":
-                                if (++canStart == 4) {
-                                    countdown = -1;
-                                    startGame();
-                                }
-                                return;
-                            case "NXTDELAY":
-                                if (toExecute != null && toExecute.equals("NXTDELAY")) {
-                                    toExecute = null;
-
-                                    if (++delayRow < DELAYS.length) {
-                                        // dew it
-                                        int[] row = DELAYS[delayRow];
-                                        myMatrix.setStandardARE(row[0]);
-                                        theirMatrix.setStandardARE(row[0]);
-                                        myMatrix.setLineClearARE(row[1]);
-                                        theirMatrix.setLineClearARE(row[1]);
-                                        setDAS(row[2]);
-                                        myMatrix.setLockDelay(row[3]);
-                                        theirMatrix.setLockDelay(row[3]);
-                                        myMatrix.setLineClearDelay(row[4]);
-                                        theirMatrix.setLineClearDelay(row[4]);
-
-                                        downCnt = 1800;
-                                    }
-                                } else {
-                                    toExecute = "NXTDELAY";
-                                }
-                                return;
-                        }
-                        if (line.startsWith("ACTIONS")) {
-                            HashSet<Integer> actions = new HashSet<>();
-                            String[] data = line.substring(7).split(" ");
-                            for (String s : data) {
-                                actions.add(Integer.parseInt(s));
-                            }
-
-                            theirMatrix.executeActions(actions);
-                        } else if (line.startsWith("NB")) {
-                            theirMatrix.addBag(line.substring(2));
-                            if (!myMatrix.isInGame() && ++canStart == 2) {
-                                startCountdown();
-                            }
-                            // System.out.println("Added a bag of " + line.substring(2));
-                        }
-                    }
-                }
-            });
+            ClientSocket.getConnection().addServerListener(getListener());
         }
     }
 
@@ -243,11 +166,11 @@ public final class TetrisPanel extends JPanel {
         service = Executors.newSingleThreadScheduledExecutor();
         service.scheduleAtFixedRate(() -> {
             try {
-                // double start = System.nanoTime();
+                double start = System.nanoTime();
                 repaint();
-                /*double total = System.nanoTime() - start;
+                double total = System.nanoTime() - start;
                 total /= 1_000_000;
-                System.out.printf("Frame: %.2f ms%n", total);*/
+                System.out.printf("Frame: %.2f ms%n", total);
             } catch (Exception e) {
                 System.err.println("Exception occured while executing frame");
                 e.printStackTrace();
@@ -262,6 +185,26 @@ public final class TetrisPanel extends JPanel {
         service.shutdown();
     }
 
+    /**
+     * Updates the delays of the internal matrices to the values stored in the
+     * DELAYS matrix.
+     */
+    private void updateDelays() {
+        // dew it
+        int[] row = DELAYS[delayRow];
+        myMatrix.setStandardARE(row[0]);
+        theirMatrix.setStandardARE(row[0]);
+        myMatrix.setLineClearARE(row[1]);
+        theirMatrix.setLineClearARE(row[1]);
+        setDAS(row[2]);
+        myMatrix.setLockDelay(row[3]);
+        theirMatrix.setLockDelay(row[3]);
+        myMatrix.setLineClearDelay(row[4]);
+        theirMatrix.setLineClearDelay(row[4]);
+
+        downCnt = 1800;
+    }
+
     @Override
     public void paint(Graphics g) {
         Graphics2D g2D = (Graphics2D) g;
@@ -272,6 +215,7 @@ public final class TetrisPanel extends JPanel {
         // then make updates
         if (meSelected && theySelected) {
             if (countdown == -1) {
+                System.out.println("In game ☺");
                 double myGravity = myMatrix.getGravity(),
                         theirGravity = theirMatrix.getGravity();
                 boolean both20 = myGravity == 20 && theirGravity == 20;
@@ -288,18 +232,7 @@ public final class TetrisPanel extends JPanel {
 
                             if (++delayRow < DELAYS.length) {
                                 // dew it
-                                int[] row = DELAYS[delayRow];
-                                myMatrix.setStandardARE(row[0]);
-                                theirMatrix.setStandardARE(row[0]);
-                                myMatrix.setLineClearARE(row[1]);
-                                theirMatrix.setLineClearARE(row[1]);
-                                setDAS(row[2]);
-                                myMatrix.setLockDelay(row[3]);
-                                theirMatrix.setLockDelay(row[3]);
-                                myMatrix.setLineClearDelay(row[4]);
-                                theirMatrix.setLineClearDelay(row[4]);
-
-                                downCnt = 1800;
+                                updateDelays();
                             }
                         } else {
                             toExecute = "NXTDELAY";
@@ -317,7 +250,7 @@ public final class TetrisPanel extends JPanel {
                 myMatrix.advanceFrame(handler);
 
                 theirMatrix.advanceFrame(null);
-                
+
                 if (!theirMatrix.isInGame()) {
                     myMatrix.endGame();
                 }
@@ -342,7 +275,7 @@ public final class TetrisPanel extends JPanel {
                 canStart--;
                 ClientSocket.getConnection().send("DESELECT");
             }
-        } else if (!meSelected) {
+        } else {
             int temp = mySelection;
 
             if (actions.remove(VK_DOWN)) {
@@ -362,14 +295,7 @@ public final class TetrisPanel extends JPanel {
 
             if (actions.contains(VK_X) || actions.contains(VK_C)
                     || actions.contains(VK_SPACE)) {
-                switch (mySelection) {
-                    case 0:
-                        TetrisMatrix.setAsSRSMatrix(myMatrix);
-                        break;
-                    case 1:
-                        TetrisMatrix.setAsARSMatrix(myMatrix);
-                        break;
-                }
+                TetrisMatrix.setMatrixAs(myMatrix, mySelection);
 
                 handler.setListener(VK_DOWN, new Point(8, 1));
 
@@ -450,6 +376,8 @@ public final class TetrisPanel extends JPanel {
                         g2D.drawRect(temp_x + 5, 230 - height / 4,
                                 10 * MINO_SIZE - 10, 40);
                         break;
+                    default:
+                        assert false : "Invalid selection";
                 }
             }
         }
@@ -514,6 +442,8 @@ public final class TetrisPanel extends JPanel {
                         g2D.drawRect(temp_x + 5, 230 - height / 4,
                                 10 * MINO_SIZE - 10, 40);
                         break;
+                    default:
+                        assert false : "Invalid selection";
                 }
             }
         }
@@ -551,6 +481,8 @@ public final class TetrisPanel extends JPanel {
      * Starts the game.
      */
     private void startGame() {
+        System.out.println("Let\'s go!");
+        
         if (!theirMatrix.isInGame()) {
             theirMatrix.startGame();
 
@@ -609,7 +541,81 @@ public final class TetrisPanel extends JPanel {
             case 1:
                 return 1.5;
             default:
+                assert false : "Invalid selection";
                 return 0;
         }
+    }
+
+    /**
+     * Creates a new Consumer that acts like a listener for incoming messages
+     *
+     * @return a Consumer/Listener
+     */
+    private Consumer<String> getListener() {
+        return (line) -> {
+            if (!theySelected) {
+                if (line.startsWith("SELECT")) {
+                    theirSelection = Integer.parseInt(line.substring(6));
+                } else if (line.startsWith("CHOOSE")) {
+                    theirSelection = Integer.parseInt(line.substring(6));
+                    theySelected = true;
+
+                    TetrisMatrix.setMatrixAs(theirMatrix, theirSelection);
+
+                    if (meSelected) {
+                        generateStartBag();
+
+                        if (++canStart == 2) {
+                            startCountdown();
+                        }
+                    }
+                }
+            } else {
+                if (line.equals("DESELECT")) {
+                    theySelected = false;
+                    canStart--;
+                    return;
+                }
+                if (meSelected) {
+                    switch (line) {
+                        case "COUNT0":
+                            if (++canStart == 4) {
+                                countdown = -1;
+                                startGame();
+                            }
+                            return;
+                        case "NXTDELAY":
+                            if (toExecute != null && toExecute.equals("NXTDELAY")) {
+                                toExecute = null;
+
+                                if (++delayRow < DELAYS.length) {
+                                    // dew it
+                                    updateDelays();
+
+                                    downCnt = 1800;
+                                }
+                            } else {
+                                toExecute = "NXTDELAY";
+                            }
+                            return;
+                    }
+                    if (line.startsWith("ACTIONS")) {
+                        HashSet<Integer> actions = new HashSet<>();
+                        String[] data = line.substring(7).split(" ");
+                        for (String s : data) {
+                            actions.add(Integer.parseInt(s));
+                        }
+
+                        theirMatrix.executeActions(actions);
+                    } else if (line.startsWith("NB")) {
+                        theirMatrix.addBag(line.substring(2));
+                        if (!myMatrix.isInGame() && ++canStart == 2) {
+                            startCountdown();
+                        }
+                        // System.out.println("Added a bag of " + line.substring(2));
+                    }
+                }
+            }
+        };
     }
 }
