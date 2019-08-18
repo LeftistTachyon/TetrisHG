@@ -7,7 +7,10 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * A class that handles the client
@@ -76,17 +79,17 @@ public class MiniServer {
      * Called to start interaction with the user
      */
     public void go() {
-        try {
+        try (PrintWriter out_ = out; 
+                BufferedReader in_ = in) {
             // Request a name from this client.  Keep requesting until
             // a name is submitted that is not already used.  Note that
             // checking for the existence of a name and adding the name
             // must be done while locking the set of names.
             while (true) {
-                out.println("SUBMITNAME");
+                out_.println("SUBMITNAME");
                 // notify("SUBMITNAME", false);
-                name = in.readLine();
                 // notify(name, true);
-                if (name == null) {
+                if ((name = in_.readLine()) == null) {
                     return;
                 }
                 if ("".equals(name) || "null".equals(name)) {
@@ -94,14 +97,11 @@ public class MiniServer {
                 }
                 synchronized (SERVERS) {
                     if (!SERVERS.containsKey(name)) {
-                        HashSet<String> copy = new HashSet<>(SERVERS.keySet());
-                        for (MiniServer h : SERVERS.values()) {
-                            h.out.println("NEWCLIENTtrue " + name);
+                        for (Map.Entry<String, MiniServer> entry : SERVERS.entrySet()) {
+                            entry.getValue().out.println("NEWCLIENTtrue " + name);
+                            out_.println("NEWCLIENTfalse " + entry.getKey());
                         }
                         SERVERS.put(name, this);
-                        for (String s : copy) {
-                            out.println("NEWCLIENTfalse " + s);
-                        }
                         break;
                     }
                 }
@@ -110,23 +110,22 @@ public class MiniServer {
             // Now that a successful name has been chosen, add the
             // socket's print writer to the set of all writers so
             // this client can receive broadcast messages.
-            out.println("NAMEACCEPTED");
+            out_.println("NAMEACCEPTED");
             // notify("NAMEACCEPTED", false);
 
             // Accept messages from this client and broadcast them.
             // Ignore other clients that cannot be broadcasted to.
             while (true) {
-                String line = in.readLine();
+                String line = in_.readLine();
                 // notify(line, true);
                 if (line == null) {
                     return;
                 }
 
                 // println("\"" + line + "\"");
-
                 // handle input
                 if (line.equals("PING")) {
-                    out.println("PONG");
+                    out_.println("PONG");
                 } else if (line.startsWith("NLM")) {
                     String message = "NLM" + name + ": " + line.substring(3);
                     for (MiniServer h : SERVERS.values()) {
@@ -134,21 +133,8 @@ public class MiniServer {
                     }
                 } else if (inGame) {
                     if (line.startsWith("EXIT")) {
-                        inGame = false;
-                        BUSY.remove(this);
-                        for (MiniServer h : SERVERS.values()) {
-                            h.out.println("FREE" + name);
-                        }
-                        if (opponent != null) {
-                            opponent.out.println("EXIT");
-                            opponent.inGame = false;
-                            BUSY.remove(opponent);
-                            for (MiniServer h : SERVERS.values()) {
-                                h.out.println("FREE" + opponent.name);
-                            }
-
-                            opponent = null;
-                        }
+                        // exit the match
+                        exit();
                     } else {
                         opponent.out.println(line);
                     }
@@ -177,21 +163,7 @@ public class MiniServer {
                             MiniServer otherH = SERVERS.get(other);
                             if (Boolean.parseBoolean(data[1])
                                     && !BUSY.contains(otherH)) {
-                                opponent = otherH;
-                                inGame = true;
-                                opponent.out.println("CHALLENGE_Rtrue");
-                                opponent.opponent = this;
-                                opponent.inGame = true;
-                                for (MiniServer h : SERVERS.values()) {
-                                    h.out.println("BUSY" + name);
-                                    h.out.println("BUSY" + opponent.name);
-                                }
-
-                                BUSY.add(opponent);
-                                BUSY.add(this);
-                                
-                                out.println("ST");
-                                opponent.out.println("ST");
+                                startMatch(otherH);
                             } else {
                                 otherH.out.println("CHALLENGE_Rfalse");
                             }
@@ -216,17 +188,62 @@ public class MiniServer {
                 for (MiniServer h : SERVERS.values()) {
                     h.out.println("FREE" + opponent.name);
                 }
+                opponent = null;
             }
             if (SERVERS != null) {
                 SERVERS.remove(name);
             }
-            out.close();
+            
             try {
-                in.close();
                 socket.close();
-            } catch (IOException e) {
+            } catch (IOException ex) {
+                ex.printStackTrace();
             }
         }
+    }
+
+    /**
+     * Exits the current game. Notifies the opponent of the exit as well.
+     */
+    private void exit() {
+        inGame = false;
+        BUSY.remove(this);
+        for (MiniServer h : SERVERS.values()) {
+            h.out.println("FREE" + name);
+        }
+        if (opponent != null) {
+            opponent.out.println("EXIT");
+            opponent.inGame = false;
+            BUSY.remove(opponent);
+            for (MiniServer h : SERVERS.values()) {
+                h.out.println("FREE" + opponent.name);
+            }
+
+            opponent = null;
+        }
+    }
+
+    /**
+     * Starts a match between this client and the given one. Also takes care of
+     * formalities like notifying other players that this server and the other
+     * one are now busy.
+     */
+    private void startMatch(MiniServer other) {
+        opponent = other;
+        inGame = true;
+        opponent.out.println("CHALLENGE_Rtrue");
+        opponent.opponent = this;
+        opponent.inGame = true;
+        for (MiniServer h : SERVERS.values()) {
+            h.out.println("BUSY" + name);
+            h.out.println("BUSY" + opponent.name);
+        }
+
+        BUSY.add(opponent);
+        BUSY.add(this);
+
+        out.println("ST");
+        opponent.out.println("ST");
     }
 
     /**
