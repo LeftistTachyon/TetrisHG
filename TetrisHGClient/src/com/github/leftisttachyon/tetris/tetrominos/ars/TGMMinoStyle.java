@@ -3,6 +3,7 @@ package com.github.leftisttachyon.tetris.tetrominos.ars;
 import com.github.leftisttachyon.tetris.MinoStyle;
 import static com.github.leftisttachyon.tetris.MinoStyle.*;
 import com.github.leftisttachyon.util.TetrisUtils;
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
@@ -174,6 +175,12 @@ public class TGMMinoStyle extends MinoStyle {
             case YELLOW:
                 g2D.drawImage(YELLOW_MINO, x, y, null);
                 break;
+            default:
+                g2D.setColor(Color.WHITE);
+                g2D.fillRect(x, y, MINO_SIZE, MINO_SIZE);
+                g2D.setColor(Color.RED);
+                g2D.drawString("?", x, y + MINO_SIZE);
+                break;
         }
     }
 
@@ -212,7 +219,6 @@ public class TGMMinoStyle extends MinoStyle {
             }
         }
     }*/
-
     @Override
     public void drawMino(Graphics2D g2D, int x, int y, int size, int color) {
         if (size == MINO_SIZE) {
@@ -224,12 +230,12 @@ public class TGMMinoStyle extends MinoStyle {
             g2D.drawImage(getScaledMino(color, size), x, y, null);
         }
     }
-    
+
     /**
      * A cache of resized images
      */
     private final HashMap<Integer, Image>[] imageCache;
-    
+
     /**
      * Gets a scaled instance of an image of a mino
      *
@@ -238,21 +244,21 @@ public class TGMMinoStyle extends MinoStyle {
      * @return the scaled instance of an image
      */
     private Image getScaledMino(int color, int size) {
-        if(color < 1 || color > 9) {
+        if (color < 1 || color > 9) {
             return null;
         }
-        
+
         // HashMap<Integer, Image> colorCache = ;
-        if(imageCache[color - 1] == null) {
+        if (imageCache[color - 1] == null) {
             imageCache[color - 1] = new HashMap<>();
         }
-        
-        if(imageCache[color - 1].containsKey(size)) {
+
+        if (imageCache[color - 1].containsKey(size)) {
             return imageCache[color - 1].get(size);
         } else {
             try {
                 BufferedImage file;
-                switch(color) {
+                switch (color) {
                     case BLUE:
                         file = TetrisUtils.getResource("/com/github/leftisttachyon/tetris/resources/tgm/blue.png");
                         break;
@@ -280,11 +286,11 @@ public class TGMMinoStyle extends MinoStyle {
                     default:
                         return null;
                 }
-                
+
                 BufferedImage output = Thumbnails.of(file).height(size).asBufferedImage();
-                
+
                 imageCache[color - 1].put(size, output);
-                
+
                 return output;
             } catch (IOException ex) {
                 ex.printStackTrace();

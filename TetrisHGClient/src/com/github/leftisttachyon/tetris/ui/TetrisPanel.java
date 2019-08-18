@@ -482,7 +482,7 @@ public final class TetrisPanel extends JPanel {
      */
     private void startGame() {
         System.out.println("Let\'s go!");
-        
+
         if (!theirMatrix.isInGame()) {
             theirMatrix.startGame();
 
@@ -598,21 +598,23 @@ public final class TetrisPanel extends JPanel {
                                 toExecute = "NXTDELAY";
                             }
                             return;
-                    }
-                    if (line.startsWith("ACTIONS")) {
-                        HashSet<Integer> actions = new HashSet<>();
-                        String[] data = line.substring(7).split(" ");
-                        for (String s : data) {
-                            actions.add(Integer.parseInt(s));
-                        }
+                        default:
+                            if (line.startsWith("ACTIONS")) {
+                                HashSet<Integer> actions = new HashSet<>();
+                                String[] data = line.substring(7).split(" ");
+                                for (String s : data) {
+                                    actions.add(Integer.parseInt(s));
+                                }
 
-                        theirMatrix.executeActions(actions);
-                    } else if (line.startsWith("NB")) {
-                        theirMatrix.addBag(line.substring(2));
-                        if (!myMatrix.isInGame() && ++canStart == 2) {
-                            startCountdown();
-                        }
-                        // System.out.println("Added a bag of " + line.substring(2));
+                                theirMatrix.executeActions(actions);
+                            } else if (line.startsWith("NB")) {
+                                theirMatrix.addBag(line.substring(2));
+                                if (!myMatrix.isInGame() && ++canStart == 2) {
+                                    startCountdown();
+                                }
+                                // System.out.println("Added a bag of " + line.substring(2));
+                            }
+                            break;
                     }
                 }
             }

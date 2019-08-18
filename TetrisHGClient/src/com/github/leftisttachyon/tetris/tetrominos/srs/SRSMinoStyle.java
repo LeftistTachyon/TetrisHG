@@ -8,6 +8,7 @@ import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import static com.github.leftisttachyon.tetris.MinoStyle.GREY;
+import java.awt.Color;
 import java.util.HashMap;
 import net.coobird.thumbnailator.Thumbnails;
 
@@ -174,6 +175,12 @@ public class SRSMinoStyle extends MinoStyle {
                 break;
             case YELLOW:
                 g2D.drawImage(YELLOW_MINO, x, y, null);
+                break;
+            default:
+                g2D.setColor(Color.WHITE);
+                g2D.fillRect(x, y, MINO_SIZE, MINO_SIZE);
+                g2D.setColor(Color.RED);
+                g2D.drawString("?", x, y + MINO_SIZE);
                 break;
         }
     }
