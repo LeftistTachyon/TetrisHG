@@ -981,21 +981,18 @@ public class TetrisMatrix implements Paintable {
             b2b = back2Back;
             back2Back = linesToClear.size() == 4;
         }
-
-        if (combo > 0) {
-            int geg = combo + 1;
-            System.out.println(geg + " Combo!");
-            if (geg > 10) {
-                linesToSend += 5;
-            } else if (geg > 7) {
-                linesToSend += 4;
-            } else if (geg > 5) {
-                linesToSend += 3;
-            } else if (geg > 3) {
-                linesToSend += 2;
-            } else {
-                linesToSend++;
-            }
+        
+        int geg = combo + 1;
+        if (geg > 10) {
+            linesToSend += 5;
+        } else if (geg > 7) {
+            linesToSend += 4;
+        } else if (geg > 5) {
+            linesToSend += 3;
+        } else if (geg > 3) {
+            linesToSend += 2;
+        } else if (geg > 1) {
+            linesToSend++;
         }
 
         boolean tSpin = false;
@@ -1027,13 +1024,7 @@ public class TetrisMatrix implements Paintable {
                     back2Back = true;
                 }
                 // but mini?
-                if (bigSpin || tee.filledFaceCorners(this) == 2) {
-                    System.out.println("T-spin!");
-                    tSpin = true;
-                } else {
-                    System.out.println("T-spin mini");
-                    tSpin = false;
-                }
+                tSpin = bigSpin || tee.filledFaceCorners(this) == 2;
             }
         }
 
@@ -1068,7 +1059,6 @@ public class TetrisMatrix implements Paintable {
         }
 
         if (b2b && back2Back) {
-            System.out.println("B2B!");
             linesToSend++;
         }
 
