@@ -316,71 +316,14 @@ public final class TetrisPanel extends JPanel {
         // lastly draw
         g2D.setColor(new Color(127, 127, 127));
         g2D.fillRect(0, 0, getWidth(), getHeight());
+        
         try {
             myMatrix.paint(g2D, 10, 10);
         } catch (NoninvertibleTransformException ex) {
             ex.printStackTrace();
         }
 
-        int temp_x = 110;
-
-        if (meSelected && theySelected) {
-            if (countdown != -1) {
-                g2D.setFont(new Font("Arial Black", Font.PLAIN, 40));
-                FontMetrics metrics = g2D.getFontMetrics();
-
-                String toDraw = countdown >= 60 ? "Ready?" : "GO!";
-                int width = metrics.stringWidth(toDraw);
-
-                g2D.setColor(Color.WHITE);
-
-                g2D.drawString(toDraw, temp_x + 5 * MINO_SIZE - width / 2,
-                        10 * MINO_SIZE + metrics.getHeight() / 2);
-            }
-        } else {
-            g2D.setFont(new Font("Arial Black", Font.PLAIN, 15));
-            FontMetrics metrics = g2D.getFontMetrics();
-
-            String toDraw;
-
-            if (meSelected && mySelection == 0) {
-                g2D.setColor(Color.RED);
-            } else {
-                g2D.setColor(Color.WHITE);
-            }
-            toDraw = "SRS (normal garbage)";
-            g2D.drawString(toDraw, temp_x
-                    + 5 * MINO_SIZE - metrics.stringWidth(toDraw) / 2, 150);
-
-            if (meSelected && mySelection == 1) {
-                g2D.setColor(Color.RED);
-            } else {
-                g2D.setColor(Color.WHITE);
-            }
-            toDraw = "ARS/TGM (1.5-2x garbage)";
-            g2D.drawString(toDraw, temp_x
-                    + 5 * MINO_SIZE - metrics.stringWidth(toDraw) / 2, 250);
-
-            if (!meSelected) {
-                g2D.setColor(Color.RED);
-                g2D.setStroke(new BasicStroke(3.0f, BasicStroke.CAP_SQUARE,
-                        BasicStroke.JOIN_MITER));
-
-                int height = metrics.getHeight();
-                switch (mySelection) {
-                    case 0:
-                        g2D.drawRect(temp_x + 5, 130 - height / 4,
-                                10 * MINO_SIZE - 10, 40);
-                        break;
-                    case 1:
-                        g2D.drawRect(temp_x + 5, 230 - height / 4,
-                                10 * MINO_SIZE - 10, 40);
-                        break;
-                    default:
-                        assert false : "Invalid selection";
-                }
-            }
-        }
+        drawText(110, mySelection, meSelected, g2D);
 
         try {
             theirMatrix.paint(g2D, 10 * MinoStyle.MINO_SIZE + 220, 10);
@@ -388,9 +331,21 @@ public final class TetrisPanel extends JPanel {
             ex.printStackTrace();
         }
 
-        temp_x += 10 * MINO_SIZE + 210;
+        drawText(10 * MINO_SIZE + 320, theirSelection, theySelected, g2D);
 
-        if (meSelected && theySelected) {
+    }
+
+    /**
+     * Draws the text for a matrix.
+     *
+     * @param x the x-value to start at
+     * @param selection the selected value
+     * @param selected whether the selection has been made
+     * @param g2D the Graphics2D object to use
+     */
+    private void drawText(int x, int selection, boolean selected,
+            Graphics2D g2D) {
+        if (meSelected && selected) {
             if (countdown != -1) {
                 g2D.setFont(new Font("Arial Black", Font.PLAIN, 40));
                 FontMetrics metrics = g2D.getFontMetrics();
@@ -400,7 +355,7 @@ public final class TetrisPanel extends JPanel {
 
                 g2D.setColor(Color.WHITE);
 
-                g2D.drawString(toDraw, temp_x + 5 * MINO_SIZE - width / 2,
+                g2D.drawString(toDraw, x + 5 * MINO_SIZE - width / 2,
                         10 * MINO_SIZE + metrics.getHeight() / 2);
             }
         } else {
@@ -409,37 +364,37 @@ public final class TetrisPanel extends JPanel {
 
             String toDraw;
 
-            if (theySelected && theirSelection == 0) {
+            if (selected && selection == 0) {
                 g2D.setColor(Color.RED);
             } else {
                 g2D.setColor(Color.WHITE);
             }
             toDraw = "SRS (normal garbage)";
-            g2D.drawString(toDraw, temp_x
+            g2D.drawString(toDraw, x
                     + 5 * MINO_SIZE - metrics.stringWidth(toDraw) / 2, 150);
 
-            if (theySelected && theirSelection == 1) {
+            if (selected && selection == 1) {
                 g2D.setColor(Color.RED);
             } else {
                 g2D.setColor(Color.WHITE);
             }
             toDraw = "ARS/TGM (1.5-2x garbage)";
-            g2D.drawString(toDraw, temp_x
+            g2D.drawString(toDraw, x
                     + 5 * MINO_SIZE - metrics.stringWidth(toDraw) / 2, 250);
 
-            if (!theySelected) {
+            if (!selected) {
                 g2D.setColor(Color.RED);
                 g2D.setStroke(new BasicStroke(3.0f, BasicStroke.CAP_SQUARE,
                         BasicStroke.JOIN_MITER));
 
                 int height = metrics.getHeight();
-                switch (theirSelection) {
+                switch (selection) {
                     case 0:
-                        g2D.drawRect(temp_x + 5, 130 - height / 4,
+                        g2D.drawRect(x + 5, 130 - height / 4,
                                 10 * MINO_SIZE - 10, 40);
                         break;
                     case 1:
-                        g2D.drawRect(temp_x + 5, 230 - height / 4,
+                        g2D.drawRect(x + 5, 230 - height / 4,
                                 10 * MINO_SIZE - 10, 40);
                         break;
                     default:
