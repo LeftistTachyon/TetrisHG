@@ -1,7 +1,7 @@
 package com.github.leftisttachyon.tetris;
 
 import com.github.leftisttachyon.tetris.tetrominos.srs.SRSMinoStyle;
-import com.github.leftisttachyon.tetris.tetrominos.ars.TGMMinoStyle;
+import com.github.leftisttachyon.tetris.resources.tgm.TGMMinoStyle;
 import com.github.leftisttachyon.comm.ClientSocket;
 import static com.github.leftisttachyon.tetris.MinoStyle.MINO_SIZE;
 import com.github.leftisttachyon.tetris.tetrominos.AbstractTetromino;
@@ -413,58 +413,55 @@ public class TetrisMatrix implements Paintable {
         if (!inGame) {
             return;
         }
+        if (keycodes.contains(VK_SPACE) && currentTet != null) {
+            hardDrop();
+        }
 
-        if (currentTet != null) {
-            if (keycodes.contains(VK_SPACE)) {
-                hardDrop();
+        if (keycodes.contains(VK_UP) && currentTet != null) {
+            sonicDrop();
+        }
+
+        if (keycodes.contains(VK_DOWN) && currentTet != null) {
+            softDrop();
+        }
+
+        if (keycodes.contains(VK_C) && currentTet != null) {
+            hold();
+        }
+
+        if (keycodes.contains(VK_Z)) {
+            if (spinSystem == null) {
+                System.err.println("No spin system installed, cannot rotate left");
+            } else if(currentTet != null) {
+                int prevY = currentTet.getY();
+                spinSystem.rotateLeft(currentTet, this);
+                bigSpin = currentTet.getY() - prevY == 2;
+                lastMove = VK_Z;
             }
+        }
 
-            if (keycodes.contains(VK_UP)) {
-                sonicDrop();
+        if (keycodes.contains(VK_X)) {
+            if (spinSystem == null) {
+                System.err.println("No spin system installed, cannot rotate right");
+            } else if(currentTet != null) {
+                int prevY = currentTet.getY();
+                spinSystem.rotateRight(currentTet, this);
+                bigSpin = currentTet.getY() - prevY == 2;
+                lastMove = VK_X;
             }
+        }
 
-            if (keycodes.contains(VK_DOWN)) {
-                softDrop();
+        if (keycodes.contains(VK_LEFT)) {
+            if (!currentTet.intersects(this, -1, 0) && currentTet != null) {
+                currentTet.moveLeft();
+                lastMove = VK_LEFT;
             }
+        }
 
-            if (keycodes.contains(VK_C)) {
-                hold();
-            }
-
-            if (keycodes.contains(VK_Z)) {
-                if (spinSystem == null) {
-                    System.err.println("No spin system installed, cannot rotate left");
-                } else {
-                    int prevY = currentTet.getY();
-                    spinSystem.rotateLeft(currentTet, this);
-                    bigSpin = currentTet.getY() - prevY == 2;
-                    lastMove = VK_Z;
-                }
-            }
-
-            if (keycodes.contains(VK_X)) {
-                if (spinSystem == null) {
-                    System.err.println("No spin system installed, cannot rotate right");
-                } else {
-                    int prevY = currentTet.getY();
-                    spinSystem.rotateRight(currentTet, this);
-                    bigSpin = currentTet.getY() - prevY == 2;
-                    lastMove = VK_X;
-                }
-            }
-
-            if (keycodes.contains(VK_LEFT)) {
-                if (!currentTet.intersects(this, -1, 0)) {
-                    currentTet.moveLeft();
-                    lastMove = VK_LEFT;
-                }
-            }
-
-            if (keycodes.contains(VK_RIGHT)) {
-                if (!currentTet.intersects(this, 1, 0)) {
-                    currentTet.moveRight();
-                    lastMove = VK_RIGHT;
-                }
+        if (keycodes.contains(VK_RIGHT)) {
+            if (!currentTet.intersects(this, 1, 0) && currentTet != null) {
+                currentTet.moveRight();
+                lastMove = VK_RIGHT;
             }
         }
 
@@ -981,18 +978,20 @@ public class TetrisMatrix implements Paintable {
             b2b = back2Back;
             back2Back = linesToClear.size() == 4;
         }
-        
-        int geg = combo + 1;
-        if (geg > 10) {
-            linesToSend += 5;
-        } else if (geg > 7) {
-            linesToSend += 4;
-        } else if (geg > 5) {
-            linesToSend += 3;
-        } else if (geg > 3) {
-            linesToSend += 2;
-        } else if (geg > 1) {
-            linesToSend++;
+
+        if (combo > 0) {
+            int geg = combo + 1;
+            if (geg > 10) {
+                linesToSend += 5;
+            } else if (geg > 7) {
+                linesToSend += 4;
+            } else if (geg > 5) {
+                linesToSend += 3;
+            } else if (geg > 3) {
+                linesToSend += 2;
+            } else {
+                linesToSend++;
+            }
         }
 
         boolean tSpin = false;

@@ -7,7 +7,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 
 /**
- * An abstract that controls how each mino is drawn.
+ * An abstract class that controls how each mino is drawn.
  *
  * @author Jed Wang
  * @since 0.9.0

@@ -1,8 +1,6 @@
 package com.github.leftisttachyon.tetris;
 
 import com.github.leftisttachyon.ui.LobbyWindow;
-import java.awt.Dimension;
-import java.awt.Toolkit;
 
 /**
  * The main class; entry point of the application

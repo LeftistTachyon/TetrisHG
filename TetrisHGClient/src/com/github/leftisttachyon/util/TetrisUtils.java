@@ -27,7 +27,9 @@ public final class TetrisUtils {
      * @throws IOException the standard IOExceptions
      */
     public static BufferedImage getResource(String path) throws IOException {
-        return ImageIO.read(TetrisUtils.class.getResource(path));
+        return path == null 
+                ? null
+                : ImageIO.read(TetrisUtils.class.getResource(path));
     }
 
     /**

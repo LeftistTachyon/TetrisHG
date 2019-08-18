@@ -345,7 +345,7 @@ public final class TetrisPanel extends JPanel {
      */
     private void drawText(int x, int selection, boolean selected,
             Graphics2D g2D) {
-        if (meSelected && selected) {
+        if (meSelected && theySelected) {
             if (countdown != -1) {
                 g2D.setFont(new Font("Arial Black", Font.PLAIN, 40));
                 FontMetrics metrics = g2D.getFontMetrics();

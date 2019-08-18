@@ -40,6 +40,7 @@ import javax.swing.WindowConstants;
  * A window that displays the GUI
  *
  * @author Oracle, Jed Wang
+ * @since 0.9.0
  */
 public class LobbyWindow extends JFrame {
 
