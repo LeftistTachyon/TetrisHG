@@ -149,13 +149,13 @@ public abstract class ImageMinoStyle extends MinoStyle {
             case YELLOW:
                 g2D.drawImage(YELLOW_MINO, x, y, null);
                 break;
+            case EMPTY:
+                break;
             default:
                 g2D.setColor(Color.WHITE);
                 g2D.fillRect(x, y, MINO_SIZE, MINO_SIZE);
                 g2D.setColor(Color.RED);
                 g2D.drawString("?", x, y + MINO_SIZE);
-                break;
-            case EMPTY:
                 break;
         }
     }

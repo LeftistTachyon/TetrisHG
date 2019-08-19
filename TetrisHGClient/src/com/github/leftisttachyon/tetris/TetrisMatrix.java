@@ -413,16 +413,19 @@ public class TetrisMatrix implements Paintable {
         if (!inGame) {
             return;
         }
-        if (keycodes.contains(VK_SPACE) && currentTet != null) {
-            hardDrop();
-        }
 
-        if (keycodes.contains(VK_UP) && currentTet != null) {
-            sonicDrop();
-        }
-
-        if (keycodes.contains(VK_DOWN) && currentTet != null) {
-            softDrop();
+        if (keycodes.contains(VK_SPACE)) {
+            if (currentTet != null) {
+                hardDrop();
+            }
+        } else if (keycodes.contains(VK_UP)) {
+            if (currentTet != null) {
+                sonicDrop();
+            }
+        } else if (keycodes.contains(VK_DOWN)) {
+            if (currentTet != null) {
+                softDrop();
+            }
         }
 
         if (keycodes.contains(VK_C) && currentTet != null) {
@@ -432,7 +435,7 @@ public class TetrisMatrix implements Paintable {
         if (keycodes.contains(VK_Z)) {
             if (spinSystem == null) {
                 System.err.println("No spin system installed, cannot rotate left");
-            } else if(currentTet != null) {
+            } else if (currentTet != null) {
                 int prevY = currentTet.getY();
                 spinSystem.rotateLeft(currentTet, this);
                 bigSpin = currentTet.getY() - prevY == 2;
@@ -443,7 +446,7 @@ public class TetrisMatrix implements Paintable {
         if (keycodes.contains(VK_X)) {
             if (spinSystem == null) {
                 System.err.println("No spin system installed, cannot rotate right");
-            } else if(currentTet != null) {
+            } else if (currentTet != null) {
                 int prevY = currentTet.getY();
                 spinSystem.rotateRight(currentTet, this);
                 bigSpin = currentTet.getY() - prevY == 2;
@@ -451,18 +454,18 @@ public class TetrisMatrix implements Paintable {
             }
         }
 
-        if (keycodes.contains(VK_LEFT)) {
-            if (!currentTet.intersects(this, -1, 0) && currentTet != null) {
-                currentTet.moveLeft();
-                lastMove = VK_LEFT;
-            }
+        if (keycodes.contains(VK_LEFT)
+                && currentTet != null
+                && !currentTet.intersects(this, -1, 0)) {
+            currentTet.moveLeft();
+            lastMove = VK_LEFT;
         }
 
-        if (keycodes.contains(VK_RIGHT)) {
-            if (!currentTet.intersects(this, 1, 0) && currentTet != null) {
-                currentTet.moveRight();
-                lastMove = VK_RIGHT;
-            }
+        if (keycodes.contains(VK_RIGHT)
+                && currentTet != null
+                && !currentTet.intersects(this, 1, 0)) {
+            currentTet.moveRight();
+            lastMove = VK_RIGHT;
         }
 
         if (onLeft && !keycodes.isEmpty()) {
@@ -1160,40 +1163,20 @@ public class TetrisMatrix implements Paintable {
 
                 if (drawGhost && addY != 0) {
                     g2D.setComposite(MinoStyle.TRANSLUCENT_COMPOSITE);
-                    for (int i = 0, x = currentTet.getX() * MINO_SIZE;
-                            i < state.length; i++, x += MINO_SIZE) {
-                        for (int j = 0, y = (currentTet.getY() + addY) * MINO_SIZE;
-                                j < state[i].length; j++, y += MINO_SIZE) {
-                            style.drawMino(g2D, x, y, state[j][i]);
-                        }
-                    }
+                    drawTetromino(state, style, g2D, currentTet.getX(),
+                            currentTet.getY() + addY);
                     g2D.setComposite(AlphaComposite.SrcOver);
                 }
 
-                if (lockDelayCnt != 0 && lockDelayCnt == lockDelay) {
-                    for (int i = 0, x = currentTet.getX() * MINO_SIZE;
-                            i < state.length; i++, x += MINO_SIZE) {
-                        for (int j = 0, y = currentTet.getY() * MINO_SIZE;
-                                j < state[i].length; j++, y += MINO_SIZE) {
-                            style.drawMino(g2D, x, y, state[j][i]);
-                        }
-                    }
-                } else {
-                    // System.out.println("lDC: " + lockDelayCnt + "\tlD: " + lockDelay);
+                if (lockDelayCnt <= lockDelay) {
+                    // System.out.println("lDC: " + lockDelayCnt 
+                    //         + "\tlD: " + lockDelay);
                     double shade = 1 - ((double) lockDelayCnt) / lockDelay;
                     g2D.setColor(new Color(0, 0, 0, (int) (shade * 100)));
-
-                    for (int i = 0, x = currentTet.getX() * MINO_SIZE; i < state.length;
-                            i++, x += MINO_SIZE) {
-                        for (int j = 0, y = currentTet.getY() * MINO_SIZE;
-                                j < state[i].length; j++, y += MINO_SIZE) {
-                            if (state[j][i] > 0) {
-                                style.drawMino(g2D, x, y, state[j][i]);
-                                g2D.fillRect(x, y, MINO_SIZE, MINO_SIZE);
-                            }
-                        }
-                    }
                 }
+
+                drawTetromino(state, style, g2D,
+                        currentTet.getX(), currentTet.getY());
             }
 
             for (int i = 19, y = 19 * MINO_SIZE; i < matrix.length; i++, y += MINO_SIZE) {
@@ -1226,6 +1209,26 @@ public class TetrisMatrix implements Paintable {
 
             g2D.setColor(Color.WHITE);
             g2D.fillRect(0, 19 * MINO_SIZE, 10 * MINO_SIZE, MINO_SIZE / 2);
+        }
+    }
+
+    /**
+     * Draws a tetromino
+     *
+     * @param state the state of the tetromino
+     * @param style the style to draw it in
+     * @param g2D the Graphics2D object to use
+     * @param startX the starting x coordinate
+     * @param startY the starting y coordinate
+     */
+    private void drawTetromino(int[][] state, MinoStyle style,
+            Graphics2D g2D, int startX, int startY) {
+        for (int i = 0, x = startX * MINO_SIZE;
+                i < state.length; i++, x += MINO_SIZE) {
+            for (int j = 0, y = startY * MINO_SIZE;
+                    j < state[i].length; j++, y += MINO_SIZE) {
+                style.drawMino(g2D, x, y, state[j][i]);
+            }
         }
     }
 
