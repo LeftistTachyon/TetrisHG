@@ -1172,7 +1172,20 @@ public class TetrisMatrix implements Paintable {
                     // System.out.println("lDC: " + lockDelayCnt 
                     //         + "\tlD: " + lockDelay);
                     double shade = 1 - ((double) lockDelayCnt) / lockDelay;
+                    System.out.println("shade: " + shade);
+                    
                     g2D.setColor(new Color(0, 0, 0, (int) (shade * 100)));
+                    
+                    for (int i = 0, x = currentTet.getX() * MINO_SIZE; i < state.length;
+                            i++, x += MINO_SIZE) {
+                        for (int j = 0, y = currentTet.getY() * MINO_SIZE;
+                                j < state[i].length; j++, y += MINO_SIZE) {
+                            if (state[j][i] > 0) {
+                                style.drawMino(g2D, x, y, state[j][i]);
+                                g2D.fillRect(x, y, MINO_SIZE, MINO_SIZE);
+                            }
+                        }
+                    }
                 }
 
                 drawTetromino(state, style, g2D,
@@ -1422,8 +1435,8 @@ public class TetrisMatrix implements Paintable {
      * @param type the type of the matrix after this operation
      */
     public static void setMatrixAs(TetrisMatrix matrix, int type) {
-        System.out.println("Before:");
-        matrix.printAllInfo();
+        // System.out.println("Before:");
+        // matrix.printAllInfo();
         switch (type) {
             case 0:
                 TetrisMatrix.setAsSRSMatrix(matrix);
@@ -1434,8 +1447,8 @@ public class TetrisMatrix implements Paintable {
             default:
                 throw new IllegalArgumentException("Invalid parameter type with value " + type);
         }
-        System.out.println("After:");
-        matrix.printAllInfo();
+        // System.out.println("After:");
+        // matrix.printAllInfo();
     }
 
     /**
