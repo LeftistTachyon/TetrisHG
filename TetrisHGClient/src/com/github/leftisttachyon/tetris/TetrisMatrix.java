@@ -1172,10 +1172,9 @@ public class TetrisMatrix implements Paintable {
                     // System.out.println("lDC: " + lockDelayCnt 
                     //         + "\tlD: " + lockDelay);
                     double shade = 1 - ((double) lockDelayCnt) / lockDelay;
-                    System.out.println("shade: " + shade);
-                    
+
                     g2D.setColor(new Color(0, 0, 0, (int) (shade * 100)));
-                    
+
                     for (int i = 0, x = currentTet.getX() * MINO_SIZE; i < state.length;
                             i++, x += MINO_SIZE) {
                         for (int j = 0, y = currentTet.getY() * MINO_SIZE;
@@ -1186,10 +1185,11 @@ public class TetrisMatrix implements Paintable {
                             }
                         }
                     }
+                } else {
+                    drawTetromino(state, style, g2D,
+                            currentTet.getX(), currentTet.getY());
                 }
 
-                drawTetromino(state, style, g2D,
-                        currentTet.getX(), currentTet.getY());
             }
 
             for (int i = 19, y = 19 * MINO_SIZE; i < matrix.length; i++, y += MINO_SIZE) {
