@@ -193,38 +193,45 @@ public class TetrisMatrix implements Paintable {
 
         if (!onLeft && ClientSocket.isConnected()) {
             ClientSocket.getConnection().addServerListener((line) -> {
-                if (inGame) {
-                    if (line.equals("PAUSE0")) {
-                        pauseAnimationCnt = 0;
+                try {
+                    if (inGame) {
+                        if (line.equals("PAUSE0")) {
+                            pauseAnimationCnt = 0;
+                        }
+                        if (line.startsWith("LOCK")) {
+                            String[] data = line.substring(4).split(" ");
+                            int x = Integer.parseInt(data[0]),
+                                    y = Integer.parseInt(data[1]),
+                                    rotation = Integer.parseInt(data[2]);
+                            if (currentTet != null) {
+                                currentTet.setX(x);
+                                currentTet.setY(y);
+                                currentTet.setRotation(rotation);
+                                lock();
+                            }
+                        } else if (line.startsWith("ENTER")) {
+                            boolean left = line.charAt(5) == '1',
+                                    right = line.charAt(6) == '1',
+                                    hold = line.charAt(7) == '1';
+                            enter(left, right, hold);
+                        } else if (line.startsWith("GL")) {
+                            String[] data = line.substring(2).split(" ");
+                            for (String s : data) {
+                                addGarbage(Integer.parseInt(s));
+                                garbageManager.counterGarbage(1);
+                            }
+                        } else if (line.charAt(0) == 'G') {
+                            if (currentTet != null) {
+                                currentTet.moveDown(
+                                        Integer.parseInt(line.substring(1)));
+                            }
+                        }
                     }
-                    if (line.startsWith("LOCK")) {
-                        String[] data = line.substring(4).split(" ");
-                        int x = Integer.parseInt(data[0]),
-                                y = Integer.parseInt(data[1]),
-                                rotation = Integer.parseInt(data[2]);
-                        if (currentTet != null) {
-                            currentTet.setX(x);
-                            currentTet.setY(y);
-                            currentTet.setRotation(rotation);
-                            lock();
-                        }
-                    } else if (line.startsWith("ENTER")) {
-                        boolean left = line.charAt(5) == '1',
-                                right = line.charAt(6) == '1',
-                                hold = line.charAt(7) == '1';
-                        enter(left, right, hold);
-                    } else if (line.startsWith("GL")) {
-                        String[] data = line.substring(2).split(" ");
-                        for (String s : data) {
-                            addGarbage(Integer.parseInt(s));
-                            garbageManager.counterGarbage(1);
-                        }
-                    } else if (line.charAt(0) == 'G') {
-                        if (currentTet != null) {
-                            currentTet.moveDown(
-                                    Integer.parseInt(line.substring(1)));
-                        }
-                    }
+                } catch (NumberFormatException nfe) {
+                    System.err.println("Number could not be formatted: "
+                            + nfe.getMessage());
+                    System.err.println("line: \"" + line + "\"");
+                    nfe.printStackTrace(System.err);
                 }
             });
         }
