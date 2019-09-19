@@ -228,10 +228,9 @@ public class TetrisMatrix implements Paintable {
                         }
                     }
                 } catch (NumberFormatException nfe) {
-                    System.err.println("Number could not be formatted: "
-                            + nfe.getMessage());
-                    System.err.println("line: \"" + line + "\"");
-                    nfe.printStackTrace(System.err);
+                    NumberFormatException nfe2 = new NumberFormatException(
+                            nfe.getMessage() + " and message \"" + line + "\"");
+                    throw nfe2;
                 }
             });
         }

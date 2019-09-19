@@ -316,7 +316,7 @@ public final class TetrisPanel extends JPanel {
         // lastly draw
         g2D.setColor(new Color(127, 127, 127));
         g2D.fillRect(0, 0, getWidth(), getHeight());
-        
+
         try {
             myMatrix.paint(g2D, 10, 10);
         } catch (NoninvertibleTransformException ex) {
@@ -568,6 +568,11 @@ public final class TetrisPanel extends JPanel {
                                     startCountdown();
                                 }
                                 // System.out.println("Added a bag of " + line.substring(2));
+                            } else if (line.startsWith("LOCK")) {
+                                System.out.println("Their garbageQ: "
+                                        + theirMatrix.getQueue().toString());
+                                System.out.println("My garbageQ   : "
+                                        + myMatrix.getQueue().toString());
                             }
                             break;
                     }
