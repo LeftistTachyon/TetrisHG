@@ -1180,6 +1180,10 @@ public class TetrisMatrix implements Paintable {
                     double shade = 1 - ((double) lockDelayCnt) / lockDelay;
 
                     g2D.setColor(new Color(0, 0, 0, (int) (shade * 100)));
+                    
+                    if (currentTet == null) {
+                        System.err.println("Just got man in the middle\'d >:(");
+                    }
 
                     for (int i = 0, x = currentTet.getX() * MINO_SIZE; i < state.length;
                             i++, x += MINO_SIZE) {
