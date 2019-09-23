@@ -569,10 +569,10 @@ public final class TetrisPanel extends JPanel {
                                 }
                                 // System.out.println("Added a bag of " + line.substring(2));
                             } else if (line.startsWith("LOCK")) {
-                                System.out.println("Their garbageQ: "
-                                        + theirMatrix.getQueue().toString());
-                                System.out.println("My garbageQ   : "
-                                        + myMatrix.getQueue().toString());
+                                System.out.println("Their garbageHandler: "
+                                        + theirMatrix.getGarbageManager().toString());
+                                System.out.println("My garbageHandler   : "
+                                        + myMatrix.getGarbageManager().toString());
                             }
                             break;
                     }

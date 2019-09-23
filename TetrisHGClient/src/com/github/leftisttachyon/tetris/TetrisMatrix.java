@@ -1510,4 +1510,13 @@ public class TetrisMatrix implements Paintable {
         System.out.println("    inGame:        " + inGame);
         System.out.println("    onLeft:        " + onLeft);
     }
+
+    /**
+     * Returns the GarbageManager internally stored in this TetrisMatrix
+     *
+     * @return the GarbageManager internally stored in this TetrisMatrix
+     */
+    public GarbageManager getGarbageManager() {
+        return garbageManager;
+    }
 }
