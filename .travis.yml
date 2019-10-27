@@ -1,0 +1,6 @@
+language: java
+env:
+ - TEST_DIR=TetrisHGClient
+ - TEST_DIR=TetrisHGServer
+script:
+ - cd $TEST_DIR && ant test
