@@ -522,6 +522,8 @@ public class TetrisMatrix implements Paintable {
         if (!currentTet.intersects(this, 0, 1)) {
             currentTet.moveDown();
             lastMove = VK_DOWN;
+        } else {
+            lock();
         }
     }
 

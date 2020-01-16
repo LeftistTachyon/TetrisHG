@@ -89,7 +89,7 @@ public class GarbageManager implements Paintable {
      * @return whether the operation was successful
      */
     public boolean offerGarbage(int lines) {
-        return garbageQueue.add(lines);
+        return lines == 0 ? false : garbageQueue.add(lines);
     }
 
     /**
@@ -111,9 +111,15 @@ public class GarbageManager implements Paintable {
         Integer temp = garbageQueue.peek();
         return temp == null ? 0 : temp;
     }
-    
+
+    /**
+     * Counters the garbage
+     *
+     * @param toCounter the amount sent by the opponent
+     * @return the amount to send to the opponent
+     */
     public int counterGarbage(int toCounter) {
-        while(toCounter > 0 && !garbageQueue.isEmpty()) {
+        while (toCounter > 0 && !garbageQueue.isEmpty()) {
             int countered = garbageQueue.remove() - toCounter;
             if (countered < 0) {
                 toCounter = -countered;
@@ -122,7 +128,7 @@ public class GarbageManager implements Paintable {
                 garbageQueue.addFirst(countered);
             }
         }
-        
+
         return toCounter;
     }
 
