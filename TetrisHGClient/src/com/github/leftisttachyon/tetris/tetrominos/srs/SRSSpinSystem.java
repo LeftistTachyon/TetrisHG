@@ -372,4 +372,9 @@ public class SRSSpinSystem extends SpinSystem<SRSTet> {
         }
     }
 
+    @Override
+    public String getType() {
+        return "SRS";
+    }
+
 }

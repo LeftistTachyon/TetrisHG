@@ -47,4 +47,11 @@ public abstract class SpinSystem<T extends Tetromino> {
             return false;
         }
     }
+
+    /**
+     * Returns the type of rotation this spin system represents.
+     *
+     * @return the type of rotation this spin system represents.
+     */
+    public abstract String getType();
 }

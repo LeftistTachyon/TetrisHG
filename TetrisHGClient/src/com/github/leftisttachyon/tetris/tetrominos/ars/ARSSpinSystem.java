@@ -118,4 +118,9 @@ public class ARSSpinSystem extends SpinSystem<ARSTet> {
         }
     }
 
+    @Override
+    public String getType() {
+        return "ARS";
+    }
+
 }
