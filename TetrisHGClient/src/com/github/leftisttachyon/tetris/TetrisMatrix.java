@@ -217,8 +217,10 @@ public class TetrisMatrix implements Paintable {
                         } else if (line.startsWith("GL")) {
                             String[] data = line.substring(2).split(" ");
                             for (String s : data) {
-                                addGarbage(Integer.parseInt(s));
-                                garbageManager.counterGarbage(1);
+                                if (!s.isEmpty()) {
+                                    addGarbage(Integer.parseInt(s));
+                                    garbageManager.counterGarbage(1);
+                                }
                             }
                         } else if (line.charAt(0) == 'G') {
                             if (currentTet != null) {
@@ -522,7 +524,7 @@ public class TetrisMatrix implements Paintable {
         if (!currentTet.intersects(this, 0, 1)) {
             currentTet.moveDown();
             lastMove = VK_DOWN;
-        } else if(spinSystem.getType().equals("ARS")) {
+        } else if (spinSystem.getType().equals("ARS")) {
             lock();
         }
     }
@@ -1182,7 +1184,7 @@ public class TetrisMatrix implements Paintable {
                     double shade = 1 - ((double) lockDelayCnt) / lockDelay;
 
                     g2D.setColor(new Color(0, 0, 0, (int) (shade * 100)));
-                    
+
                     if (currentTet == null) {
                         System.err.println("Just got man in the middle\'d >:(");
                     }
