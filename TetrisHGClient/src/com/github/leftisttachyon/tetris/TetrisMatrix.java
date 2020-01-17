@@ -1186,16 +1186,16 @@ public class TetrisMatrix implements Paintable {
                     g2D.setColor(new Color(0, 0, 0, (int) (shade * 100)));
 
                     if (currentTet == null) {
-                        System.err.println("Just got man in the middle\'d >:(");
-                    }
-
-                    for (int i = 0, x = currentTet.getX() * MINO_SIZE; i < state.length;
-                            i++, x += MINO_SIZE) {
-                        for (int j = 0, y = currentTet.getY() * MINO_SIZE;
-                                j < state[i].length; j++, y += MINO_SIZE) {
-                            if (state[j][i] > 0) {
-                                style.drawMino(g2D, x, y, state[j][i]);
-                                g2D.fillRect(x, y, MINO_SIZE, MINO_SIZE);
+                        System.err.println("Just got man in the middle'd >:(");
+                    } else {
+                        for (int i = 0, x = currentTet.getX() * MINO_SIZE; i < state.length;
+                                i++, x += MINO_SIZE) {
+                            for (int j = 0, y = currentTet.getY() * MINO_SIZE;
+                                    j < state[i].length; j++, y += MINO_SIZE) {
+                                if (state[j][i] > 0) {
+                                    style.drawMino(g2D, x, y, state[j][i]);
+                                    g2D.fillRect(x, y, MINO_SIZE, MINO_SIZE);
+                                }
                             }
                         }
                     }
