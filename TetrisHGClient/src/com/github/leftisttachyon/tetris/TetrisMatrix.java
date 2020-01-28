@@ -1185,16 +1185,18 @@ public class TetrisMatrix implements Paintable {
 
                     g2D.setColor(new Color(0, 0, 0, (int) (shade * 100)));
 
-                    if (currentTet == null) {
-                        System.err.println("Just got man in the middle'd >:(");
-                    } else {
-                        for (int i = 0, x = currentTet.getX() * MINO_SIZE; i < state.length;
+                    if (currentTet != null) {
+                        for (int i = 0, x = currentTet.getX() * MINO_SIZE;
+                                i < state.length && currentTet != null;
                                 i++, x += MINO_SIZE) {
-                            for (int j = 0, y = currentTet.getY() * MINO_SIZE;
-                                    j < state[i].length; j++, y += MINO_SIZE) {
-                                if (state[j][i] > 0) {
-                                    style.drawMino(g2D, x, y, state[j][i]);
-                                    g2D.fillRect(x, y, MINO_SIZE, MINO_SIZE);
+                            if (currentTet != null) {
+                                for (int j = 0, y = currentTet.getY() * MINO_SIZE;
+                                        j < state[i].length && currentTet != null;
+                                        j++, y += MINO_SIZE) {
+                                    if (state[j][i] > 0) {
+                                        style.drawMino(g2D, x, y, state[j][i]);
+                                        g2D.fillRect(x, y, MINO_SIZE, MINO_SIZE);
+                                    }
                                 }
                             }
                         }
@@ -1203,7 +1205,6 @@ public class TetrisMatrix implements Paintable {
                     drawTetromino(state, style, g2D,
                             currentTet.getX(), currentTet.getY());
                 }
-
             }
 
             for (int i = 19, y = 19 * MINO_SIZE; i < matrix.length; i++, y += MINO_SIZE) {
