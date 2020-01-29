@@ -68,7 +68,6 @@ public interface Tetromino {
      * Rotation enum.
      *
      * @return the rotation state of this tetromino
-     * @see Rotation
      */
     int getRotation();
 
@@ -78,7 +77,6 @@ public interface Tetromino {
      * in the {@code UP} rotation state.
      *
      * @return the visual state of the tetromino while in the UP state
-     * @see Rotation#UP
      */
     int[][] getUpState();
 
@@ -88,7 +86,6 @@ public interface Tetromino {
      * in the {@code RIGHT} rotation state.
      *
      * @return the visual state of the tetromino while in the RIGHT state
-     * @see Rotation#RIGHT
      */
     int[][] getRightState();
 
@@ -98,7 +95,6 @@ public interface Tetromino {
      * in the {@code DOWN} rotation state.
      *
      * @return the visual state of the tetromino while in the DOWN state
-     * @see Rotation#DOWN
      */
     int[][] getDownState();
 
@@ -108,7 +104,6 @@ public interface Tetromino {
      * in the {@code LEFT} rotation state.
      *
      * @return the visual state of the tetromino while in the LEFT state
-     * @see Rotation#LEFT
      */
     int[][] getLeftState();
 
@@ -225,7 +220,6 @@ public interface Tetromino {
      * @return whether this tetromino intersects with the given TetrisMatrix with the
  internally stored position
      * @see #intersects(int[][])
-     * @see #intersects(com.github.leftisttachyon.tetris.Matrix, int, int)
      */
     boolean intersects(TetrisMatrix m);
 
@@ -239,7 +233,6 @@ public interface Tetromino {
      * @return whether this tetromino intersects with the given TetrisMatrix with the
  internally stored position with the offset factored in
      * @see #intersects(int[][])
-     * @see #intersects(com.github.leftisttachyon.tetris.Matrix)
      */
     boolean intersects(TetrisMatrix m, int x_offset, int y_offset);
 

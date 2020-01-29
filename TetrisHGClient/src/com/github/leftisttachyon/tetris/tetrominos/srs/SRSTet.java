@@ -9,10 +9,8 @@ import com.github.leftisttachyon.tetris.tetrominos.Tetromino;
  * @since 0.9.0
  */
 public interface SRSTet extends Tetromino {
-
     @Override
-    public default String getName() {
+    default String getName() {
         return "SRS " + getType();
     }
-
 }

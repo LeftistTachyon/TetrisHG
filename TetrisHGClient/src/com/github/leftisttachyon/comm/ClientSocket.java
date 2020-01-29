@@ -1,5 +1,6 @@
 package com.github.leftisttachyon.comm;
 
+import javax.swing.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -13,8 +14,6 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Consumer;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 
 /**
  * A wrapper class of a Socket that streamlines communication with a server.
@@ -175,10 +174,9 @@ public final class ClientSocket {
      * messages have been sent, <i>then</i> this one will be sent.
      *
      * @param message the message to send once preceding ones have
-     * @return whether the message has been queued successfully
      */
-    public boolean send(String message) {
-        return toSend.offer(message);
+    public void send(String message) {
+        toSend.offer(message);
     }
 
     /**
@@ -187,10 +185,9 @@ public final class ClientSocket {
      * given message.
      *
      * @param message the message to send as soon as possible
-     * @return whether the message has been queued successfully
      */
-    public boolean sendImmediately(String message) {
-        return toSend.offerFirst(message);
+    public void sendImmediately(String message) {
+        toSend.offerFirst(message);
     }
 
     /**
@@ -316,9 +313,8 @@ public final class ClientSocket {
     /**
      * Connects to a server via a server prompt
      *
-     * @return whether the operation was successful
      */
-    public static boolean connectViaGUI() {
+    public static void connectViaGUI() {
         do {
             String host = getServerAddress();
             if (CURRENT == null) {
@@ -344,12 +340,11 @@ public final class ClientSocket {
                         JOptionPane.ERROR_MESSAGE, null, options, options[0]);
                 if (returned != JOptionPane.OK_OPTION) {
                     System.exit(0);
-                    return false;
+                    return;
                 }
             }
         } while (!isConnected());
 
-        return true;
     }
 
     /**

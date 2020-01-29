@@ -1,22 +1,12 @@
 package com.github.leftisttachyon.tetris;
 
-import static com.github.leftisttachyon.tetris.MinoStyle.BLUE;
-import static com.github.leftisttachyon.tetris.MinoStyle.CYAN;
-import static com.github.leftisttachyon.tetris.MinoStyle.GREEN;
-import static com.github.leftisttachyon.tetris.MinoStyle.GREY;
-import static com.github.leftisttachyon.tetris.MinoStyle.MINO_SIZE;
-import static com.github.leftisttachyon.tetris.MinoStyle.ORANGE;
-import static com.github.leftisttachyon.tetris.MinoStyle.PURPLE;
-import static com.github.leftisttachyon.tetris.MinoStyle.RED;
-import static com.github.leftisttachyon.tetris.MinoStyle.YELLOW;
 import com.github.leftisttachyon.util.TetrisUtils;
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Image;
+import net.coobird.thumbnailator.Thumbnails;
+
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.HashMap;
-import net.coobird.thumbnailator.Thumbnails;
 
 /**
  * An abstract class that draws individual minos as images.

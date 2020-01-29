@@ -118,7 +118,6 @@ public class SRSSpinSystem extends SpinSystem<SRSTet> {
                             "The given tetromino has an unknown rotational state: " + t.getRotation());
             }
 
-            t.rotateLeft();
         } else {
             switch (t.getRotation()) {
                 case UP:
@@ -197,9 +196,9 @@ public class SRSSpinSystem extends SpinSystem<SRSTet> {
                     throw new IllegalStateException(
                             "The given tetromino has an unknown rotational state: " + t.getRotation());
             }
-
-            t.rotateLeft();
         }
+
+        t.rotateLeft();
     }
 
     @Override
@@ -287,8 +286,6 @@ public class SRSSpinSystem extends SpinSystem<SRSTet> {
                     throw new IllegalStateException(
                             "The given tetromino has an unknown rotational state: " + t.getRotation());
             }
-
-            t.rotateRight();
         } else {
             switch (t.getRotation()) {
                 case UP:
@@ -367,9 +364,9 @@ public class SRSSpinSystem extends SpinSystem<SRSTet> {
                     throw new IllegalStateException(
                             "The given tetromino has an unknown rotational state: " + t.getRotation());
             }
-
-            t.rotateRight();
         }
+
+        t.rotateRight();
     }
 
     @Override

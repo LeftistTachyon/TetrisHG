@@ -12,7 +12,7 @@ import java.awt.Point;
 public interface TetT extends Tetromino {
 
     @Override
-    public default String getType() {
+    default String getType() {
         return "T";
     }
 

@@ -10,7 +10,7 @@ import com.github.leftisttachyon.tetris.tetrominos.Tetromino;
  */
 public interface ARSTet extends Tetromino {
     @Override
-    public default String getName() {
+    default String getName() {
         return "ARS " + getType();
     }
 }

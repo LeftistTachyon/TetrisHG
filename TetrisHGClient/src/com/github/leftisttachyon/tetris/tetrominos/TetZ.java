@@ -8,7 +8,7 @@ package com.github.leftisttachyon.tetris.tetrominos;
  */
 public interface TetZ extends Tetromino {
     @Override
-    public default String getType() {
+    default String getType() {
         return "Z";
     }
 }

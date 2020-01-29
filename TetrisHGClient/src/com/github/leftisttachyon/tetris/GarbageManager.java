@@ -1,11 +1,12 @@
 package com.github.leftisttachyon.tetris;
 
-import static com.github.leftisttachyon.tetris.MinoStyle.MINO_SIZE;
 import com.github.leftisttachyon.util.Paintable;
-import java.awt.Color;
-import java.awt.Graphics2D;
+
+import java.awt.*;
 import java.util.Deque;
 import java.util.LinkedList;
+
+import static com.github.leftisttachyon.tetris.MinoStyle.MINO_SIZE;
 
 /**
  * A class that deals with adding and countering garbage.
@@ -29,8 +30,7 @@ public class GarbageManager implements Paintable {
 
     @Override
     public void paint(Graphics2D g2D) {
-        int total = 0;
-        total = garbageQueue.stream().map((i) -> i).reduce(total, Integer::sum);
+        int total = garbageQueue.stream().reduce(0, Integer::sum);
         int div = total / 20, rem = total % 20;
 
         int yStep = MINO_SIZE * 3 / 4;
@@ -49,8 +49,6 @@ public class GarbageManager implements Paintable {
                     continue;
                 }
                 switch (color) {
-                    case 0:
-                        break;
                     case 1:
                         g2D.setColor(Color.YELLOW);
                         break;
@@ -86,10 +84,11 @@ public class GarbageManager implements Paintable {
      * Queues garbage to drop onto your board.
      *
      * @param lines the amount of lines to add to the queue
-     * @return whether the operation was successful
      */
-    public boolean offerGarbage(int lines) {
-        return lines == 0 ? false : garbageQueue.add(lines);
+    public void offerGarbage(int lines) {
+        if (lines != 0) {
+            garbageQueue.add(lines);
+        }
     }
 
     /**

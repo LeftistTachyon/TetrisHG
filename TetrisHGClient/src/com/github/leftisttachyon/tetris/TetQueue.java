@@ -27,7 +27,7 @@ public class TetQueue<T extends Tetromino> implements Paintable {
     /**
      * The TetrominoFactory to use to create the tetrominos
      */
-    private TetrominoFactory<T> tf;
+    private TetrominoFactory<? extends T> tf;
 
     /**
      * The amount of pieces you can see in the outlook
@@ -56,7 +56,6 @@ public class TetQueue<T extends Tetromino> implements Paintable {
      * Creates a default TetQueue, with 5 pieces in the outlook.
      *
      * @param isLeft is this going to be facing left?
-     * @see #TetQueue(int)
      */
     public TetQueue(boolean isLeft) {
         this(isLeft, 5);
@@ -104,22 +103,22 @@ public class TetQueue<T extends Tetromino> implements Paintable {
      */
     public void addBag() {
         if (isLeft) {
-            List<T> bag = tf.createRandomBag();
+            List<? extends T> bag = tf.createRandomBag();
             tetQueue.addAll(bag);
 
             if (ClientSocket.isConnected()) {
-                String message = "NB";
+                StringBuilder message = new StringBuilder("NB");
                 for (T t : bag) {
-                    message += t.getType();
+                    message.append(t.getType());
                 }
 
-                ClientSocket.getConnection().send(message);
+                ClientSocket.getConnection().send(message.toString());
 
                 // System.out.println("Add this: " + message.substring(2));
             }
         } else {
             throw new UnsupportedOperationException(
-                    "You shouldn\'t be generating random bags!");
+                    "You shouldn't be generating random bags!");
         }
     }
 
@@ -163,7 +162,7 @@ public class TetQueue<T extends Tetromino> implements Paintable {
      *
      * @param tf the TetrominoFactory to use for tetromino generation
      */
-    public void setTetrominoFactory(TetrominoFactory<T> tf) {
+    public void setTetrominoFactory(TetrominoFactory<? extends T> tf) {
         this.tf = tf;
     }
 
@@ -174,7 +173,7 @@ public class TetQueue<T extends Tetromino> implements Paintable {
      * @return the currently used TetrominoFactory being used for tetromino
      * generation
      */
-    public TetrominoFactory<T> getTetrominoFactory() {
+    public TetrominoFactory<? extends T> getTetrominoFactory() {
         return tf;
     }
 

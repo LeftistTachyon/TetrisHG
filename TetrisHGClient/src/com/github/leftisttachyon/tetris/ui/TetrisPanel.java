@@ -2,19 +2,12 @@ package com.github.leftisttachyon.tetris.ui;
 
 import com.github.leftisttachyon.comm.ClientSocket;
 import com.github.leftisttachyon.tetris.MinoStyle;
-import static com.github.leftisttachyon.tetris.MinoStyle.MINO_SIZE;
 import com.github.leftisttachyon.tetris.TetrisMatrix;
 import com.github.leftisttachyon.tetris.tetrominos.Tetromino;
 import com.github.leftisttachyon.tetris.tetrominos.TetrominoFactory;
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Point;
-import static java.awt.event.KeyEvent.*;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.geom.NoninvertibleTransformException;
 import java.util.HashSet;
 import java.util.List;
@@ -22,7 +15,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-import javax.swing.JPanel;
+
+import static com.github.leftisttachyon.tetris.MinoStyle.MINO_SIZE;
+import static java.awt.event.KeyEvent.*;
 
 /**
  * A class that draws everything and takes in key events.
@@ -436,7 +431,7 @@ public final class TetrisPanel extends JPanel {
      * Starts the game.
      */
     private void startGame() {
-        System.out.println("Let\'s go!");
+        System.out.println("Let's go!");
 
         if (!theirMatrix.isInGame()) {
             theirMatrix.startGame();
@@ -471,15 +466,14 @@ public final class TetrisPanel extends JPanel {
      * Generates a starting bag.
      */
     private void generateStartBag() {
-        TetrominoFactory factory
-                = myMatrix.getTetrominoFactory();
+        TetrominoFactory<Tetromino> factory = myMatrix.getTetrominoFactory();
         List<Tetromino> bag = factory.createRandomBag();
-        String message = "";
+        StringBuilder message = new StringBuilder();
         for (Tetromino t : bag) {
-            message += t.getType();
+            message.append(t.getType());
         }
         ClientSocket.getConnection().send("NB" + message);
-        myMatrix.addBag(message);
+        myMatrix.addBag(message.toString());
     }
 
     /**

@@ -23,7 +23,7 @@ public interface Paintable {
      *
      * @param g the Graphics object to use to paint this component
      */
-    public default void paint(Graphics g) {
+    default void paint(Graphics g) {
         paint((Graphics2D) g);
     }
 
@@ -33,7 +33,7 @@ public interface Paintable {
      *
      * @param g2D the Graphics2D object to use to paint this component
      */
-    public void paint(Graphics2D g2D);
+    void paint(Graphics2D g2D);
 
     /**
      * Paints this Paintable object with the given {@code Graphics2D} object.
@@ -45,7 +45,7 @@ public interface Paintable {
      * @throws NoninvertibleTransformException thrown when the translation from
      * (0, 0) to (x, y) is noninvertible
      */
-    public default void paint(Graphics2D g2D, int x, int y)
+    default void paint(Graphics2D g2D, int x, int y)
             throws NoninvertibleTransformException {
         AffineTransform at = AffineTransform.getTranslateInstance(x, y);
         g2D.transform(at);
@@ -65,7 +65,7 @@ public interface Paintable {
      * @throws NoninvertibleTransformException thrown when the translation from
      * (0, 0) to (x, y) is noninvertible
      */
-    public default void paint(Graphics g, int x, int y) 
+    default void paint(Graphics g, int x, int y)
             throws NoninvertibleTransformException {
         paint((Graphics2D) g, x, y);
     }

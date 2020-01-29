@@ -19,6 +19,6 @@ public class TetrisMain {
         /*TetrisFrame frame = new TetrisFrame();
         frame.start();*/
 
-        LobbyWindow frame = LobbyWindow.run();
+        LobbyWindow.run();
     }
 }

@@ -2,39 +2,12 @@ package com.github.leftisttachyon.ui;
 
 import com.github.leftisttachyon.comm.ClientSocket;
 import com.github.leftisttachyon.tetris.ui.TetrisFrame;
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.EventQueue;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Point;
-import java.awt.RenderingHints;
-import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
 import java.util.HashMap;
 import java.util.function.Consumer;
-import javax.swing.BorderFactory;
-import javax.swing.DefaultListModel;
-import javax.swing.GroupLayout;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextField;
-import javax.swing.JTextPane;
-import javax.swing.LayoutStyle;
-import javax.swing.ListSelectionModel;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
-import javax.swing.WindowConstants;
 
 /**
  * A window that displays the GUI
@@ -90,12 +63,13 @@ public class LobbyWindow extends JFrame {
     private void initComponents() {
 
         infoPanel = new InfoPanel();
-        chatSP = new JScrollPane();
+        JScrollPane chatSP = new JScrollPane();
         chatTP = new JTextPane();
-        playerLabel = new JLabel();
-        chatLabel = new JLabel();
+        JLabel playerLabel = new JLabel();
+        //<editor-fold defaultstate="collapsed" desc="Variables declaration - do not modify">
+        JLabel chatLabel = new JLabel();
         chatTextField = new JTextField();
-        playerListSP = new JScrollPane();
+        JScrollPane playerListSP = new JScrollPane();
         playerList = new JList<>();
         playerLModel = new DefaultListModel<>();
 
@@ -110,16 +84,16 @@ public class LobbyWindow extends JFrame {
         chatTP.setEditable(false);
         chatSP.setViewportView(chatTP);
 
-        playerLabel.setFont(new Font("Segoe UI Semilight", 0, 20)); // NOI18N
+        playerLabel.setFont(new Font("Segoe UI Semilight", Font.PLAIN, 20)); // NOI18N
         playerLabel.setText("Players");
 
-        chatLabel.setFont(new Font("Segoe UI Semilight", 0, 20)); // NOI18N
+        chatLabel.setFont(new Font("Segoe UI Semilight", Font.PLAIN, 20)); // NOI18N
         chatLabel.setText("Lobby Chat");
 
-        chatTextField.setFont(new Font("Segoe UI", 0, 11)); // NOI18N
+        chatTextField.setFont(new Font("Segoe UI", Font.PLAIN, 11)); // NOI18N
         chatTextField.addActionListener(this::sendLobbyMessage);
 
-        playerList.setFont(new Font("Segoe UI", 0, 14)); // NOI18N
+        playerList.setFont(new Font("Segoe UI", Font.PLAIN, 14)); // NOI18N
         playerList.setModel(playerLModel);
         playerList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         // playerList.addListSelectionListener(this::playerSelected);
@@ -180,12 +154,7 @@ public class LobbyWindow extends JFrame {
         }
     }
 
-    /**
-     * Invoked when a new player is selected
-     *
-     * @param evt a description of the event
-     */
-    /*private void playerSelected(ListSelectionEvent evt) {                                        
+    /*private void playerSelected(ListSelectionEvent evt) {
         
     }*/
     /**
@@ -265,8 +234,6 @@ public class LobbyWindow extends JFrame {
 
         //<editor-fold defaultstate="collapsed" desc="listener">
         Consumer<String> listener = (line) -> {
-            int temp = 0;
-
             if (line.startsWith("NEWCLIENT")) {
                 // add a client to the pool
                 String[] data = line.substring(9).split(" ");
@@ -317,7 +284,7 @@ public class LobbyWindow extends JFrame {
                             lw.tFrame.addWindowListener(new WindowAdapter() {
                                 @Override
                                 public void windowClosed(WindowEvent e) {
-                                    System.err.println("Closin\'!");
+                                    System.err.println("Closin'!");
                                     super.windowClosing(e);
                                     lw.inGame = false;
                                     ((TetrisFrame) e.getWindow()).stop();
@@ -344,15 +311,15 @@ public class LobbyWindow extends JFrame {
                 } else {
                     if (line.startsWith("SUBMITNAME")) {
                         // submit your name, duh
-                        lw.name[0] = lw.getName(temp++ == 0);
+                        lw.name[0] = lw.getName(true);
                         ClientSocket.getConnection().send(lw.name[0]);
                         System.out.println("Your name is: " + lw.name[0]);
                         lw.busy.put(lw.name[0], false);
-                    } else if (line.startsWith("NAMEACCEPTED")) {
+                    } else /*if (line.startsWith("NAMEACCEPTED")) {
                         // the server has accepted your name
-                        temp = 0;
+//                        temp = 0;
                         // init stuff
-                    } else if (line.startsWith("CHALLENGE_C")) {
+                    } else */if (line.startsWith("CHALLENGE_C")) {
                         // I'm being challenged!
                         lw.challenging = "";
 
@@ -392,15 +359,10 @@ public class LobbyWindow extends JFrame {
         return lw;
     }
 
-    //<editor-fold defaultstate="collapsed" desc="Variables declaration - do not modify">
-    private JLabel chatLabel;
-    private JScrollPane chatSP;
     private JTextPane chatTP;
     private JTextField chatTextField;
     private InfoPanel infoPanel;
-    private JLabel playerLabel;
     private JList<String> playerList;
-    private JScrollPane playerListSP;
     private DefaultListModel<String> playerLModel;
     //</editor-fold>
 
@@ -410,15 +372,10 @@ public class LobbyWindow extends JFrame {
     private final class InfoPanel extends JPanel implements Runnable {
 
         /**
-         * The MouseListener that is listening in to this InfoPanel.
-         */
-        private InfoMouseListener iml;
-
-        /**
          * Creates a new InfoPanel.
          */
         public InfoPanel() {
-            iml = new InfoMouseListener();
+            InfoMouseListener iml = new InfoMouseListener();
             addMouseListener(iml);
         }
 
@@ -591,7 +548,7 @@ public class LobbyWindow extends JFrame {
      * name again
      */
     private String getName(boolean again) {
-        String s = null;
+        String s;
         do {
             s = JOptionPane.showInputDialog(
                     this,

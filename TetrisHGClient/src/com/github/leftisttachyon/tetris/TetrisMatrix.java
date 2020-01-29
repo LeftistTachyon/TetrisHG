@@ -1,31 +1,27 @@
 package com.github.leftisttachyon.tetris;
 
-import com.github.leftisttachyon.tetris.tetrominos.srs.SRSMinoStyle;
-import com.github.leftisttachyon.tetris.resources.tgm.TGMMinoStyle;
 import com.github.leftisttachyon.comm.ClientSocket;
-import static com.github.leftisttachyon.tetris.MinoStyle.MINO_SIZE;
-import com.github.leftisttachyon.tetris.tetrominos.AbstractTetromino;
-import static com.github.leftisttachyon.tetris.MinoStyle.*;
+import com.github.leftisttachyon.tetris.resources.tgm.TGMMinoStyle;
 import com.github.leftisttachyon.tetris.tetrominos.TetT;
 import com.github.leftisttachyon.tetris.tetrominos.Tetromino;
 import com.github.leftisttachyon.tetris.tetrominos.TetrominoFactory;
 import com.github.leftisttachyon.tetris.tetrominos.ars.ARSSpinSystem;
 import com.github.leftisttachyon.tetris.tetrominos.ars.ARSTetrominoFactory;
+import com.github.leftisttachyon.tetris.tetrominos.srs.SRSMinoStyle;
 import com.github.leftisttachyon.tetris.tetrominos.srs.SRSSpinSystem;
 import com.github.leftisttachyon.tetris.tetrominos.srs.SRSTetrominoFactory;
 import com.github.leftisttachyon.tetris.ui.DASHandler;
 import com.github.leftisttachyon.util.Paintable;
-import java.awt.AlphaComposite;
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Point;
-import java.awt.RenderingHints;
-import static java.awt.event.KeyEvent.*;
+
+import java.awt.*;
 import java.awt.geom.NoninvertibleTransformException;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.TreeSet;
 import java.util.function.Consumer;
+
+import static com.github.leftisttachyon.tetris.MinoStyle.*;
+import static java.awt.event.KeyEvent.*;
 
 /**
  * A class that represents a playing field
@@ -230,9 +226,8 @@ public class TetrisMatrix implements Paintable {
                         }
                     }
                 } catch (NumberFormatException nfe) {
-                    NumberFormatException nfe2 = new NumberFormatException(
+                    throw new NumberFormatException(
                             nfe.getMessage() + " and message \"" + line + "\"");
-                    throw nfe2;
                 }
             });
         }
@@ -315,7 +310,6 @@ public class TetrisMatrix implements Paintable {
      * @param r the row of the matrix to find
      * @param c the column of the matrix to find
      * @return the value of the wanted block/mino
-     * @see AbstractTetromino#WALL
      */
     public int getBlock(int r, int c) {
         if (r < 0 || r >= matrix.length || c < 0 || c >= matrix[r].length) {
@@ -477,11 +471,11 @@ public class TetrisMatrix implements Paintable {
         }
 
         if (onLeft && !keycodes.isEmpty()) {
-            String message = "ACTIONS";
+            StringBuilder message = new StringBuilder("ACTIONS");
             for (Integer keycode : keycodes) {
-                message += keycode + " ";
+                message.append(keycode).append(" ");
             }
-            ClientSocket.getConnection().send(message.trim());
+            ClientSocket.getConnection().send(message.toString().trim());
         }
     }
 
@@ -710,7 +704,6 @@ public class TetrisMatrix implements Paintable {
         }
         inGame = false;
 
-        currentTet = null;
         holdAvaliable = false;
 
         extraYSpeed = 0.1;
@@ -726,10 +719,9 @@ public class TetrisMatrix implements Paintable {
      * @return if this matrix is empty
      */
     private boolean isClear() {
-        outer:
         for (int[] row : matrix) {
-            for (int j = 0; j < row.length; j++) {
-                if (row[j] != 0) {
+            for (int i : row) {
+                if (i != 0) {
                     return false;
                 }
             }
@@ -842,7 +834,7 @@ public class TetrisMatrix implements Paintable {
         if (onLeft && !garbageManager.isEmpty()) {
             int total = 0;
 
-            StringBuffer message = new StringBuffer("GL");
+            StringBuilder message = new StringBuilder("GL");
 
             while (true) {
                 int newG = garbageManager.peekGarbage();
@@ -938,9 +930,7 @@ public class TetrisMatrix implements Paintable {
      * @param r the row to clear
      */
     private void clearLine(int r) {
-        for (int i = 0; i < matrix[r].length; i++) {
-            matrix[r][i] = 0;
-        }
+        Arrays.fill(matrix[r], 0);
     }
 
     /**
@@ -1197,14 +1187,12 @@ public class TetrisMatrix implements Paintable {
                         for (int i = 0, x = currentTet.getX() * MINO_SIZE;
                                 i < state.length && currentTet != null;
                                 i++, x += MINO_SIZE) {
-                            if (currentTet != null) {
-                                for (int j = 0, y = currentTet.getY() * MINO_SIZE;
-                                        j < state[i].length && currentTet != null;
-                                        j++, y += MINO_SIZE) {
-                                    if (state[j][i] > 0) {
-                                        style.drawMino(g2D, x, y, state[j][i]);
-                                        g2D.fillRect(x, y, MINO_SIZE, MINO_SIZE);
-                                    }
+                            for (int j = 0, y = currentTet.getY() * MINO_SIZE;
+                                    j < state[i].length && currentTet != null;
+                                    j++, y += MINO_SIZE) {
+                                if (state[j][i] > 0) {
+                                    style.drawMino(g2D, x, y, state[j][i]);
+                                    g2D.fillRect(x, y, MINO_SIZE, MINO_SIZE);
                                 }
                             }
                         }

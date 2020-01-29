@@ -1,8 +1,8 @@
 package com.github.leftisttachyon.util;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import javax.imageio.ImageIO;
 
 /**
  * A utility class for this Tetris program
@@ -34,7 +34,7 @@ public final class TetrisUtils {
 
     /**
      * Finds the leftmost column with a nonzero value, if any. If none exist,
-     * then -1 is returned. NOTE: may not work with jagged matrixes
+     * then -1 is returned. NOTE: may not work with jagged matrices
      *
      * @param mat the matrix of integers to look at
      * @return leftmost column with a nonzero value, if any
@@ -42,8 +42,8 @@ public final class TetrisUtils {
     public static int leftmostCol(int[][] mat) {
         int output = 0;
         for (; output < mat[0].length; output++) {
-            for (int i = 0; i < mat.length; i++) {
-                if (mat[i][output] != 0) {
+            for (int[] ints : mat) {
+                if (ints[output] != 0) {
                     return output;
                 }
             }
@@ -54,7 +54,7 @@ public final class TetrisUtils {
 
     /**
      * Finds the rightmost column with a nonzero value, if any. If none exist,
-     * then -1 is returned. NOTE: may not work with jagged matrixes
+     * then -1 is returned. NOTE: may not work with jagged matrices
      *
      * @param mat the matrix of integers to look at
      * @return rightmost column with a nonzero value, if any
@@ -62,8 +62,8 @@ public final class TetrisUtils {
     public static int rightmostCol(int[][] mat) {
         int output = mat[0].length - 1;
         for (; output >= 0; output--) {
-            for (int i = 0; i < mat.length; i++) {
-                if (mat[i][output] != 0) {
+            for (int[] ints : mat) {
+                if (ints[output] != 0) {
                     return output;
                 }
             }

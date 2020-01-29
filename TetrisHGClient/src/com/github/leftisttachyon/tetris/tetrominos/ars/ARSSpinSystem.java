@@ -34,9 +34,8 @@ public class ARSSpinSystem extends SpinSystem<ARSTet> {
 
     @Override
     public void rotateRight(ARSTet t, TetrisMatrix m) {
-        if (!(t instanceof ARSTet)) {
-            throw new IllegalArgumentException(
-                    "Tried to rotate a non-ARS piece using ARS.");
+        if (t == null) {
+            throw new IllegalArgumentException("Tried to rotate a null piece using ARS.");
         }
 
         t.rotateRight();
@@ -77,9 +76,8 @@ public class ARSSpinSystem extends SpinSystem<ARSTet> {
 
     @Override
     public void rotateLeft(ARSTet t, TetrisMatrix m) {
-        if (!(t instanceof ARSTet)) {
-            throw new IllegalArgumentException(
-                    "Tried to rotate a non-ARS piece using ARS.");
+        if (t == null) {
+            throw new IllegalArgumentException("Tried to rotate a null piece using ARS.");
         }
 
         t.rotateLeft();
