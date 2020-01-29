@@ -842,11 +842,12 @@ public class TetrisMatrix implements Paintable {
         if (onLeft && !garbageManager.isEmpty()) {
             int total = 0;
 
-            String message = "GL";
+            StringBuffer message = new StringBuffer("GL");
 
-            while (total <= 5) {
+            while (true) {
                 int newG = garbageManager.peekGarbage();
                 if (newG == 0) {
+                    garbageManager.pollGarbage();
                     break;
                 }
                 total += garbageManager.pollGarbage();
@@ -858,13 +859,20 @@ public class TetrisMatrix implements Paintable {
                     }
 
                     addGarbage(hole);
-                    message += hole + " ";
+                    message.append(hole);
+                    if (total <= 5) {
+                        message.append(' ');
+                    } else {
+                        break;
+                    }
                 }
             }
 
-            ClientSocket.getConnection().send(message.trim());
+            ClientSocket.getConnection().send(message.toString());
 
-            System.out.println("Oof! " + total + " lines of garbage!");
+            if (total != 0) {
+                System.out.println("Oof! " + total + " lines of garbage!");
+            }
         }
     }
 
@@ -1430,6 +1438,9 @@ public class TetrisMatrix implements Paintable {
      * @param lines the lines to queue up
      */
     public void queueGarbage(int lines) {
+        if (lines == 0) {
+            System.out.println("Bro you just posted cringe");
+        }
         garbageManager.offerGarbage(lines);
     }
 

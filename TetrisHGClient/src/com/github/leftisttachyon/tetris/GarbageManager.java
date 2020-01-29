@@ -125,7 +125,9 @@ public class GarbageManager implements Paintable {
                 toCounter = -countered;
             } else {
                 toCounter = 0;
-                garbageQueue.addFirst(countered);
+                if (countered != 0) {
+                    garbageQueue.addFirst(countered);
+                }
             }
         }
 
