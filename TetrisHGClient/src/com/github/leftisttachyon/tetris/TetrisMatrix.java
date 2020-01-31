@@ -212,6 +212,8 @@ public class TetrisMatrix implements Paintable {
                             enter(left, right, hold);
                         } else if (line.startsWith("GL")) {
                             String[] data = line.substring(2).split(" ");
+                            System.out.println("Garbage input: "
+                                    + Arrays.toString(data));
                             for (String s : data) {
                                 if (!s.isEmpty()) {
                                     addGarbage(Integer.parseInt(s));
@@ -1180,6 +1182,8 @@ public class TetrisMatrix implements Paintable {
                     // System.out.println("lDC: " + lockDelayCnt 
                     //         + "\tlD: " + lockDelay);
                     double shade = 1 - ((double) lockDelayCnt) / lockDelay;
+                    System.out.println("shade: " + shade + " = " + lockDelayCnt
+                            + " / " + lockDelay);
 
                     g2D.setColor(new Color(0, 0, 0, (int) (shade * 100)));
 
