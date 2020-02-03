@@ -123,16 +123,17 @@ public final class TetrisPanel extends JPanel {
 
         handler = new DASHandler();
         // handler.setListener(VK_DOWN, new Point(8, 1));
+        final Point pressOnly = new Point(-1, -1), das = new Point(8, 1);
 
-        handler.setListener(VK_Z, new Point(-1, -1));
-        handler.setListener(VK_X, new Point(-1, -1));
-        handler.setListener(VK_C, new Point(-1, -1));
-        handler.setListener(VK_SPACE, new Point(-1, -1));
-        handler.setListener(VK_UP, new Point(-1, -1));
+        handler.setListener(VK_Z, pressOnly);
+        handler.setListener(VK_X, pressOnly);
+        handler.setListener(VK_C, pressOnly);
+        handler.setListener(VK_SPACE, pressOnly);
+        handler.setListener(VK_UP, pressOnly);
 
-        handler.setListener(VK_DOWN, new Point(-1, -1));
-        handler.setListener(VK_LEFT, new Point(8, 1));
-        handler.setListener(VK_RIGHT, new Point(8, 1));
+        handler.setListener(VK_DOWN, pressOnly);
+        handler.setListener(VK_LEFT, das);
+        handler.setListener(VK_RIGHT, das);
 
         addKeyListener(handler);
 
@@ -442,6 +443,7 @@ public final class TetrisPanel extends JPanel {
                 } else {
                     int toSend = (int) (lines * getMultiplier(theirSelection));
                     // myMatrix.addGarbage(0);
+                    System.out.println("yeeted " + toSend + " to myself");
                     myMatrix.queueGarbage(toSend);
                 }
             });
@@ -454,6 +456,7 @@ public final class TetrisPanel extends JPanel {
                     theirMatrix.endGame();
                 } else {
                     int toSend = (int) (lines * getMultiplier(mySelection));
+                    System.out.println("yeeted " + toSend + " to them");
                     theirMatrix.queueGarbage(toSend);
                 }
             });
@@ -472,6 +475,7 @@ public final class TetrisPanel extends JPanel {
         for (Tetromino t : bag) {
             message.append(t.getType());
         }
+        
         ClientSocket.getConnection().send("NB" + message);
         myMatrix.addBag(message.toString());
     }

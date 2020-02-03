@@ -477,6 +477,7 @@ public class TetrisMatrix implements Paintable {
             for (Integer keycode : keycodes) {
                 message.append(keycode).append(" ");
             }
+
             ClientSocket.getConnection().send(message.toString().trim());
         }
     }
@@ -768,8 +769,7 @@ public class TetrisMatrix implements Paintable {
 
                 int through = garbageManager.counterGarbage(linesToSend);
                 if (through != 0) {
-                    System.out.println("You sent " + through
-                            + " lines of garbage!");
+                    System.out.println("You sent " + through + " lines of garbage!");
                     if (sendGarbo != null) {
                         sendGarbo.accept(through);
                     }
@@ -1182,8 +1182,8 @@ public class TetrisMatrix implements Paintable {
                     // System.out.println("lDC: " + lockDelayCnt 
                     //         + "\tlD: " + lockDelay);
                     double shade = 1 - ((double) lockDelayCnt) / lockDelay;
-                    System.out.println("shade: " + shade + " = " + lockDelayCnt
-                            + " / " + lockDelay);
+//                    System.out.println("shade: " + shade + " = " + lockDelayCnt
+//                            + " / " + lockDelay);
 
                     g2D.setColor(new Color(0, 0, 0, (int) (shade * 100)));
 
@@ -1430,10 +1430,9 @@ public class TetrisMatrix implements Paintable {
      * @param lines the lines to queue up
      */
     public void queueGarbage(int lines) {
-        if (lines == 0) {
-            System.out.println("Bro you just posted cringe");
+        if (lines != 0) {
+            garbageManager.offerGarbage(lines);
         }
-        garbageManager.offerGarbage(lines);
     }
 
     /**
