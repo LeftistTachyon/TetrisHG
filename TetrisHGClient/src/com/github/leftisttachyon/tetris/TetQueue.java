@@ -27,7 +27,7 @@ public class TetQueue<T extends Tetromino> implements Paintable {
     /**
      * The TetrominoFactory to use to create the tetrominos
      */
-    private TetrominoFactory<? extends T> tf;
+    private TetrominoFactory<T> tf;
 
     /**
      * The amount of pieces you can see in the outlook
@@ -103,7 +103,7 @@ public class TetQueue<T extends Tetromino> implements Paintable {
      */
     public void addBag() {
         if (isLeft) {
-            List<? extends T> bag = tf.createRandomBag();
+            List<T> bag = tf.createRandomBag();
             tetQueue.addAll(bag);
 
             if (ClientSocket.isConnected()) {
@@ -162,7 +162,7 @@ public class TetQueue<T extends Tetromino> implements Paintable {
      *
      * @param tf the TetrominoFactory to use for tetromino generation
      */
-    public void setTetrominoFactory(TetrominoFactory<? extends T> tf) {
+    public void setTetrominoFactory(TetrominoFactory<T> tf) {
         this.tf = tf;
     }
 
@@ -173,7 +173,7 @@ public class TetQueue<T extends Tetromino> implements Paintable {
      * @return the currently used TetrominoFactory being used for tetromino
      * generation
      */
-    public TetrominoFactory<? extends T> getTetrominoFactory() {
+    public TetrominoFactory<T> getTetrominoFactory() {
         return tf;
     }
 
