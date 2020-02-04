@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/TetrisHG.iml" filepath="$PROJECT_DIR$/.idea/TetrisHG.iml" />
+      <module fileurl="file://$PROJECT_DIR$/TetrisHGClient/TetrisHGClient.iml" filepath="$PROJECT_DIR$/TetrisHGClient/TetrisHGClient.iml" />
+      <module fileurl="file://$PROJECT_DIR$/TetrisHGServer/TetrisHGServer.iml" filepath="$PROJECT_DIR$/TetrisHGServer/TetrisHGServer.iml" />
+    </modules>
+  </component>
+</project>
