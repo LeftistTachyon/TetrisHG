@@ -839,12 +839,11 @@ public class TetrisMatrix implements Paintable {
             StringBuilder message = new StringBuilder("GL");
 
             while (true) {
-                int newG = garbageManager.peekGarbage();
+                int newG = garbageManager.pollGarbage();
                 if (newG == 0) {
-                    garbageManager.pollGarbage();
                     break;
                 }
-                total += garbageManager.pollGarbage();
+                total += newG;
 
                 int hole = (int) (Math.random() * 10);
                 for (int i = 0; i < newG; i++) {
