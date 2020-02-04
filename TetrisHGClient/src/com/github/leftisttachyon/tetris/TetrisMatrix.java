@@ -1184,6 +1184,10 @@ public class TetrisMatrix implements Paintable {
 //                    System.out.println("shade: " + shade + " = " + lockDelayCnt
 //                            + " / " + lockDelay);
 
+                    if (shade * 100 > 255) {
+                        System.out.println("shade bad");
+                        System.out.println(lockDelayCnt + " " + lockDelay);
+                    }
                     g2D.setColor(new Color(0, 0, 0, (int) (shade * 100)));
 
                     if (currentTet != null) {

@@ -87,7 +87,7 @@ public class GarbageManager implements Paintable {
      */
     public void offerGarbage(int lines) {
         if (lines != 0) {
-            System.out.println("Added " + lines + " to " + hashCode());
+//            System.out.println("Added " + lines + " to " + hashCode());
             garbageQueue.add(lines);
         }
     }
