@@ -806,7 +806,10 @@ public class TetrisMatrix implements Paintable {
                             + currentTet.getRotation());
                     lock();
                 }
-                lockDelayCnt--;
+                
+                if (lockDelay > 0) {
+                    lockDelayCnt--;
+                }
             } else {
                 lockDelayCnt = lockDelay;
             }
@@ -837,13 +840,20 @@ public class TetrisMatrix implements Paintable {
             int total = 0;
 
             StringBuilder message = new StringBuilder("GL");
+            System.out.println("Before: " + garbageManager);
 
+            outer:
             while (true) {
-                int newG = garbageManager.pollGarbage();
+                int newG = garbageManager.peekGarbage();
                 if (newG == 0) {
                     break;
                 }
+                
                 total += newG;
+                if(total >= 5) {
+                    break;
+                }
+                garbageManager.pollGarbage();
 
                 int hole = (int) (Math.random() * 10);
                 for (int i = 0; i < newG; i++) {
@@ -852,16 +862,13 @@ public class TetrisMatrix implements Paintable {
                     }
 
                     addGarbage(hole);
-                    message.append(hole);
-                    if (total <= 5) {
-                        message.append(' ');
-                    } else {
-                        break;
-                    }
+                    message.append(hole).append(' ');
                 }
             }
 
             ClientSocket.getConnection().send(message.toString());
+
+            System.out.println("After: " + garbageManager);
 
             if (total != 0) {
                 System.out.println("Oof! " + total + " lines of garbage!");
