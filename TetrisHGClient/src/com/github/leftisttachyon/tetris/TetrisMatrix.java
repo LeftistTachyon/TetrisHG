@@ -842,15 +842,13 @@ public class TetrisMatrix implements Paintable {
             StringBuilder message = new StringBuilder("GL");
             System.out.println("Before: " + garbageManager);
 
-            outer:
             while (true) {
                 int newG = garbageManager.peekGarbage();
                 if (newG == 0) {
                     break;
                 }
                 
-                total += newG;
-                if(total >= 5) {
+                if(total != 0 && (total += newG) >= 5) {
                     break;
                 }
                 garbageManager.pollGarbage();
