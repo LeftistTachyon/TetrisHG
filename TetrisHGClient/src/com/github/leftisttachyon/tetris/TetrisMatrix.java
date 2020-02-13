@@ -7,7 +7,7 @@ import com.github.leftisttachyon.tetris.tetrominos.Tetromino;
 import com.github.leftisttachyon.tetris.tetrominos.TetrominoFactory;
 import com.github.leftisttachyon.tetris.tetrominos.ars.ARSSpinSystem;
 import com.github.leftisttachyon.tetris.tetrominos.ars.ARSTetrominoFactory;
-import com.github.leftisttachyon.tetris.tetrominos.srs.SRSMinoStyle;
+import com.github.leftisttachyon.tetris.resources.srs.SRSMinoStyle;
 import com.github.leftisttachyon.tetris.tetrominos.srs.SRSSpinSystem;
 import com.github.leftisttachyon.tetris.tetrominos.srs.SRSTetrominoFactory;
 import com.github.leftisttachyon.tetris.ui.DASHandler;

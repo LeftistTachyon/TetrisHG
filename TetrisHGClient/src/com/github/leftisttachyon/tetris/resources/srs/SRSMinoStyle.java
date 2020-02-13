@@ -1,4 +1,4 @@
-package com.github.leftisttachyon.tetris.tetrominos.srs;
+package com.github.leftisttachyon.tetris.resources.srs;
 
 import com.github.leftisttachyon.tetris.ImageMinoStyle;
 
