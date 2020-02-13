@@ -42,9 +42,9 @@ public class NESMinoStyle extends ImageMinoStyle {
                 return "/com/github/leftisttachyon/tetris/resources/nes/red.png";
             case BLUE:
             case GREEN:
-                return "/com/github/leftisttachyon/tetris/resources/srs/blue.png";
+                return "/com/github/leftisttachyon/tetris/resources/nes/blue.png";
             case GREY:
-                return "/com/github/leftisttachyon/tetris/resources/srs/grey.png";
+                return "/com/github/leftisttachyon/tetris/resources/nes/grey.png";
             default:
                 return null;
         }

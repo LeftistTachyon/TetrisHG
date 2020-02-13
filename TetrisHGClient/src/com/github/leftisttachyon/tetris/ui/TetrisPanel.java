@@ -73,7 +73,7 @@ public final class TetrisPanel extends JPanel {
     /**
      * The amount of avaliable selections
      */
-    private final int selections = 2;
+    private final int selections = 3;
 
     /**
      * Your current selection
@@ -275,8 +275,7 @@ public final class TetrisPanel extends JPanel {
             int temp = mySelection;
 
             if (actions.remove(VK_DOWN)) {
-                mySelection++;
-                mySelection %= selections;
+                mySelection = (mySelection + 1) % selections;
             }
             if (actions.remove(VK_UP)) {
                 mySelection--;
@@ -374,9 +373,18 @@ public final class TetrisPanel extends JPanel {
             } else {
                 g2D.setColor(Color.WHITE);
             }
-            toDraw = "ARS/TGM (1.5-2x garbage)";
+            toDraw = "ARS/TGM (1.25x garbage)";
             g2D.drawString(toDraw, x
                     + 5 * MINO_SIZE - metrics.stringWidth(toDraw) / 2, 250);
+
+            if (selected && selection == 2) {
+                g2D.setColor(Color.RED);
+            } else {
+                g2D.setColor(Color.WHITE);
+            }
+            toDraw = "Nintendo (1.5x garbage)";
+            g2D.drawString(toDraw, x
+                    + 5 * MINO_SIZE - metrics.stringWidth(toDraw) / 2, 350);
 
             if (!selected) {
                 g2D.setColor(Color.RED);
@@ -391,6 +399,10 @@ public final class TetrisPanel extends JPanel {
                         break;
                     case 1:
                         g2D.drawRect(x + 5, 230 - height / 4,
+                                10 * MINO_SIZE - 10, 40);
+                        break;
+                    case 2:
+                        g2D.drawRect(x + 5, 330 - height / 4,
                                 10 * MINO_SIZE - 10, 40);
                         break;
                     default:
@@ -475,7 +487,7 @@ public final class TetrisPanel extends JPanel {
         for (Tetromino t : bag) {
             message.append(t.getType());
         }
-        
+
         ClientSocket.getConnection().send("NB" + message);
         myMatrix.addBag(message.toString());
     }
@@ -492,6 +504,8 @@ public final class TetrisPanel extends JPanel {
             case 0:
                 return 1;
             case 1:
+                return 1.25;
+            case 2:
                 return 1.5;
             default:
                 assert false : "Invalid selection";

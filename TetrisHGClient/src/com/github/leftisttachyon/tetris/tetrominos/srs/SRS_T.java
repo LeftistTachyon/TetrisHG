@@ -12,7 +12,7 @@ import java.awt.Point;
  * @since 0.9.0
  */
 public final class SRS_T extends AbstractTetromino implements TetT, SRSTet {
-    //purple, so use 6
+    // purple, so use 6
 
     /**
      * The UP state

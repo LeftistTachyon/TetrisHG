@@ -21,6 +21,9 @@ import java.util.TreeSet;
 import java.util.function.Consumer;
 
 import static com.github.leftisttachyon.tetris.MinoStyle.*;
+import com.github.leftisttachyon.tetris.resources.nes.NESMinoStyle;
+import com.github.leftisttachyon.tetris.tetrominos.nes.NESSpinSystem;
+import com.github.leftisttachyon.tetris.tetrominos.nes.NESTetrominoFactory;
 import static java.awt.event.KeyEvent.*;
 
 /**
@@ -806,7 +809,7 @@ public class TetrisMatrix implements Paintable {
                             + currentTet.getRotation());
                     lock();
                 }
-                
+
                 if (lockDelay > 0) {
                     lockDelayCnt--;
                 }
@@ -847,8 +850,8 @@ public class TetrisMatrix implements Paintable {
                 if (newG == 0) {
                     break;
                 }
-                
-                if(total != 0 && (total += newG) >= 5) {
+
+                if (total != 0 && (total += newG) >= 5) {
                     break;
                 }
                 garbageManager.pollGarbage();
@@ -1315,6 +1318,7 @@ public class TetrisMatrix implements Paintable {
         output.setSpinSystem(ARSSpinSystem.getSpinSystem());
         output.setTetrominoFactory(ARSTetrominoFactory.getTetrominoFactory());
         output.setMinoStyle(TGMMinoStyle.getMinoStyle());
+
         return output;
     }
 
@@ -1329,6 +1333,22 @@ public class TetrisMatrix implements Paintable {
         output.setSpinSystem(SRSSpinSystem.getSpinSystem());
         output.setTetrominoFactory(SRSTetrominoFactory.getTetrominoFactory());
         output.setMinoStyle(SRSMinoStyle.getMinoStyle());
+
+        return output;
+    }
+
+    /**
+     * Creates a new NES-style matrix
+     *
+     * @param onLeft whether this matrix should be on the left
+     * @return a new NES-style matrix
+     */
+    public static TetrisMatrix generateNESMatrix(boolean onLeft) {
+        TetrisMatrix output = new TetrisMatrix(onLeft);
+        output.setSpinSystem(SRSSpinSystem.getSpinSystem());
+        output.setTetrominoFactory(SRSTetrominoFactory.getTetrominoFactory());
+        output.setMinoStyle(NESMinoStyle.getMinoStyle());
+
         return output;
     }
 
@@ -1371,12 +1391,32 @@ public class TetrisMatrix implements Paintable {
     }
 
     /**
+     * Makes the given matrix an NES-style matrix
+     *
+     * @param matrix the matrix to convert
+     */
+    public static void setAsNintendoMatrix(TetrisMatrix matrix) {
+        if (matrix == null) {
+            return;
+        }
+
+        if (matrix.queue != null) {
+            matrix.queue.clearQueue();
+        }
+
+        matrix.setSpinSystem(NESSpinSystem.getSpinSystem());
+        matrix.setTetrominoFactory(NESTetrominoFactory.getTetrominoFactory());
+        matrix.setMinoStyle(NESMinoStyle.getMinoStyle());
+    }
+
+    /**
      * Sets the lock delay
      *
      * @param lockDelay the new lock delay
      */
     public void setLockDelay(int lockDelay) {
         this.lockDelay = lockDelay;
+        
         if (lockDelayCnt > lockDelay) {
             lockDelayCnt = lockDelay;
         }
@@ -1468,6 +1508,9 @@ public class TetrisMatrix implements Paintable {
                 break;
             case 1:
                 TetrisMatrix.setAsARSMatrix(matrix);
+                break;
+            case 2:
+                TetrisMatrix.setAsNintendoMatrix(matrix);
                 break;
             default:
                 throw new IllegalArgumentException("Invalid parameter type with value " + type);
