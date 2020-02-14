@@ -15,29 +15,29 @@ public class NES_T extends AbstractTetromino implements TetT, NESTet{
     // use 6
     private static final int[][] UP_STATE = {
         {0, 0, 0, 0},
-        {6, 6, 6, 0},
-        {0, 6, 0, 0},
+        {0, 6, 6, 6},
+        {0, 0, 6, 0},
         {0, 0, 0, 0}
     };
     
     private static final int[][] RIGHT_STATE = {
-        {0, 6, 0, 0},
-        {6, 6, 0, 0},
-        {0, 6, 0, 0},
+        {0, 0, 6, 0},
+        {0, 6, 6, 0},
+        {0, 0, 6, 0},
         {0, 0, 0, 0}
     };
     
     private static final int[][] DOWN_STATE = {
-        {0, 6, 0, 0},
-        {6, 6, 6, 0},
+        {0, 0, 6, 0},
+        {0, 6, 6, 6},
         {0, 0, 0, 0},
         {0, 0, 0, 0}
     };
     
     private static final int[][] LEFT_STATE = {
-        {0, 6, 0, 0},
-        {0, 6, 6, 0},
-        {0, 6, 0, 0},
+        {0, 0, 6, 0},
+        {0, 0, 6, 6},
+        {0, 0, 6, 0},
         {0, 0, 0, 0}
     };
 
@@ -66,7 +66,7 @@ public class NES_T extends AbstractTetromino implements TetT, NESTet{
         return "NES T";
     }
     
-    private static final Point CENTER = new Point(1, 1);
+    private static final Point CENTER = new Point(2, 1);
 
     @Override
     public Point getCenter() {
@@ -76,16 +76,16 @@ public class NES_T extends AbstractTetromino implements TetT, NESTet{
     @Override
     public int filledFaceCorners(TetrisMatrix m) {
         int output = 0;
-        if ((rotation == UP || rotation == RIGHT) && m.getBlock(x, y + 2) != 0) {
+        if ((rotation == UP || rotation == RIGHT) && m.getBlock(x + 1, y + 2) != 0) {
             output++;
         }
-        if ((rotation == DOWN || rotation == RIGHT) && m.getBlock(x, y) != 0) {
+        if ((rotation == DOWN || rotation == RIGHT) && m.getBlock(x + 1, y) != 0) {
             output++;
         }
-        if ((rotation == UP || rotation == LEFT) && m.getBlock(x + 2, y + 2) != 0) {
+        if ((rotation == UP || rotation == LEFT) && m.getBlock(x + 3, y + 2) != 0) {
             output++;
         }
-        if ((rotation == DOWN || rotation == LEFT) && m.getBlock(x + 2, y) != 0) {
+        if ((rotation == DOWN || rotation == LEFT) && m.getBlock(x + 3, y) != 0) {
             output++;
         }
         return output;

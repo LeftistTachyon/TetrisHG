@@ -13,29 +13,29 @@ public class NES_L extends AbstractTetromino implements TetL, NESTet{
     // use 3
     private static final int[][] UP_STATE = {
         {0, 0, 0, 0},
-        {3, 3, 3, 0},
-        {3, 0, 0, 0},
+        {0, 3, 3, 3},
+        {0, 3, 0, 0},
         {0, 0, 0, 0}
     };
     
     private static final int[][] RIGHT_STATE = {
-        {3, 3, 0, 0},
-        {0, 3, 0, 0},
-        {0, 3, 0, 0},
+        {0, 3, 3, 0},
+        {0, 0, 3, 0},
+        {0, 0, 3, 0},
         {0, 0, 0, 0}
     };
     
     private static final int[][] DOWN_STATE = {
-        {0, 0, 3, 0},
-        {3, 3, 3, 0},
+        {0, 0, 0, 3},
+        {0, 3, 3, 3},
         {0, 0, 0, 0},
         {0, 0, 0, 0}
     };
     
     private static final int[][] LEFT_STATE = {
-        {0, 3, 0, 0},
-        {0, 3, 0, 0},
-        {0, 3, 3, 0},
+        {0, 0, 3, 0},
+        {0, 0, 3, 0},
+        {0, 0, 3, 3},
         {0, 0, 0, 0}
     };
 

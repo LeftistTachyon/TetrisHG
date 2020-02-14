@@ -13,29 +13,29 @@ public class NES_J extends AbstractTetromino implements TetJ, NESTet{
     // use 2
     private static final int[][] UP_STATE = {
         {0, 0, 0, 0},
-        {2, 2, 2, 0},
-        {0, 0, 2, 0},
+        {0, 2, 2, 2},
+        {0, 0, 0, 2},
         {0, 0, 0, 0}
     };
     
     private static final int[][] RIGHT_STATE = {
-        {0, 2, 0, 0},
-        {0, 2, 0, 0},
-        {2, 2, 0, 0},
+        {0, 0, 2, 0},
+        {0, 0, 2, 0},
+        {0, 2, 2, 0},
         {0, 0, 0, 0}
     };
     
     private static final int[][] DOWN_STATE = {
-        {2, 0, 0, 0},
-        {2, 2, 2, 0},
+        {0, 2, 0, 0},
+        {0, 2, 2, 2},
         {0, 0, 0, 0},
         {0, 0, 0, 0}
     };
     
     private static final int[][] LEFT_STATE = {
-        {0, 2, 2, 0},
-        {0, 2, 0, 0},
-        {0, 2, 0, 0},
+        {0, 0, 2, 2},
+        {0, 0, 2, 0},
+        {0, 0, 2, 0},
         {0, 0, 0, 0}
     };
 

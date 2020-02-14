@@ -13,15 +13,15 @@ public class NES_Z extends AbstractTetromino implements TetZ, NESTet {
     // use 7
     private static final int[][] UP_DOWN = {
         {0, 0, 0, 0},
-        {7, 7, 0, 0},
         {0, 7, 7, 0},
+        {0, 0, 7, 7},
         {0, 0, 0, 0}
     };
     
     private static final int[][] LEFT_RIGHT = {
+        {0, 0, 0, 7},
+        {0, 0, 7, 7},
         {0, 0, 7, 0},
-        {0, 7, 7, 0},
-        {0, 7, 0, 0},
         {0, 0, 0, 0}
     };
 
